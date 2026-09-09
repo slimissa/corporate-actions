@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "generated_at": "2026-09-09T00:00:00Z",
+    "source": "Manual curation from SEC EDGAR and press releases",
+    "notes": "Minimal valid v1.0.0 dataset for Corporate Actions Registry. Covers SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE."
+  },
+  "actions": [
+    {
+      "isin": "US67066G1040",
+      "action_id": "US67066G1040-SPLIT-2024-06-10-0001",
+      "action_type": "SPLIT",
+      "ratio": "10:1",
+      "dates": {
+        "announcement": "2024-05-22",
+        "ex_date": "2024-06-10",
+        "record_date": "2024-06-07",
+        "effective_date": "2024-06-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "NVIDIA Corp press release",
+        "source_url": "https://nvidianews.nvidia.com/news/nvidia-announces-ten-for-one-forward-stock-split",
+        "verification_source": "SEC EDGAR 8-K"
+      },
+      "impact": {
+        "price_multiplier": 0.1,
+        "share_multiplier": 10.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-SPLIT-2020-08-31-0002",
+      "action_type": "SPLIT",
+      "ratio": "4:1",
+      "dates": {
+        "announcement": "2020-07-30",
+        "ex_date": "2020-08-31",
+        "record_date": "2020-08-24",
+        "effective_date": "2020-08-31"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Apple Inc. press release",
+        "source_url": "https://www.apple.com/newsroom/2020/07/apple-announces-four-for-one-stock-split/",
+        "verification_source": "SEC EDGAR 8-K"
+      },
+      "impact": {
+        "price_multiplier": 0.25,
+        "share_multiplier": 4.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-05-16-0003",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-05-02",
+        "ex_date": "2024-05-16",
+        "record_date": "2024-05-17",
+        "effective_date": "2024-05-23"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Apple Inc. press release",
+        "source_url": "https://www.apple.com/newsroom/2024/05/apple-reports-second-quarter-results/",
+        "verification_source": "SEC EDGAR 8-K"
+      },
+      "impact": {
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-11-17-0004",
+      "action_type": "SPECIAL_DIVIDEND",
+      "amount": 3.00,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2004-11-15",
+        "ex_date": "2004-11-17",
+        "record_date": "2004-11-19",
+        "effective_date": "2004-12-03"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Microsoft press release",
+        "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-special-dividend/",
+        "verification_source": "SEC EDGAR 8-K"
+      },
+      "impact": {
+        "cash_adjustment": 3.00
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-0005",
+      "action_type": "SYMBOL_CHANGE",
+      "dates": {
+        "announcement": "2022-06-09",
+        "effective_date": "2022-06-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Meta Platforms, Inc. press release",
+        "source_url": "https://about.fb.com/news/2022/06/facebook-is-now-meta/",
+        "verification_source": "SEC EDGAR 8-K"
+      },
+      "impact": {}
+    }
+  ]
+}
