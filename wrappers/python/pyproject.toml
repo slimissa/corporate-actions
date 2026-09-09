@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "corporate-actions-registry"
+version = "1.0.0"
+description = "Python wrapper for the Corporate Actions Registry (actions.json)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "QuantOS Project", email = "contact@quantos.org" }
+]
+keywords = ["corporate-actions", "finance", "registry", "quant", "splits", "dividends"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/slimissa/corporate-actions"
+Repository = "https://github.com/slimissa/corporate-actions"
+Issues = "https://github.com/slimissa/corporate-actions/issues"
+
+[tool.setuptools]
+package-dir = { "" = "." }
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["corporate_actions_registry*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
