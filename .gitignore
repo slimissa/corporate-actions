@@ -1,0 +1,123 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+wheels/
+*.whl
+.venv/
+venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.eggs/
+develop-eggs/
+downloads/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.manifest
+*.spec
+pip-wheel-metadata/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+
+# Node.js / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.npm/
+.eslintcache
+.stylelintcache
+.cache/
+.next/
+out/
+build/
+dist/
+
+# Go
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# Build artifacts
+/bin/
+/pkg/
+/cmd/*/main
+
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock  # Keep Cargo.lock for binaries; adjust if library
+
+# Project-specific
+# SEC EDGAR cache
+.cache_sec_edgar/
+# Local configuration / secrets
+.env
+.env.local
+.env.*.local
+*.local
+# Generated distribution files (created by tools/build.py)
+actions.dist.json
+actions.min.json
+*.dist.json
+*.min.json
+
+# IDE / Editors
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
+
+# OS / Misc
+*.bak
+*.orig
