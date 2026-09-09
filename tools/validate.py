@@ -22,6 +22,7 @@ Exit codes:
 import json
 import os
 import sys
+import re
 from typing import Dict, List, Set, Any
 
 try:
@@ -216,7 +217,7 @@ def validate_temporal(action: Dict[str, Any]) -> List[str]:
     """
     errors = []
     action_type = action["action_type"]
-    dates = action.get("dates", {})
+    dates = action.get("dates") or {}
 
     announcement = dates.get("announcement")
     ex_date = dates.get("ex_date")
@@ -274,6 +275,17 @@ def validate_temporal(action: Dict[str, Any]) -> List[str]:
 
     return errors
 
+def validate_uniqueness(actions):
+    seen = set()
+    errors = []
+    for action in actions:
+        action_id = action.get("action_id")
+        if action_id is not None:
+            if action_id in seen:
+                errors.append(f"Duplicate action_id: {action_id}")
+            else:
+                seen.add(action_id)
+    return errors
 
 def validate_arithmetic(action: Dict[str, Any]) -> List[str]:
     """
@@ -288,10 +300,11 @@ def validate_arithmetic(action: Dict[str, Any]) -> List[str]:
         if not ratio:
             errors.append(f"{action_type} requires ratio")
         else:
-            parts = ratio.split(":")
-            if len(parts) != 2:
+            # Strict format: digits colon digits, no spaces or extra chars
+            if not isinstance(ratio, str) or not re.fullmatch(r"\d+:\d+", ratio):
                 errors.append(f"Invalid ratio format: {ratio}")
             else:
+                parts = ratio.split(":")
                 try:
                     num, den = int(parts[0]), int(parts[1])
                     if num <= 0 or den <= 0:
@@ -302,6 +315,8 @@ def validate_arithmetic(action: Dict[str, Any]) -> List[str]:
         amount = action.get("amount")
         if amount is None:
             errors.append(f"{action_type} requires amount")
+        elif not isinstance(amount, (int, float)):
+            errors.append(f"{action_type} amount must be a number: {amount}")
         elif amount <= 0:
             errors.append(f"{action_type} amount must be positive: {amount}")
     return errors
@@ -421,7 +436,6 @@ def main():
     print(f"\nValidating {total_actions} actions...")
 
     all_errors = []
-    seen_action_ids = set()
 
     for idx, action in enumerate(actions, start=1):
         action_id = action.get("action_id", f"<missing action_id at index {idx}>")
@@ -430,46 +444,38 @@ def main():
         action_type = action.get("action_type")
         if action_type == "MERGER":
             all_errors.append(f"Action {action_id}: MERGER is not allowed in v1.0.0")
-        if action_type not in ALLOWED_ACTION_TYPES and action_type in VALID_ACTION_TYPES:
-            # This handles MERGER if not caught above (but above catches it)
-            pass  # the above if will catch any MERGER
 
         # 1. Schema validation
         schema_errors = validate_schema(action, action_schema)
         if schema_errors:
             all_errors.extend([f"Action {action_id}: {e}" for e in schema_errors])
-            # Continue to other checks even if schema invalid? Better to skip to avoid attribute errors.
-            # But we can still run other validators as they check their own fields.
-            # We'll continue but some validators may fail if required fields missing.
-            # For simplicity, we'll continue.
 
-        # 2. Uniqueness
-        if action_id in seen_action_ids:
-            all_errors.append(f"Duplicate action_id: {action_id}")
-        else:
-            seen_action_ids.add(action_id)
-
-        # 3. Temporal
+        # 2. Temporal validation
         temporal_errors = validate_temporal(action)
         if temporal_errors:
             all_errors.extend([f"Action {action_id}: temporal: {e}" for e in temporal_errors])
 
-        # 4. Arithmetic
+        # 3. Arithmetic validation
         arith_errors = validate_arithmetic(action)
         if arith_errors:
             all_errors.extend([f"Action {action_id}: arithmetic: {e}" for e in arith_errors])
 
-        # 5. Cross-reference
+        # 4. Cross-reference validation
         cross_errors = validate_cross_reference(action, isin_set, currency_set, mic_set)
         if cross_errors:
             all_errors.extend([f"Action {action_id}: cross-reference: {e}" for e in cross_errors])
 
-        # 6. Provenance
+        # 5. Provenance validation
         prov_errors = validate_provenance(action)
         if prov_errors:
             all_errors.extend([f"Action {action_id}: provenance: {e}" for e in prov_errors])
 
-    # 7. Coverage
+    # 6. Uniqueness validation (across all actions)
+    uniqueness_errors = validate_uniqueness(actions)
+    if uniqueness_errors:
+        all_errors.extend(uniqueness_errors)
+
+    # 7. Coverage check
     if total_actions < min_actions:
         all_errors.append(f"Coverage: only {total_actions} actions found, minimum required is {min_actions}")
 
