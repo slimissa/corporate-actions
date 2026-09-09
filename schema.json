@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Corporate Actions Registry Schema",
+  "description": "Schema for the Corporate Actions Registry (actions.json). Defines the structure of corporate actions for financial instruments.",
+  "type": "object",
+  "required": ["meta", "actions"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["version", "generated_at", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Semantic version of the registry data (e.g., 1.0.0)."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of when the registry was generated."
+        },
+        "source": {
+          "type": "string",
+          "description": "Primary data source (e.g., 'SEC EDGAR')."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes about the data generation process."
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "description": "List of corporate actions.",
+      "items": {
+        "type": "object",
+        "required": [
+          "isin",
+          "action_id",
+          "action_type",
+          "dates",
+          "status",
+          "provenance"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "description": "ISIN of the instrument affected by the corporate action."
+          },
+          "action_id": {
+            "type": "string",
+            "description": "Unique identifier for the action. Should be unique across the entire registry."
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "SPLIT",
+              "REVERSE_SPLIT",
+              "DIVIDEND",
+              "SPECIAL_DIVIDEND",
+              "SYMBOL_CHANGE",
+              "SPINOFF",
+              "DELISTING",
+              "MERGER"
+            ],
+            "description": "Type of corporate action. MERGER is a placeholder in v1.0.0 and may not be present in data."
+          },
+          "ratio": {
+            "type": "string",
+            "pattern": "^\\d+:\\d+$",
+            "description": "Split ratio (e.g., '10:1' for a 10-for-1 forward split, '1:10' for a reverse split)."
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monetary amount for dividend types (cash per share)."
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 4217 currency code for monetary amounts (dividends)."
+          },
+          "dates": {
+            "type": "object",
+            "required": ["announcement", "effective_date"],
+            "additionalProperties": false,
+            "properties": {
+              "announcement": {
+                "type": "string",
+                "format": "date",
+                "description": "Date the corporate action was announced."
+              },
+              "ex_date": {
+                "type": "string",
+                "format": "date",
+                "description": "Ex-date: the date on which the security trades without the entitlement."
+              },
+              "record_date": {
+                "type": "string",
+                "format": "date",
+                "description": "Record date: the date on which shareholders must be on record to receive the entitlement."
+              },
+              "effective_date": {
+                "type": "string",
+                "format": "date",
+                "description": "Effective date: the date the action becomes effective (e.g., split execution date, dividend payment date, delisting date)."
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["COMPLETED", "PENDING", "CANCELLED"],
+            "description": "Current status of the action."
+          },
+          "provenance": {
+            "type": "object",
+            "required": ["source_url"],
+            "additionalProperties": false,
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Name of the primary source (e.g., 'SEC EDGAR', 'Company press release')."
+              },
+              "source_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the primary source document (e.g., SEC filing, press release)."
+              },
+              "verification_source": {
+                "type": "string",
+                "description": "Name of a secondary source used to verify the action (optional)."
+              },
+              "verification_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the verification source (optional)."
+              }
+            }
+          },
+          "impact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "price_multiplier": {
+                "type": "number",
+                "description": "Multiplier to apply to historical prices before the ex-date (e.g., 0.1 for a 10:1 forward split)."
+              },
+              "share_multiplier": {
+                "type": "number",
+                "description": "Multiplier to apply to historical share counts before the ex-date (e.g., 10.0 for a 10:1 forward split)."
+              },
+              "cash_adjustment": {
+                "type": "number",
+                "description": "Cash per share to add to returns (e.g., dividend amount)."
+              }
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "action_type": { "enum": ["SPLIT", "REVERSE_SPLIT"] }
+            },
+            "required": ["ratio"]
+          },
+          {
+            "properties": {
+              "action_type": { "enum": ["DIVIDEND", "SPECIAL_DIVIDEND"] }
+            },
+            "required": ["amount", "currency"]
+          },
+          {
+            "properties": {
+              "action_type": { "enum": ["SYMBOL_CHANGE", "DELISTING", "SPINOFF", "MERGER"] }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
