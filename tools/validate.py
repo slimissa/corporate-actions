@@ -122,36 +122,32 @@ def load_identifiers_registry(path: str) -> Set[str]:
 
 def load_iso4217_registry(path: str) -> Set[str]:
     """
-    Load ISO 4217 registry and return set of currency codes.
-    This version recursively scans the JSON and extracts all strings
-    that look like 3-letter uppercase codes (e.g., USD, EUR).
+    Load ISO 4217 registry and return set of active currency codes.
+    According to the ISO 4217 registry structure:
+      {
+        "currencies": {
+          "active":   [ { "code": "USD", ... }, ... ],
+          "withdrawn": [ { "code": "DEM", ... }, ... ]
+        },
+        "non_iso": { ... }
+      }
+    We only want the active codes.
     """
+    data = load_json_file(path)
     try:
-        data = load_json_file(path)
-    except Exception as e:
-        raise RegistryLoadError(f"Failed to load ISO 4217 registry: {e}")
+        active_list = data["currencies"]["active"]
+    except (KeyError, TypeError):
+        raise RegistryLoadError("ISO 4217 registry missing 'currencies.active'")
+
+    if not isinstance(active_list, list):
+        raise RegistryLoadError("ISO 4217 'currencies.active' must be a list")
 
     currencies = set()
-
-    def extract_codes(obj):
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                # If the key itself looks like a currency code (3 uppercase letters)
-                if isinstance(k, str) and len(k) == 3 and k.isupper() and k.isalpha():
-                    currencies.add(k)
-                extract_codes(v)
-        elif isinstance(obj, list):
-            for item in obj:
-                extract_codes(item)
-        elif isinstance(obj, str):
-            # In case a list contains direct strings like "USD"
-            if len(obj) == 3 and obj.isupper() and obj.isalpha():
-                currencies.add(obj)
-
-    extract_codes(data)
-
-    if not currencies:
-        raise RegistryLoadError("No currency codes found in ISO 4217 registry")
+    for entry in active_list:
+        if isinstance(entry, dict):
+            code = entry.get("code")
+            if code:
+                currencies.add(code)
     return currencies
 
 def load_exchange_calendar_registry(path: str) -> Set[str]:
