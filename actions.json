@@ -25,7 +25,8 @@
       },
       "impact": {
         "price_multiplier": 0.1,
-        "share_multiplier": 10.0
+        "share_multiplier": 10.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -47,7 +48,8 @@
       },
       "impact": {
         "price_multiplier": 0.25,
-        "share_multiplier": 4.0
+        "share_multiplier": 4.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -69,6 +71,8 @@
         "verification_source": "SEC EDGAR 8-K"
       },
       "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
         "cash_adjustment": 0.25
       }
     },
@@ -76,7 +80,7 @@
       "isin": "US5949181045",
       "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-11-17-0004",
       "action_type": "SPECIAL_DIVIDEND",
-      "amount": 3.00,
+      "amount": 3.0,
       "currency": "USD",
       "dates": {
         "announcement": "2004-11-15",
@@ -91,7 +95,9 @@
         "verification_source": "SEC EDGAR 8-K"
       },
       "impact": {
-        "cash_adjustment": 3.00
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 3.0
       }
     },
     {
@@ -108,7 +114,11 @@
         "source_url": "https://about.fb.com/news/2022/06/facebook-is-now-meta/",
         "verification_source": "SEC EDGAR 8-K"
       },
-      "impact": {}
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.0
+      }
     }
   ]
 }
