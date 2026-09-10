@@ -2,8 +2,9 @@
   "meta": {
     "version": "1.0.0",
     "generated_at": "2026-09-09T00:00:00Z",
-    "source": "Manual curation from SEC EDGAR and press releases",
-    "notes": "Minimal valid v1.0.0 dataset for Corporate Actions Registry. Covers SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE."
+    "source": "Curated (5 actions) + Yahoo Finance (yfinance) extraction",
+    "notes": "Minimal valid v1.0.0 dataset for Corporate Actions Registry. Covers SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE.",
+    "updated_at": "2026-09-10T23:20:56.885770+00:00"
   },
   "actions": [
     {
@@ -118,6 +119,4222 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-SPLIT-2000-06-21-2-1",
+      "action_type": "SPLIT",
+      "ratio": "2:1",
+      "dates": {
+        "announcement": "2000-06-21",
+        "ex_date": "2000-06-21",
+        "record_date": null,
+        "effective_date": "2000-06-21"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.5,
+        "share_multiplier": 2.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-SPLIT-2003-02-18-2-1",
+      "action_type": "SPLIT",
+      "ratio": "2:1",
+      "dates": {
+        "announcement": "2003-02-18",
+        "ex_date": "2003-02-18",
+        "record_date": null,
+        "effective_date": "2003-02-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.5,
+        "share_multiplier": 2.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2003-02-19-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2003-02-19",
+        "ex_date": "2003-02-19",
+        "record_date": null,
+        "effective_date": "2003-02-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2003-10-15-0.1600",
+      "action_type": "DIVIDEND",
+      "amount": 0.16,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2003-10-15",
+        "ex_date": "2003-10-15",
+        "record_date": null,
+        "effective_date": "2003-10-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.16
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2004-08-23-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2004-08-23",
+        "ex_date": "2004-08-23",
+        "record_date": null,
+        "effective_date": "2004-08-23"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2004-11-15-3.0800",
+      "action_type": "DIVIDEND",
+      "amount": 3.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2004-11-15",
+        "ex_date": "2004-11-15",
+        "record_date": null,
+        "effective_date": "2004-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 3.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2005-02-15-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2005-02-15",
+        "ex_date": "2005-02-15",
+        "record_date": null,
+        "effective_date": "2005-02-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-SPLIT-2005-02-28-2-1",
+      "action_type": "SPLIT",
+      "ratio": "2:1",
+      "dates": {
+        "announcement": "2005-02-28",
+        "ex_date": "2005-02-28",
+        "record_date": null,
+        "effective_date": "2005-02-28"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.5,
+        "share_multiplier": 2.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2005-05-16-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2005-05-16",
+        "ex_date": "2005-05-16",
+        "record_date": null,
+        "effective_date": "2005-05-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2005-08-15-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2005-08-15",
+        "ex_date": "2005-08-15",
+        "record_date": null,
+        "effective_date": "2005-08-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2005-11-15-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2005-11-15",
+        "ex_date": "2005-11-15",
+        "record_date": null,
+        "effective_date": "2005-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2006-02-15-0.0900",
+      "action_type": "DIVIDEND",
+      "amount": 0.09,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2006-02-15",
+        "ex_date": "2006-02-15",
+        "record_date": null,
+        "effective_date": "2006-02-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.09
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2006-05-15-0.0900",
+      "action_type": "DIVIDEND",
+      "amount": 0.09,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2006-05-15",
+        "ex_date": "2006-05-15",
+        "record_date": null,
+        "effective_date": "2006-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.09
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2006-08-15-0.0900",
+      "action_type": "DIVIDEND",
+      "amount": 0.09,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2006-08-15",
+        "ex_date": "2006-08-15",
+        "record_date": null,
+        "effective_date": "2006-08-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.09
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2006-11-14-0.1000",
+      "action_type": "DIVIDEND",
+      "amount": 0.1,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2006-11-14",
+        "ex_date": "2006-11-14",
+        "record_date": null,
+        "effective_date": "2006-11-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2007-02-13-0.1000",
+      "action_type": "DIVIDEND",
+      "amount": 0.1,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2007-02-13",
+        "ex_date": "2007-02-13",
+        "record_date": null,
+        "effective_date": "2007-02-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2007-05-15-0.1000",
+      "action_type": "DIVIDEND",
+      "amount": 0.1,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2007-05-15",
+        "ex_date": "2007-05-15",
+        "record_date": null,
+        "effective_date": "2007-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2007-08-14-0.1000",
+      "action_type": "DIVIDEND",
+      "amount": 0.1,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2007-08-14",
+        "ex_date": "2007-08-14",
+        "record_date": null,
+        "effective_date": "2007-08-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2007-11-13-0.1100",
+      "action_type": "DIVIDEND",
+      "amount": 0.11,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2007-11-13",
+        "ex_date": "2007-11-13",
+        "record_date": null,
+        "effective_date": "2007-11-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.11
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2008-02-19-0.1100",
+      "action_type": "DIVIDEND",
+      "amount": 0.11,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2008-02-19",
+        "ex_date": "2008-02-19",
+        "record_date": null,
+        "effective_date": "2008-02-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.11
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2008-05-13-0.1100",
+      "action_type": "DIVIDEND",
+      "amount": 0.11,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2008-05-13",
+        "ex_date": "2008-05-13",
+        "record_date": null,
+        "effective_date": "2008-05-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.11
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2008-08-19-0.1100",
+      "action_type": "DIVIDEND",
+      "amount": 0.11,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2008-08-19",
+        "ex_date": "2008-08-19",
+        "record_date": null,
+        "effective_date": "2008-08-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.11
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2008-11-18-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2008-11-18",
+        "ex_date": "2008-11-18",
+        "record_date": null,
+        "effective_date": "2008-11-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2009-02-17-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2009-02-17",
+        "ex_date": "2009-02-17",
+        "record_date": null,
+        "effective_date": "2009-02-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2009-05-19-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2009-05-19",
+        "ex_date": "2009-05-19",
+        "record_date": null,
+        "effective_date": "2009-05-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2009-08-18-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2009-08-18",
+        "ex_date": "2009-08-18",
+        "record_date": null,
+        "effective_date": "2009-08-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2009-11-17-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2009-11-17",
+        "ex_date": "2009-11-17",
+        "record_date": null,
+        "effective_date": "2009-11-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2010-02-16-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2010-02-16",
+        "ex_date": "2010-02-16",
+        "record_date": null,
+        "effective_date": "2010-02-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2010-05-18-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2010-05-18",
+        "ex_date": "2010-05-18",
+        "record_date": null,
+        "effective_date": "2010-05-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2010-08-17-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2010-08-17",
+        "ex_date": "2010-08-17",
+        "record_date": null,
+        "effective_date": "2010-08-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2010-11-16-0.1600",
+      "action_type": "DIVIDEND",
+      "amount": 0.16,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2010-11-16",
+        "ex_date": "2010-11-16",
+        "record_date": null,
+        "effective_date": "2010-11-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.16
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2011-02-15-0.1600",
+      "action_type": "DIVIDEND",
+      "amount": 0.16,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2011-02-15",
+        "ex_date": "2011-02-15",
+        "record_date": null,
+        "effective_date": "2011-02-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.16
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2011-05-17-0.1600",
+      "action_type": "DIVIDEND",
+      "amount": 0.16,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2011-05-17",
+        "ex_date": "2011-05-17",
+        "record_date": null,
+        "effective_date": "2011-05-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.16
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2011-08-16-0.1600",
+      "action_type": "DIVIDEND",
+      "amount": 0.16,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2011-08-16",
+        "ex_date": "2011-08-16",
+        "record_date": null,
+        "effective_date": "2011-08-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.16
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2011-11-15-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2011-11-15",
+        "ex_date": "2011-11-15",
+        "record_date": null,
+        "effective_date": "2011-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2012-02-14-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-02-14",
+        "ex_date": "2012-02-14",
+        "record_date": null,
+        "effective_date": "2012-02-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2012-05-15-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-05-15",
+        "ex_date": "2012-05-15",
+        "record_date": null,
+        "effective_date": "2012-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2012-08-09-0.0946",
+      "action_type": "DIVIDEND",
+      "amount": 0.094643,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-08-09",
+        "ex_date": "2012-08-09",
+        "record_date": null,
+        "effective_date": "2012-08-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.094643
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2012-08-14-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-08-14",
+        "ex_date": "2012-08-14",
+        "record_date": null,
+        "effective_date": "2012-08-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2012-11-07-0.0946",
+      "action_type": "DIVIDEND",
+      "amount": 0.094643,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-11-07",
+        "ex_date": "2012-11-07",
+        "record_date": null,
+        "effective_date": "2012-11-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.094643
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2012-11-13-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2012-11-13",
+        "ex_date": "2012-11-13",
+        "record_date": null,
+        "effective_date": "2012-11-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2013-02-07-0.0946",
+      "action_type": "DIVIDEND",
+      "amount": 0.094643,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-02-07",
+        "ex_date": "2013-02-07",
+        "record_date": null,
+        "effective_date": "2013-02-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.094643
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2013-02-19-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-02-19",
+        "ex_date": "2013-02-19",
+        "record_date": null,
+        "effective_date": "2013-02-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2013-05-09-0.1089",
+      "action_type": "DIVIDEND",
+      "amount": 0.108929,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-05-09",
+        "ex_date": "2013-05-09",
+        "record_date": null,
+        "effective_date": "2013-05-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.108929
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2013-05-14-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-05-14",
+        "ex_date": "2013-05-14",
+        "record_date": null,
+        "effective_date": "2013-05-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2013-08-08-0.1089",
+      "action_type": "DIVIDEND",
+      "amount": 0.108929,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-08-08",
+        "ex_date": "2013-08-08",
+        "record_date": null,
+        "effective_date": "2013-08-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.108929
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2013-08-13-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-08-13",
+        "ex_date": "2013-08-13",
+        "record_date": null,
+        "effective_date": "2013-08-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2013-11-06-0.1089",
+      "action_type": "DIVIDEND",
+      "amount": 0.108929,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-11-06",
+        "ex_date": "2013-11-06",
+        "record_date": null,
+        "effective_date": "2013-11-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.108929
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2013-11-19-0.2800",
+      "action_type": "DIVIDEND",
+      "amount": 0.28,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2013-11-19",
+        "ex_date": "2013-11-19",
+        "record_date": null,
+        "effective_date": "2013-11-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.28
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2014-02-06-0.1089",
+      "action_type": "DIVIDEND",
+      "amount": 0.108929,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-02-06",
+        "ex_date": "2014-02-06",
+        "record_date": null,
+        "effective_date": "2014-02-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.108929
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2014-02-18-0.2800",
+      "action_type": "DIVIDEND",
+      "amount": 0.28,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-02-18",
+        "ex_date": "2014-02-18",
+        "record_date": null,
+        "effective_date": "2014-02-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.28
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-SPLIT-2014-04-03-2-1",
+      "action_type": "SPLIT",
+      "ratio": "2:1",
+      "dates": {
+        "announcement": "2014-04-03",
+        "ex_date": "2014-04-03",
+        "record_date": null,
+        "effective_date": "2014-04-03"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.5,
+        "share_multiplier": 2.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2014-05-08-0.1175",
+      "action_type": "DIVIDEND",
+      "amount": 0.1175,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-05-08",
+        "ex_date": "2014-05-08",
+        "record_date": null,
+        "effective_date": "2014-05-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1175
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2014-05-13-0.2800",
+      "action_type": "DIVIDEND",
+      "amount": 0.28,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-05-13",
+        "ex_date": "2014-05-13",
+        "record_date": null,
+        "effective_date": "2014-05-13"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.28
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-SPLIT-2014-06-09-7-1",
+      "action_type": "SPLIT",
+      "ratio": "7:1",
+      "dates": {
+        "announcement": "2014-06-09",
+        "ex_date": "2014-06-09",
+        "record_date": null,
+        "effective_date": "2014-06-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.14285714285714285,
+        "share_multiplier": 7.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2014-08-07-0.1175",
+      "action_type": "DIVIDEND",
+      "amount": 0.1175,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-08-07",
+        "ex_date": "2014-08-07",
+        "record_date": null,
+        "effective_date": "2014-08-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1175
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2014-08-19-0.2800",
+      "action_type": "DIVIDEND",
+      "amount": 0.28,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-08-19",
+        "ex_date": "2014-08-19",
+        "record_date": null,
+        "effective_date": "2014-08-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.28
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2014-11-06-0.1175",
+      "action_type": "DIVIDEND",
+      "amount": 0.1175,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-11-06",
+        "ex_date": "2014-11-06",
+        "record_date": null,
+        "effective_date": "2014-11-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1175
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2014-11-18-0.3100",
+      "action_type": "DIVIDEND",
+      "amount": 0.31,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2014-11-18",
+        "ex_date": "2014-11-18",
+        "record_date": null,
+        "effective_date": "2014-11-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.31
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2015-02-05-0.1175",
+      "action_type": "DIVIDEND",
+      "amount": 0.1175,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-02-05",
+        "ex_date": "2015-02-05",
+        "record_date": null,
+        "effective_date": "2015-02-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1175
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2015-02-17-0.3100",
+      "action_type": "DIVIDEND",
+      "amount": 0.31,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-02-17",
+        "ex_date": "2015-02-17",
+        "record_date": null,
+        "effective_date": "2015-02-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.31
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2015-05-07-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-05-07",
+        "ex_date": "2015-05-07",
+        "record_date": null,
+        "effective_date": "2015-05-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2015-05-19-0.3100",
+      "action_type": "DIVIDEND",
+      "amount": 0.31,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-05-19",
+        "ex_date": "2015-05-19",
+        "record_date": null,
+        "effective_date": "2015-05-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.31
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2015-08-06-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-08-06",
+        "ex_date": "2015-08-06",
+        "record_date": null,
+        "effective_date": "2015-08-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2015-08-18-0.3100",
+      "action_type": "DIVIDEND",
+      "amount": 0.31,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-08-18",
+        "ex_date": "2015-08-18",
+        "record_date": null,
+        "effective_date": "2015-08-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.31
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2015-11-05-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-11-05",
+        "ex_date": "2015-11-05",
+        "record_date": null,
+        "effective_date": "2015-11-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2015-11-17-0.3600",
+      "action_type": "DIVIDEND",
+      "amount": 0.36,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2015-11-17",
+        "ex_date": "2015-11-17",
+        "record_date": null,
+        "effective_date": "2015-11-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.36
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2016-02-04-0.1300",
+      "action_type": "DIVIDEND",
+      "amount": 0.13,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-02-04",
+        "ex_date": "2016-02-04",
+        "record_date": null,
+        "effective_date": "2016-02-04"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.13
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2016-02-16-0.3600",
+      "action_type": "DIVIDEND",
+      "amount": 0.36,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-02-16",
+        "ex_date": "2016-02-16",
+        "record_date": null,
+        "effective_date": "2016-02-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.36
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2016-05-05-0.1425",
+      "action_type": "DIVIDEND",
+      "amount": 0.1425,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-05-05",
+        "ex_date": "2016-05-05",
+        "record_date": null,
+        "effective_date": "2016-05-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1425
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2016-05-17-0.3600",
+      "action_type": "DIVIDEND",
+      "amount": 0.36,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-05-17",
+        "ex_date": "2016-05-17",
+        "record_date": null,
+        "effective_date": "2016-05-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.36
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2016-08-04-0.1425",
+      "action_type": "DIVIDEND",
+      "amount": 0.1425,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-08-04",
+        "ex_date": "2016-08-04",
+        "record_date": null,
+        "effective_date": "2016-08-04"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1425
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2016-08-16-0.3600",
+      "action_type": "DIVIDEND",
+      "amount": 0.36,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-08-16",
+        "ex_date": "2016-08-16",
+        "record_date": null,
+        "effective_date": "2016-08-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.36
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2016-11-03-0.1425",
+      "action_type": "DIVIDEND",
+      "amount": 0.1425,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-11-03",
+        "ex_date": "2016-11-03",
+        "record_date": null,
+        "effective_date": "2016-11-03"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1425
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2016-11-15-0.3900",
+      "action_type": "DIVIDEND",
+      "amount": 0.39,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2016-11-15",
+        "ex_date": "2016-11-15",
+        "record_date": null,
+        "effective_date": "2016-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.39
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2017-02-09-0.1425",
+      "action_type": "DIVIDEND",
+      "amount": 0.1425,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-02-09",
+        "ex_date": "2017-02-09",
+        "record_date": null,
+        "effective_date": "2017-02-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1425
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2017-02-14-0.3900",
+      "action_type": "DIVIDEND",
+      "amount": 0.39,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-02-14",
+        "ex_date": "2017-02-14",
+        "record_date": null,
+        "effective_date": "2017-02-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.39
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2017-05-11-0.1575",
+      "action_type": "DIVIDEND",
+      "amount": 0.1575,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-05-11",
+        "ex_date": "2017-05-11",
+        "record_date": null,
+        "effective_date": "2017-05-11"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1575
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2017-05-16-0.3900",
+      "action_type": "DIVIDEND",
+      "amount": 0.39,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-05-16",
+        "ex_date": "2017-05-16",
+        "record_date": null,
+        "effective_date": "2017-05-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.39
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2017-08-10-0.1575",
+      "action_type": "DIVIDEND",
+      "amount": 0.1575,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-08-10",
+        "ex_date": "2017-08-10",
+        "record_date": null,
+        "effective_date": "2017-08-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1575
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2017-08-15-0.3900",
+      "action_type": "DIVIDEND",
+      "amount": 0.39,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-08-15",
+        "ex_date": "2017-08-15",
+        "record_date": null,
+        "effective_date": "2017-08-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.39
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2017-11-10-0.1575",
+      "action_type": "DIVIDEND",
+      "amount": 0.1575,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-11-10",
+        "ex_date": "2017-11-10",
+        "record_date": null,
+        "effective_date": "2017-11-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1575
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2017-11-15-0.4200",
+      "action_type": "DIVIDEND",
+      "amount": 0.42,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2017-11-15",
+        "ex_date": "2017-11-15",
+        "record_date": null,
+        "effective_date": "2017-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.42
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2018-02-09-0.1575",
+      "action_type": "DIVIDEND",
+      "amount": 0.1575,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-02-09",
+        "ex_date": "2018-02-09",
+        "record_date": null,
+        "effective_date": "2018-02-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1575
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2018-02-14-0.4200",
+      "action_type": "DIVIDEND",
+      "amount": 0.42,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-02-14",
+        "ex_date": "2018-02-14",
+        "record_date": null,
+        "effective_date": "2018-02-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.42
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2018-05-11-0.1825",
+      "action_type": "DIVIDEND",
+      "amount": 0.1825,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-05-11",
+        "ex_date": "2018-05-11",
+        "record_date": null,
+        "effective_date": "2018-05-11"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1825
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2018-05-16-0.4200",
+      "action_type": "DIVIDEND",
+      "amount": 0.42,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-05-16",
+        "ex_date": "2018-05-16",
+        "record_date": null,
+        "effective_date": "2018-05-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.42
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2018-08-10-0.1825",
+      "action_type": "DIVIDEND",
+      "amount": 0.1825,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-08-10",
+        "ex_date": "2018-08-10",
+        "record_date": null,
+        "effective_date": "2018-08-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1825
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2018-08-15-0.4200",
+      "action_type": "DIVIDEND",
+      "amount": 0.42,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-08-15",
+        "ex_date": "2018-08-15",
+        "record_date": null,
+        "effective_date": "2018-08-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.42
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2018-11-08-0.1825",
+      "action_type": "DIVIDEND",
+      "amount": 0.1825,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-11-08",
+        "ex_date": "2018-11-08",
+        "record_date": null,
+        "effective_date": "2018-11-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1825
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2018-11-14-0.4600",
+      "action_type": "DIVIDEND",
+      "amount": 0.46,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2018-11-14",
+        "ex_date": "2018-11-14",
+        "record_date": null,
+        "effective_date": "2018-11-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.46
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2019-02-08-0.1825",
+      "action_type": "DIVIDEND",
+      "amount": 0.1825,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-02-08",
+        "ex_date": "2019-02-08",
+        "record_date": null,
+        "effective_date": "2019-02-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1825
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2019-02-20-0.4600",
+      "action_type": "DIVIDEND",
+      "amount": 0.46,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-02-20",
+        "ex_date": "2019-02-20",
+        "record_date": null,
+        "effective_date": "2019-02-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.46
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2019-05-10-0.1925",
+      "action_type": "DIVIDEND",
+      "amount": 0.1925,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-05-10",
+        "ex_date": "2019-05-10",
+        "record_date": null,
+        "effective_date": "2019-05-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1925
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2019-05-15-0.4600",
+      "action_type": "DIVIDEND",
+      "amount": 0.46,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-05-15",
+        "ex_date": "2019-05-15",
+        "record_date": null,
+        "effective_date": "2019-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.46
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2019-08-09-0.1925",
+      "action_type": "DIVIDEND",
+      "amount": 0.1925,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-08-09",
+        "ex_date": "2019-08-09",
+        "record_date": null,
+        "effective_date": "2019-08-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1925
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2019-08-14-0.4600",
+      "action_type": "DIVIDEND",
+      "amount": 0.46,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-08-14",
+        "ex_date": "2019-08-14",
+        "record_date": null,
+        "effective_date": "2019-08-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.46
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2019-11-07-0.1925",
+      "action_type": "DIVIDEND",
+      "amount": 0.1925,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-11-07",
+        "ex_date": "2019-11-07",
+        "record_date": null,
+        "effective_date": "2019-11-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1925
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2019-11-20-0.5100",
+      "action_type": "DIVIDEND",
+      "amount": 0.51,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2019-11-20",
+        "ex_date": "2019-11-20",
+        "record_date": null,
+        "effective_date": "2019-11-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.51
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2020-02-07-0.1925",
+      "action_type": "DIVIDEND",
+      "amount": 0.1925,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-02-07",
+        "ex_date": "2020-02-07",
+        "record_date": null,
+        "effective_date": "2020-02-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.1925
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2020-02-19-0.5100",
+      "action_type": "DIVIDEND",
+      "amount": 0.51,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-02-19",
+        "ex_date": "2020-02-19",
+        "record_date": null,
+        "effective_date": "2020-02-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.51
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2020-05-08-0.2050",
+      "action_type": "DIVIDEND",
+      "amount": 0.205,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-05-08",
+        "ex_date": "2020-05-08",
+        "record_date": null,
+        "effective_date": "2020-05-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.205
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2020-05-20-0.5100",
+      "action_type": "DIVIDEND",
+      "amount": 0.51,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-05-20",
+        "ex_date": "2020-05-20",
+        "record_date": null,
+        "effective_date": "2020-05-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.51
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2020-08-07-0.2050",
+      "action_type": "DIVIDEND",
+      "amount": 0.205,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-08-07",
+        "ex_date": "2020-08-07",
+        "record_date": null,
+        "effective_date": "2020-08-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.205
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2020-08-19-0.5100",
+      "action_type": "DIVIDEND",
+      "amount": 0.51,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-08-19",
+        "ex_date": "2020-08-19",
+        "record_date": null,
+        "effective_date": "2020-08-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.51
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-SPLIT-2020-08-31-4-1",
+      "action_type": "SPLIT",
+      "ratio": "4:1",
+      "dates": {
+        "announcement": "2020-08-31",
+        "ex_date": "2020-08-31",
+        "record_date": null,
+        "effective_date": "2020-08-31"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.25,
+        "share_multiplier": 4.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2020-11-06-0.2050",
+      "action_type": "DIVIDEND",
+      "amount": 0.205,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-11-06",
+        "ex_date": "2020-11-06",
+        "record_date": null,
+        "effective_date": "2020-11-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.205
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2020-11-18-0.5600",
+      "action_type": "DIVIDEND",
+      "amount": 0.56,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2020-11-18",
+        "ex_date": "2020-11-18",
+        "record_date": null,
+        "effective_date": "2020-11-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.56
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2021-02-05-0.2050",
+      "action_type": "DIVIDEND",
+      "amount": 0.205,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-02-05",
+        "ex_date": "2021-02-05",
+        "record_date": null,
+        "effective_date": "2021-02-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.205
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2021-02-17-0.5600",
+      "action_type": "DIVIDEND",
+      "amount": 0.56,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-02-17",
+        "ex_date": "2021-02-17",
+        "record_date": null,
+        "effective_date": "2021-02-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.56
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2021-05-07-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-05-07",
+        "ex_date": "2021-05-07",
+        "record_date": null,
+        "effective_date": "2021-05-07"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2021-05-19-0.5600",
+      "action_type": "DIVIDEND",
+      "amount": 0.56,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-05-19",
+        "ex_date": "2021-05-19",
+        "record_date": null,
+        "effective_date": "2021-05-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.56
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2021-08-06-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-08-06",
+        "ex_date": "2021-08-06",
+        "record_date": null,
+        "effective_date": "2021-08-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2021-08-18-0.5600",
+      "action_type": "DIVIDEND",
+      "amount": 0.56,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-08-18",
+        "ex_date": "2021-08-18",
+        "record_date": null,
+        "effective_date": "2021-08-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.56
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2021-11-05-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-11-05",
+        "ex_date": "2021-11-05",
+        "record_date": null,
+        "effective_date": "2021-11-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2021-11-17-0.6200",
+      "action_type": "DIVIDEND",
+      "amount": 0.62,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2021-11-17",
+        "ex_date": "2021-11-17",
+        "record_date": null,
+        "effective_date": "2021-11-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.62
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2022-02-04-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-02-04",
+        "ex_date": "2022-02-04",
+        "record_date": null,
+        "effective_date": "2022-02-04"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2022-02-16-0.6200",
+      "action_type": "DIVIDEND",
+      "amount": 0.62,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-02-16",
+        "ex_date": "2022-02-16",
+        "record_date": null,
+        "effective_date": "2022-02-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.62
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2022-05-06-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-05-06",
+        "ex_date": "2022-05-06",
+        "record_date": null,
+        "effective_date": "2022-05-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2022-05-18-0.6200",
+      "action_type": "DIVIDEND",
+      "amount": 0.62,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-05-18",
+        "ex_date": "2022-05-18",
+        "record_date": null,
+        "effective_date": "2022-05-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.62
+      }
+    },
+    {
+      "isin": "US0231351067",
+      "action_id": "US0231351067-SPLIT-2022-06-06-20-1",
+      "action_type": "SPLIT",
+      "ratio": "20:1",
+      "dates": {
+        "announcement": "2022-06-06",
+        "ex_date": "2022-06-06",
+        "record_date": null,
+        "effective_date": "2022-06-06"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AMZN/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.05,
+        "share_multiplier": 20.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-SPLIT-2022-07-18-20-1",
+      "action_type": "SPLIT",
+      "ratio": "20:1",
+      "dates": {
+        "announcement": "2022-07-18",
+        "ex_date": "2022-07-18",
+        "record_date": null,
+        "effective_date": "2022-07-18"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 0.05,
+        "share_multiplier": 20.0,
+        "cash_adjustment": 0.0
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2022-08-05-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-08-05",
+        "ex_date": "2022-08-05",
+        "record_date": null,
+        "effective_date": "2022-08-05"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2022-08-17-0.6200",
+      "action_type": "DIVIDEND",
+      "amount": 0.62,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-08-17",
+        "ex_date": "2022-08-17",
+        "record_date": null,
+        "effective_date": "2022-08-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.62
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2022-11-04-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-11-04",
+        "ex_date": "2022-11-04",
+        "record_date": null,
+        "effective_date": "2022-11-04"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2022-11-16-0.6800",
+      "action_type": "DIVIDEND",
+      "amount": 0.68,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2022-11-16",
+        "ex_date": "2022-11-16",
+        "record_date": null,
+        "effective_date": "2022-11-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.68
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2023-02-10-0.2300",
+      "action_type": "DIVIDEND",
+      "amount": 0.23,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-02-10",
+        "ex_date": "2023-02-10",
+        "record_date": null,
+        "effective_date": "2023-02-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.23
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2023-02-15-0.6800",
+      "action_type": "DIVIDEND",
+      "amount": 0.68,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-02-15",
+        "ex_date": "2023-02-15",
+        "record_date": null,
+        "effective_date": "2023-02-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.68
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2023-05-12-0.2400",
+      "action_type": "DIVIDEND",
+      "amount": 0.24,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-05-12",
+        "ex_date": "2023-05-12",
+        "record_date": null,
+        "effective_date": "2023-05-12"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.24
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2023-05-17-0.6800",
+      "action_type": "DIVIDEND",
+      "amount": 0.68,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-05-17",
+        "ex_date": "2023-05-17",
+        "record_date": null,
+        "effective_date": "2023-05-17"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.68
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2023-08-11-0.2400",
+      "action_type": "DIVIDEND",
+      "amount": 0.24,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-08-11",
+        "ex_date": "2023-08-11",
+        "record_date": null,
+        "effective_date": "2023-08-11"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.24
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2023-08-16-0.6800",
+      "action_type": "DIVIDEND",
+      "amount": 0.68,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-08-16",
+        "ex_date": "2023-08-16",
+        "record_date": null,
+        "effective_date": "2023-08-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.68
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2023-11-10-0.2400",
+      "action_type": "DIVIDEND",
+      "amount": 0.24,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-11-10",
+        "ex_date": "2023-11-10",
+        "record_date": null,
+        "effective_date": "2023-11-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.24
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2023-11-15-0.7500",
+      "action_type": "DIVIDEND",
+      "amount": 0.75,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2023-11-15",
+        "ex_date": "2023-11-15",
+        "record_date": null,
+        "effective_date": "2023-11-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.75
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-02-09-0.2400",
+      "action_type": "DIVIDEND",
+      "amount": 0.24,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-02-09",
+        "ex_date": "2024-02-09",
+        "record_date": null,
+        "effective_date": "2024-02-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.24
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2024-02-14-0.7500",
+      "action_type": "DIVIDEND",
+      "amount": 0.75,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-02-14",
+        "ex_date": "2024-02-14",
+        "record_date": null,
+        "effective_date": "2024-02-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.75
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2024-02-21-0.5000",
+      "action_type": "DIVIDEND",
+      "amount": 0.5,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-02-21",
+        "ex_date": "2024-02-21",
+        "record_date": null,
+        "effective_date": "2024-02-21"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.5
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-05-10-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-05-10",
+        "ex_date": "2024-05-10",
+        "record_date": null,
+        "effective_date": "2024-05-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2024-05-15-0.7500",
+      "action_type": "DIVIDEND",
+      "amount": 0.75,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-05-15",
+        "ex_date": "2024-05-15",
+        "record_date": null,
+        "effective_date": "2024-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.75
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2024-06-10-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-06-10",
+        "ex_date": "2024-06-10",
+        "record_date": null,
+        "effective_date": "2024-06-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2024-06-14-0.5000",
+      "action_type": "DIVIDEND",
+      "amount": 0.5,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-06-14",
+        "ex_date": "2024-06-14",
+        "record_date": null,
+        "effective_date": "2024-06-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.5
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-08-12-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-08-12",
+        "ex_date": "2024-08-12",
+        "record_date": null,
+        "effective_date": "2024-08-12"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2024-08-15-0.7500",
+      "action_type": "DIVIDEND",
+      "amount": 0.75,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-08-15",
+        "ex_date": "2024-08-15",
+        "record_date": null,
+        "effective_date": "2024-08-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.75
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2024-09-09-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-09-09",
+        "ex_date": "2024-09-09",
+        "record_date": null,
+        "effective_date": "2024-09-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2024-09-16-0.5000",
+      "action_type": "DIVIDEND",
+      "amount": 0.5,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-09-16",
+        "ex_date": "2024-09-16",
+        "record_date": null,
+        "effective_date": "2024-09-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.5
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-11-08-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-11-08",
+        "ex_date": "2024-11-08",
+        "record_date": null,
+        "effective_date": "2024-11-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2024-11-21-0.8300",
+      "action_type": "DIVIDEND",
+      "amount": 0.83,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-11-21",
+        "ex_date": "2024-11-21",
+        "record_date": null,
+        "effective_date": "2024-11-21"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.83
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2024-12-09-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-12-09",
+        "ex_date": "2024-12-09",
+        "record_date": null,
+        "effective_date": "2024-12-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2024-12-16-0.5000",
+      "action_type": "DIVIDEND",
+      "amount": 0.5,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-12-16",
+        "ex_date": "2024-12-16",
+        "record_date": null,
+        "effective_date": "2024-12-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.5
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2025-02-10-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-02-10",
+        "ex_date": "2025-02-10",
+        "record_date": null,
+        "effective_date": "2025-02-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2025-02-20-0.8300",
+      "action_type": "DIVIDEND",
+      "amount": 0.83,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-02-20",
+        "ex_date": "2025-02-20",
+        "record_date": null,
+        "effective_date": "2025-02-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.83
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2025-03-10-0.2000",
+      "action_type": "DIVIDEND",
+      "amount": 0.2,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-03-10",
+        "ex_date": "2025-03-10",
+        "record_date": null,
+        "effective_date": "2025-03-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.2
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2025-03-14-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-03-14",
+        "ex_date": "2025-03-14",
+        "record_date": null,
+        "effective_date": "2025-03-14"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2025-05-12-0.2600",
+      "action_type": "DIVIDEND",
+      "amount": 0.26,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-05-12",
+        "ex_date": "2025-05-12",
+        "record_date": null,
+        "effective_date": "2025-05-12"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.26
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2025-05-15-0.8300",
+      "action_type": "DIVIDEND",
+      "amount": 0.83,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-05-15",
+        "ex_date": "2025-05-15",
+        "record_date": null,
+        "effective_date": "2025-05-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.83
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2025-06-09-0.2100",
+      "action_type": "DIVIDEND",
+      "amount": 0.21,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-06-09",
+        "ex_date": "2025-06-09",
+        "record_date": null,
+        "effective_date": "2025-06-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.21
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2025-06-16-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-06-16",
+        "ex_date": "2025-06-16",
+        "record_date": null,
+        "effective_date": "2025-06-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2025-08-11-0.2600",
+      "action_type": "DIVIDEND",
+      "amount": 0.26,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-08-11",
+        "ex_date": "2025-08-11",
+        "record_date": null,
+        "effective_date": "2025-08-11"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.26
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2025-08-21-0.8300",
+      "action_type": "DIVIDEND",
+      "amount": 0.83,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-08-21",
+        "ex_date": "2025-08-21",
+        "record_date": null,
+        "effective_date": "2025-08-21"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.83
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2025-09-08-0.2100",
+      "action_type": "DIVIDEND",
+      "amount": 0.21,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-09-08",
+        "ex_date": "2025-09-08",
+        "record_date": null,
+        "effective_date": "2025-09-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.21
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2025-09-22-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-09-22",
+        "ex_date": "2025-09-22",
+        "record_date": null,
+        "effective_date": "2025-09-22"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2025-11-10-0.2600",
+      "action_type": "DIVIDEND",
+      "amount": 0.26,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-11-10",
+        "ex_date": "2025-11-10",
+        "record_date": null,
+        "effective_date": "2025-11-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.26
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2025-11-20-0.9100",
+      "action_type": "DIVIDEND",
+      "amount": 0.91,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-11-20",
+        "ex_date": "2025-11-20",
+        "record_date": null,
+        "effective_date": "2025-11-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.91
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2025-12-08-0.2100",
+      "action_type": "DIVIDEND",
+      "amount": 0.21,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-12-08",
+        "ex_date": "2025-12-08",
+        "record_date": null,
+        "effective_date": "2025-12-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.21
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2025-12-15-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2025-12-15",
+        "ex_date": "2025-12-15",
+        "record_date": null,
+        "effective_date": "2025-12-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2026-02-09-0.2600",
+      "action_type": "DIVIDEND",
+      "amount": 0.26,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-02-09",
+        "ex_date": "2026-02-09",
+        "record_date": null,
+        "effective_date": "2026-02-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.26
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2026-02-19-0.9100",
+      "action_type": "DIVIDEND",
+      "amount": 0.91,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-02-19",
+        "ex_date": "2026-02-19",
+        "record_date": null,
+        "effective_date": "2026-02-19"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.91
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2026-03-09-0.2100",
+      "action_type": "DIVIDEND",
+      "amount": 0.21,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-03-09",
+        "ex_date": "2026-03-09",
+        "record_date": null,
+        "effective_date": "2026-03-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.21
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2026-03-16-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-03-16",
+        "ex_date": "2026-03-16",
+        "record_date": null,
+        "effective_date": "2026-03-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2026-05-11-0.2700",
+      "action_type": "DIVIDEND",
+      "amount": 0.27,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-05-11",
+        "ex_date": "2026-05-11",
+        "record_date": null,
+        "effective_date": "2026-05-11"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.27
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2026-05-21-0.9100",
+      "action_type": "DIVIDEND",
+      "amount": 0.91,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-05-21",
+        "ex_date": "2026-05-21",
+        "record_date": null,
+        "effective_date": "2026-05-21"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.91
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2026-06-08-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-06-08",
+        "ex_date": "2026-06-08",
+        "record_date": null,
+        "effective_date": "2026-06-08"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
+      }
+    },
+    {
+      "isin": "US30303M1027",
+      "action_id": "US30303M1027-DIVIDEND-2026-06-15-0.5250",
+      "action_type": "DIVIDEND",
+      "amount": 0.525,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-06-15",
+        "ex_date": "2026-06-15",
+        "record_date": null,
+        "effective_date": "2026-06-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/META/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.525
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2026-08-10-0.2700",
+      "action_type": "DIVIDEND",
+      "amount": 0.27,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-08-10",
+        "ex_date": "2026-08-10",
+        "record_date": null,
+        "effective_date": "2026-08-10"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.27
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2026-08-20-0.9100",
+      "action_type": "DIVIDEND",
+      "amount": 0.91,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-08-20",
+        "ex_date": "2026-08-20",
+        "record_date": null,
+        "effective_date": "2026-08-20"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.91
+      }
+    },
+    {
+      "isin": "US02079K1079",
+      "action_id": "US02079K1079-DIVIDEND-2026-09-04-0.2200",
+      "action_type": "DIVIDEND",
+      "amount": 0.22,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2026-09-04",
+        "ex_date": "2026-09-04",
+        "record_date": null,
+        "effective_date": "2026-09-04"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Yahoo Finance (yfinance)",
+        "source_url": "https://finance.yahoo.com/quote/GOOGL/history",
+        "verification_source": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.22
       }
     }
   ]
