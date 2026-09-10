@@ -12,6 +12,14 @@ Validates actions.json against:
 - Provenance completeness
 - MERGER actions are rejected (placeholder in v1.0.0)
 
+Cross-references with Asset Identifiers:
+  - Reads from $LAS_DATA_HOME/identifiers.json by default.
+  - Can be overridden with --identifiers or CORP_ACTIONS_IDENTIFIERS_PATH.
+  - Remote HTTP(S) URLs are NOT supported. Local files only.
+
+By default, missing ISINs are warnings, not errors, so the registry can
+be validated against a partial Asset Identifiers subset. Use --strict-isin
+to enforce hard errors when the subset is complete.
 Exit codes:
   0 - all validations passed
   1 - validation errors found
@@ -43,6 +51,7 @@ DEFAULT_EXCHANGE_CALENDAR_PATH = "../exchange-calendar/calendar.json"
 ENV_ACTIONS = "CORP_ACTIONS_ACTIONS_PATH"
 ENV_SCHEMA = "CORP_ACTIONS_SCHEMA_PATH"
 ENV_IDENTIFIERS = "CORP_ACTIONS_IDENTIFIERS_PATH"
+ENV_LAS_DATA_HOME = "LAS_DATA_HOME"
 ENV_ISO4217 = "CORP_ACTIONS_ISO4217_PATH"
 ENV_EXCHANGE_CAL = "CORP_ACTIONS_EXCHANGE_CALENDAR_PATH"
 ENV_MIN_ACTIONS = "CORP_ACTIONS_MIN_ACTIONS"
@@ -78,6 +87,18 @@ class RegistryLoadError(Exception):
     """Raised when an external registry cannot be loaded or parsed."""
     pass
 
+def resolve_default_identifiers_path() -> str:
+    """
+    Determine the default path to identifiers.json.
+    Priority:
+      1. LAS_DATA_HOME environment variable → $LAS_DATA_HOME/identifiers.json
+      2. Fallback to the legacy relative path (../asset-identifiers/identifiers.json)
+    """
+    las_data_home = os.environ.get(ENV_LAS_DATA_HOME)
+    if las_data_home:
+        candidate = os.path.join(las_data_home, "identifiers.json")
+        return candidate
+    return DEFAULT_IDENTIFIERS_PATH
 
 def load_json_file(path: str) -> Dict[str, Any]:
     """Load a JSON file; raise exception on missing or invalid file."""
@@ -326,19 +347,30 @@ def validate_cross_reference(
     action: Dict[str, Any],
     isin_set: Set[str],
     currency_set: Set[str],
-    mic_set: Set[str]
+    mic_set: Set[str],
+    strict_isin: bool = False,
+    isin_warnings: List[str] = None,
 ) -> List[str]:
-    """Validate that referenced ISINs, currencies, and MICs exist in the respective registries."""
+    """
+    Validate that referenced ISINs, currencies, and MICs exist in the
+    respective registries.
+
+    If strict_isin is False (default), missing ISINs are appended to
+    isin_warnings (if provided) instead of returned as errors.
+    """
     errors = []
     isin = action.get("isin")
     if isin and isin not in isin_set:
-        errors.append(f"ISIN not found in Asset Identifiers registry: {isin}")
+        msg = f"ISIN not found in Asset Identifiers registry: {isin}"
+        if strict_isin:
+            errors.append(msg)
+        elif isin_warnings is not None:
+            isin_warnings.append(msg)
 
     currency = action.get("currency")
     if currency and currency not in currency_set:
         errors.append(f"Currency not an active ISO 4217 code: {currency}")
 
-    # Optional exchange field (if ever added to schema)
     exchange = action.get("exchange")
     if exchange and exchange not in mic_set:
         errors.append(f"Exchange MIC not found in Exchange Calendar registry: {exchange}")
@@ -368,12 +400,22 @@ def main():
     parser.add_argument("--iso4217", help="Path to iso4217.json", default=None)
     parser.add_argument("--exchange-calendar", help="Path to calendar.json", default=None)
     parser.add_argument("--min-actions", type=int, help="Minimum number of actions required", default=None)
+    parser.add_argument("--strict-isin", action="store_true", help="Treat missing ISINs as errors instead of warnings",)
     args = parser.parse_args()
 
     # Resolve paths: CLI args > env vars > defaults
     actions_path = args.actions or os.environ.get(ENV_ACTIONS, DEFAULT_ACTIONS_PATH)
     schema_path = args.schema or os.environ.get(ENV_SCHEMA, DEFAULT_SCHEMA_PATH)
-    identifiers_path = args.identifiers or os.environ.get(ENV_IDENTIFIERS, DEFAULT_IDENTIFIERS_PATH)
+    # Resolution order:
+    #   1. --identifiers CLI arg
+    #   2. CORP_ACTIONS_IDENTIFIERS_PATH env var
+    #   3. $LAS_DATA_HOME/identifiers.json (if LAS_DATA_HOME is set)
+    #   4. Legacy relative default
+    identifiers_path = (
+    args.identifiers
+    or os.environ.get(ENV_IDENTIFIERS)
+    or resolve_default_identifiers_path()
+    )
     iso4217_path = args.iso4217 or os.environ.get(ENV_ISO4217, DEFAULT_ISO4217_PATH)
     exch_cal_path = args.exchange_calendar or os.environ.get(ENV_EXCHANGE_CAL, DEFAULT_EXCHANGE_CALENDAR_PATH)
 
@@ -436,6 +478,7 @@ def main():
     print(f"\nValidating {total_actions} actions...")
 
     all_errors = []
+    all_warnings = []
 
     for idx, action in enumerate(actions, start=1):
         action_id = action.get("action_id", f"<missing action_id at index {idx}>")
@@ -461,7 +504,7 @@ def main():
             all_errors.extend([f"Action {action_id}: arithmetic: {e}" for e in arith_errors])
 
         # 4. Cross-reference validation
-        cross_errors = validate_cross_reference(action, isin_set, currency_set, mic_set)
+        cross_errors = validate_cross_reference(action, isin_set,currency_set, mic_set, strict_isin=args.strict_isin, isin_warnings=all_warnings,)
         if cross_errors:
             all_errors.extend([f"Action {action_id}: cross-reference: {e}" for e in cross_errors])
 
@@ -479,6 +522,12 @@ def main():
     if total_actions < min_actions:
         all_errors.append(f"Coverage: only {total_actions} actions found, minimum required is {min_actions}")
 
+    # Warnings
+    if all_warnings:
+        print(f"\nWarnings ({len(all_warnings)}):")
+        for w in all_warnings:
+            print(f"  - {w}")
+
     # Report
     if all_errors:
         print("\nValidation FAILED with the following errors:")
@@ -486,7 +535,10 @@ def main():
             print(f"  - {err}")
         sys.exit(1)
     else:
+        valid_isin_count = sum(1 for a in actions if a.get("isin") and a.get("isin") in isin_set)
+        missing_isin_count = len(all_warnings)
         print(f"\nOK: {total_actions} actions validated successfully.")
+        print(f"Cross-reference: {valid_isin_count} ISINs validated, {missing_isin_count} missing (warnings)")
         print("All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage")
         sys.exit(0)
 
