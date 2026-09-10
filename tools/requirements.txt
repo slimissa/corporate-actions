@@ -1,12 +1,2 @@
-# Corporate Actions Registry - Python dependencies
-# Python >= 3.8 required
-
-# JSON Schema validation (used by tools/validate.py)
-jsonschema==4.23.0
-
-# HTTP requests (used by SEC EDGAR and Nasdaq fetchers)
-requests==2.32.3
-
-# Optional: for running the full test suite
-pytest==8.3.3
-pytest-mock==3.14.0
+jsonschema>=4.0.0
+yfinance>=0.2.40

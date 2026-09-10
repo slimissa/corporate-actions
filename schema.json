@@ -94,12 +94,12 @@
                 "description": "Date the corporate action was announced."
               },
               "ex_date": {
-                "type": "string",
+                "type": ["string", "null"],
                 "format": "date",
                 "description": "Ex-date: the date on which the security trades without the entitlement."
               },
               "record_date": {
-                "type": "string",
+                "type": ["string", "null"],
                 "format": "date",
                 "description": "Record date: the date on which shareholders must be on record to receive the entitlement."
               },
@@ -130,11 +130,11 @@
                 "description": "URL to the primary source document (e.g., SEC filing, press release)."
               },
               "verification_source": {
-                "type": "string",
+                "type": ["string", "null"],
                 "description": "Name of a secondary source used to verify the action (optional)."
               },
               "verification_url": {
-                "type": "string",
+                "type": ["string", "null"],
                 "format": "uri",
                 "description": "URL to the verification source (optional)."
               }

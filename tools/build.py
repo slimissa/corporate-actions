@@ -26,7 +26,7 @@ import json
 import os
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 
@@ -98,7 +98,7 @@ def build_dist(data: Dict[str, Any], output_path: str) -> None:
     dist_data = dict(data)
     # Add build metadata
     dist_data["meta"] = dict(dist_data.get("meta", {}))
-    dist_data["meta"]["build_timestamp"] = datetime.utcnow().isoformat() + "Z"
+    dist_data["meta"]["build_timestamp"] = datetime.now(timezone.utc).isoformat()
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(dist_data, f, indent=2, ensure_ascii=False)
     print(f"Created {output_path}")
@@ -108,7 +108,7 @@ def build_minified(data: Dict[str, Any], output_path: str) -> None:
     """Write minified JSON."""
     min_data = dict(data)
     min_data["meta"] = dict(min_data.get("meta", {}))
-    min_data["meta"]["build_timestamp"] = datetime.utcnow().isoformat() + "Z"
+    min_data["meta"]["build_timestamp"] = datetime.now(timezone.utc).isoformat()
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(min_data, f, separators=(',', ':'), ensure_ascii=False)
     print(f"Created {output_path}")
@@ -149,7 +149,7 @@ def build_sql(data: Dict[str, Any], output_path: str) -> None:
     # We'll create a single table 'corporate_actions' with common columns.
     sql_lines = []
     sql_lines.append("-- Corporate Actions Registry SQL Dump")
-    sql_lines.append(f"-- Generated: {datetime.utcnow().isoformat()}Z")
+    sql_lines.append(f"-- Generated: {datetime.now(timezone.utc).isoformat()}")
     sql_lines.append("BEGIN TRANSACTION;")
     sql_lines.append("DROP TABLE IF EXISTS corporate_actions;")
     sql_lines.append("""
