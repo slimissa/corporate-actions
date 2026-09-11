@@ -362,9 +362,11 @@ def validate_cross_reference(
     isin = action.get("isin")
     if isin and isin not in isin_set:
         msg = f"ISIN not found in Asset Identifiers registry: {isin}"
-        if strict_isin:
+        if strict_isin or isin_warnings is None:
+            # Strict mode, or caller did not opt into warnings → treat as error.
             errors.append(msg)
-        elif isin_warnings is not None:
+        else:
+            # Non-strict mode with warnings list → append as warning.
             isin_warnings.append(msg)
 
     currency = action.get("currency")
