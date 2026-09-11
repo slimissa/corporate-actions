@@ -194,7 +194,9 @@ fn by_isin_returns_correct_actions() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let aapl = registry.by_isin("US0378331005");
     assert_eq!(aapl.len(), 2);
-    assert!(aapl.iter().all(|a| a.isin.as_deref() == Some("US0378331005")));
+    assert!(aapl
+        .iter()
+        .all(|a| a.isin.as_deref() == Some("US0378331005")));
 }
 
 #[test]
@@ -225,7 +227,9 @@ fn by_action_type_returns_all_of_type() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let splits = registry.by_action_type("SPLIT");
     assert_eq!(splits.len(), 2);
-    assert!(splits.iter().all(|a| a.action_type.as_deref() == Some("SPLIT")));
+    assert!(splits
+        .iter()
+        .all(|a| a.action_type.as_deref() == Some("SPLIT")));
 }
 
 #[test]
@@ -251,8 +255,12 @@ fn by_date_range_filters_on_effective_date() {
     let actions = registry.by_date_range(Some("2024-01-01"), Some("2024-12-31"), "effective_date");
     assert_eq!(actions.len(), 2);
     // The two actions with effective_date in 2024: NVDA split (2024-06-10) and AAPL dividend (2024-05-23)
-    assert!(actions.iter().any(|a| a.action_id.as_deref() == Some("US67066G1040-SPLIT-2024-06-10-0001")));
-    assert!(actions.iter().any(|a| a.action_id.as_deref() == Some("US0378331005-DIVIDEND-2024-05-16-0002")));
+    assert!(actions
+        .iter()
+        .any(|a| a.action_id.as_deref() == Some("US67066G1040-SPLIT-2024-06-10-0001")));
+    assert!(actions
+        .iter()
+        .any(|a| a.action_id.as_deref() == Some("US0378331005-DIVIDEND-2024-05-16-0002")));
 }
 
 #[test]
@@ -357,4 +365,4 @@ fn action_fields_are_optional() {
     assert_eq!(action.dates, None);
     assert_eq!(action.provenance, None);
     assert_eq!(action.impact, None);
-}   
+}
