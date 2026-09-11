@@ -91,7 +91,9 @@ vendor/
 /cmd/*/main
 
 # Rust
-/target/
+target/
+yahoo_actions_test.json
+wrappers/rust/target/
 **/*.rs.bk
 Cargo.lock  # Keep Cargo.lock for binaries; adjust if library
 
@@ -121,3 +123,4 @@ actions.min.json
 # OS / Misc
 *.bak
 *.orig.venv/
+yahoo_actions_test.json
