@@ -312,8 +312,8 @@ fn to_json_and_from_value_roundtrip() {
     assert_eq!(registry.count(), registry2.count());
     assert_eq!(registry.meta().version, registry2.meta().version);
     // Compare serialized forms for exact equality
-    let json1 = serde_json::to_value(&registry.to_json()).unwrap();
-    let json2 = serde_json::to_value(&registry2.to_json()).unwrap();
+    let json1 = serde_json::to_value(registry.to_json()).unwrap();
+    let json2 = serde_json::to_value(registry2.to_json()).unwrap();
     assert_eq!(json1, json2);
 }
 
