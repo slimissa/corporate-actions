@@ -1,0 +1,198 @@
+name: Update Actions
+
+on:
+  # Weekly on Monday at 07:00 UTC (one hour after the source check).
+  schedule:
+    - cron: '0 7 * * 1'
+  # Manual trigger with optional dry-run.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without committing or opening a PR'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+concurrency:
+  group: update-actions
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Fetch, merge, validate, PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install yfinance jsonschema requests pytest
+
+      - name: Extract (isin, ticker) pairs from existing actions.json
+        run: |
+          python3 - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          with open("actions.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          # The fetcher needs (isin, ticker, currency). We rebuild the list
+          # from the actions we already trust, extracting the ticker from
+          # provenance.source_url for Yahoo-sourced actions.
+          seen = {}
+          for action in data.get("actions", []):
+              isin = action.get("isin")
+              if not isin or isin in seen:
+                  continue
+              provenance = action.get("provenance") or {}
+              url = provenance.get("source_url") or ""
+              m = re.search(r"finance\.yahoo\.com/quote/([A-Z0-9\.\-]+)/", url)
+              if m:
+                  seen[isin] = m.group(1)
+
+          instruments = [
+              {"isin": isin, "ticker": ticker, "currency": "USD"}
+              for isin, ticker in sorted(seen.items())
+          ]
+
+          Path("tests/fixtures").mkdir(parents=True, exist_ok=True)
+          with open("tests/fixtures/identifiers_for_ci.json", "w", encoding="utf-8") as f:
+              json.dump({"instruments": instruments}, f, indent=2)
+
+          print(f"Extracted {len(instruments)} (isin, ticker) pairs for fetch.")
+          PY
+
+      - name: Fetch fresh actions from Yahoo Finance
+        run: |
+          python3 tools/fetch_yahoo_actions.py \
+            --identifiers tests/fixtures/identifiers_for_ci.json \
+            --output yahoo_new.json \
+            --min-date 2000-01-01 \
+            --verbose
+
+      - name: Merge new actions into actions.json (fuzzy dedup)
+        id: merge
+        run: |
+          python3 - <<'PY'
+          import json
+          import sys
+          from datetime import datetime, timezone
+
+          with open("actions.json", "r", encoding="utf-8") as f:
+              base = json.load(f)
+          with open("yahoo_new.json", "r", encoding="utf-8") as f:
+              fetched = json.load(f)
+
+          def dedup_key(action):
+              dates = action.get("dates") or {}
+              ratio = action.get("ratio") or ""
+              amount = action.get("amount")
+              return (
+                  action.get("isin", ""),
+                  action.get("action_type", ""),
+                  dates.get("ex_date", ""),
+                  ratio,
+                  round(float(amount), 4) if amount is not None else 0.0,
+              )
+
+          existing_keys = {dedup_key(a) for a in base.get("actions", [])}
+          new_actions = [a for a in fetched.get("actions", []) if dedup_key(a) not in existing_keys]
+
+          if not new_actions:
+              print("No new actions to merge.")
+              sys.exit(0)
+
+          base["actions"].extend(new_actions)
+          base.setdefault("meta", {})["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+          with open("actions.json", "w", encoding="utf-8") as f:
+              json.dump(base, f, indent=2)
+
+          with open(".new_count", "w") as f:
+              f.write(str(len(new_actions)))
+
+          print(f"Merged {len(new_actions)} new actions. Total: {len(base['actions'])}")
+          PY
+
+      - name: Derive impacts for new actions
+        if: hashFiles('.new_count') != ''
+        run: |
+          python3 tools/derive_impacts.py --actions actions.json
+
+      - name: Run tests
+        if: hashFiles('.new_count') != ''
+        run: |
+          pytest tests/ -v
+          (cd wrappers/python && pytest tests/ -v)
+
+      - name: Commit and open pull request
+        if: hashFiles('.new_count') != '' && inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_COUNT=$(cat .new_count)
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+          BRANCH="auto/update-actions-${TIMESTAMP}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add actions.json
+          git commit -m "Auto: merge ${NEW_COUNT} new corporate action(s) from Yahoo Finance"
+          git push origin "$BRANCH"
+
+          BODY=$(cat <<EOF
+          Automated merge of **${NEW_COUNT} new corporate action(s)** detected by the weekly Yahoo Finance scan.
+
+          ### What to check
+          - The diff in \`actions.json\` contains only additions (no removals).
+          - Each new action has a valid \`source_url\`, \`dates.ex_date\`, and either \`ratio\` or \`amount\`.
+          - No duplicate events with different \`action_id\` values (the merge uses fuzzy dedup on \`(isin, action_type, ex_date, ratio, amount)\`).
+
+          ### How to merge
+          - If accurate, squash-merge into \`main\`.
+          - If not, close this PR and file an issue.
+
+          This PR was opened by \`.github/workflows/update-actions.yml\`.
+          EOF
+          )
+
+          gh pr create \
+            --title "Auto-update: ${NEW_COUNT} new corporate action(s)" \
+            --body "$BODY" \
+            --base main \
+            --head "$BRANCH"
+
+      - name: Dry run summary
+        if: hashFiles('.new_count') != '' && inputs.dry_run == 'true'
+        run: |
+          echo "Dry run: $(cat .new_count) new actions would have been merged."
+          echo "Diff (head):"
+          git diff --stat actions.json
+          git diff actions.json | head -100
+
+      - name: No-op summary
+        if: hashFiles('.new_count') == ''
+        run: echo "No new actions found. Nothing to do."
