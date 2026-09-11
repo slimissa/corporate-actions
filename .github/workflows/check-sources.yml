@@ -1,0 +1,227 @@
+name: Check Data Sources
+
+on:
+  # Weekly on Monday at 06:00 UTC.
+  schedule:
+    - cron: '0 6 * * 1'
+  # Manual trigger.
+  workflow_dispatch:
+
+# Only one instance at a time; don't hammer the sources.
+concurrency:
+  group: check-sources
+  cancel-in-progress: false
+
+jobs:
+  yahoo:
+    name: Yahoo Finance (yfinance)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install yfinance
+        run: python3 -m pip install --upgrade pip yfinance
+      - name: Probe Yahoo Finance
+        run: |
+          python3 - <<'PY'
+          import sys
+          import yfinance as yf
+
+          # AAPL is a stable ticker; it always has dividends and splits.
+          try:
+              t = yf.Ticker("AAPL")
+              divs = t.dividends
+              splits = t.splits
+          except Exception as e:
+              print(f"FAIL: yfinance raised: {e}")
+              sys.exit(1)
+
+          if divs is None or len(divs) == 0:
+              print("FAIL: no dividends returned for AAPL")
+              sys.exit(1)
+          if splits is None or len(splits) == 0:
+              print("FAIL: no splits returned for AAPL")
+              sys.exit(1)
+
+          print(f"OK: yfinance returned {len(divs)} dividends and {len(splits)} splits for AAPL")
+          PY
+
+  sec-edgar:
+    name: SEC EDGAR full-text search
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install requests
+        run: python3 -m pip install --upgrade pip requests
+      - name: Probe SEC EDGAR
+        run: |
+          python3 - <<'PY'
+          import sys
+          import requests
+
+          # The endpoint used by tools/fetch_sec_edgar_actions.py.
+          # If this 500s or 404s, the endpoint has moved and the fetcher must be updated.
+          url = "https://efts.sec.gov/LATEST/search-index"
+          params = {
+              "q": '"stock split"',
+              "ciks": "0000320193",   # Apple Inc.
+              "forms": "8-K",
+              "startdt": "2024-01-01",
+              "enddt": "2024-12-31",
+          }
+          headers = {
+              "User-Agent": "QuantOS Corporate Actions Registry contact@quantos.org"
+          }
+          try:
+              r = requests.get(url, params=params, headers=headers, timeout=15)
+          except Exception as e:
+              print(f"FAIL: request raised: {e}")
+              sys.exit(1)
+
+          if r.status_code == 200:
+              print(f"OK: SEC EDGAR returned 200 ({len(r.content)} bytes)")
+          else:
+              print(f"FAIL: SEC EDGAR returned HTTP {r.status_code}")
+              print("First 500 bytes of response:")
+              print(r.text[:500])
+              sys.exit(1)
+          PY
+
+  nasdaq:
+    name: Nasdaq dividends API
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install requests
+        run: python3 -m pip install --upgrade pip requests
+      - name: Probe Nasdaq
+        run: |
+          python3 - <<'PY'
+          import sys
+          import requests
+
+          # The endpoint used by tools/fetch_dividends_nasdaq.py.
+          url = "https://api.nasdaq.com/api/quote/AAPL/dividends?assetclass=stocks"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+              "Accept": "application/json",
+              "Origin": "https://www.nasdaq.com",
+              "Referer": "https://www.nasdaq.com/",
+          }
+          try:
+              r = requests.get(url, headers=headers, timeout=15)
+          except Exception as e:
+              print(f"FAIL: request raised: {e}")
+              sys.exit(1)
+
+          if r.status_code != 200:
+              print(f"FAIL: Nasdaq returned HTTP {r.status_code}")
+              sys.exit(1)
+
+          try:
+              data = r.json()
+          except Exception as e:
+              print(f"FAIL: response is not JSON: {e}")
+              sys.exit(1)
+
+          if not data.get("data"):
+              print("FAIL: Nasdaq JSON has no 'data' key")
+              print(str(data)[:500])
+              sys.exit(1)
+
+          print(f"OK: Nasdaq returned JSON ({len(r.content)} bytes)")
+          PY
+
+  open-issue-on-failure:
+    name: Open issue if any source failed
+    needs: [yahoo, sec-edgar, nasdaq]
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const label = 'data-source-failure';
+            const title = 'Data source check failed';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              'One or more external data sources used by the Corporate Actions Registry are unavailable or have changed shape.',
+              '',
+              `Workflow run: ${runUrl}`,
+              '',
+              'Check the workflow log to see which source failed and why.',
+              '',
+              'Once the source is fixed (either on our side or recovered), this issue will be closed automatically by the next successful run.'
+            ].join('\n');
+
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+
+            if (open.data.length === 0) {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: [label],
+              });
+              console.log(`Opened issue #${created.data.number}`);
+            } else {
+              console.log(`Issue #${open.data[0].number} already open; leaving it.`);
+            }
+
+  close-issue-on-recovery:
+    name: Close issue if all sources healthy
+    needs: [yahoo, sec-edgar, nasdaq]
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const label = 'data-source-failure';
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+
+            for (const issue of open.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `All data sources are healthy again as of ${new Date().toISOString()}. Closing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+              console.log(`Closed issue #${issue.number}`);
+            }
+
+            if (open.data.length === 0) {
+              console.log('No open data-source-failure issues to close.');
+            }
