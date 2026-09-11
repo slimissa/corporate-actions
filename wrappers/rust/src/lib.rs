@@ -253,6 +253,11 @@ impl Registry {
         self.actions.len()
     }
 
+    /// Return a slice of all actions (for iteration and inspection).
+    pub fn all_actions(&self) -> &[Action] {
+        &self.actions
+    }
+
     /// Return a reference to the registry metadata.
     pub fn meta(&self) -> &Meta {
         &self.meta

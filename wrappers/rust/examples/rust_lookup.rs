@@ -121,9 +121,20 @@ fn parse_args() -> Args {
                 process::exit(0);
             }
             other => {
-                eprintln!("Unknown argument: {}", other);
-                print!("{}", USAGE);
-                process::exit(2);
+                if other.starts_with("--") {
+                    eprintln!("Unknown argument: {}", other);
+                    print!("{}", USAGE);
+                    process::exit(2);
+                } else {
+                    // Positional argument: treat as path to actions.json
+                    if args.actions.is_none() {
+                        args.actions = Some(PathBuf::from(other));
+                    } else {
+                        eprintln!("Error: unexpected positional argument: {}", other);
+                        print!("{}", USAGE);
+                        process::exit(2);
+                    }
+                }
             }
         }
     }
@@ -144,17 +155,20 @@ fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
     }
 
     let cwd = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    let cwd_file = cwd.join("actions.json");
-    if cwd_file.exists() {
-        return cwd_file;
+
+    // Check cwd, then parent, then grandparent (for wrappers/rust layout).
+    let candidates = [
+        cwd.join("actions.json"),
+        cwd.join("..").join("actions.json"),
+        cwd.join("..").join("..").join("actions.json"),
+    ];
+    for candidate in &candidates {
+        if candidate.exists() {
+            return candidate.clone();
+        }
     }
 
-    let parent_file = cwd.join("..").join("actions.json");
-    if parent_file.exists() {
-        return parent_file;
-    }
-
-    eprintln!("Error: could not find actions.json. Use --actions PATH.");
+    eprintln!("Error: could not find actions.json. Use --actions PATH or pass a path as a positional argument.");
     process::exit(2);
 }
 
