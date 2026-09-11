@@ -116,6 +116,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.21'
+          cache: false
 
       - name: Run tests
         working-directory: wrappers/go
