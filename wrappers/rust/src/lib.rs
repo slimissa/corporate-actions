@@ -183,7 +183,9 @@ impl Registry {
 
     /// Return a single action by its unique `action_id`.
     pub fn by_action_id(&self, action_id: &str) -> Option<Action> {
-        self.index_id.get(action_id).map(|&i| self.actions[i].clone())
+        self.index_id
+            .get(action_id)
+            .map(|&i| self.actions[i].clone())
     }
 
     /// Return all actions of a given type (e.g., `"SPLIT"`, `"DIVIDEND"`).
@@ -384,7 +386,9 @@ mod tests {
         let aapl = reg.by_isin("US0378331005");
         assert_eq!(aapl.len(), 2);
 
-        let split = reg.by_action_id("US67066G1040-SPLIT-2024-06-10-0001").unwrap();
+        let split = reg
+            .by_action_id("US67066G1040-SPLIT-2024-06-10-0001")
+            .unwrap();
         assert_eq!(split.ratio.as_deref(), Some("10:1"));
 
         let splits = reg.by_action_type("SPLIT");
@@ -392,7 +396,10 @@ mod tests {
 
         let range = reg.by_date_range(Some("2020-01-01"), Some("2023-12-31"), "ex_date");
         assert_eq!(range.len(), 1);
-        assert_eq!(range[0].action_id.as_deref(), Some("US0378331005-SPLIT-2020-08-31-0003"));
+        assert_eq!(
+            range[0].action_id.as_deref(),
+            Some("US0378331005-SPLIT-2020-08-31-0003")
+        );
 
         let types = reg.all_action_types();
         assert_eq!(types, vec!["DIVIDEND", "SPLIT", "SYMBOL_CHANGE"]);

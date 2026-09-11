@@ -106,15 +106,13 @@ fn parse_args() -> Args {
                     }
                 }
             }
-            "--date-field" => {
-                match iter.next() {
-                    Some(f) => args.date_field = f,
-                    None => {
-                        eprintln!("Error: --date-field requires an argument");
-                        process::exit(2);
-                    }
+            "--date-field" => match iter.next() {
+                Some(f) => args.date_field = f,
+                None => {
+                    eprintln!("Error: --date-field requires an argument");
+                    process::exit(2);
                 }
-            }
+            },
             "--summary" => args.summary = true,
             "--help" | "-h" => {
                 print!("{}", USAGE);
@@ -265,7 +263,10 @@ fn main() {
         meta.generated_at.as_deref().unwrap_or("(unknown)")
     );
     println!("  total actions: {}", registry.count());
-    println!("  action types:  {}", registry.all_action_types().join(", "));
+    println!(
+        "  action types:  {}",
+        registry.all_action_types().join(", ")
+    );
     println!();
 
     // Targeted queries
