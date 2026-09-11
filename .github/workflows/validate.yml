@@ -1,0 +1,160 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch/PR to save CI minutes.
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Actual validation tool: tools/validate.py against the fixtures.
+  # This is the canonical registry check. It must pass before any release.
+  # ---------------------------------------------------------------------
+  validator:
+    name: Registry validator
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install jsonschema
+
+      - name: Verify fixtures are populated
+        run: |
+          for f in tests/fixtures/identifiers.json \
+                   tests/fixtures/iso4217.json \
+                   tests/fixtures/exchange_calendar.json; do
+            if [ ! -s "$f" ]; then
+              echo "ERROR: $f is missing or empty."
+              echo "Populate tests/fixtures/ with valid registries before running CI."
+              exit 1
+            fi
+            echo "OK: $f ($(wc -c < "$f") bytes)"
+          done
+
+      - name: Run validator
+        run: |
+          python3 tools/validate.py \
+            --actions actions.json \
+            --schema schema.json \
+            --identifiers tests/fixtures/identifiers.json \
+            --iso4217 tests/fixtures/iso4217.json \
+            --exchange-calendar tests/fixtures/exchange_calendar.json \
+            --min-actions 100
+
+  # ---------------------------------------------------------------------
+  # Python: root tests + wrapper tests.
+  # ---------------------------------------------------------------------
+  python:
+    name: Python tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install jsonschema pytest
+
+      - name: Root tests
+        run: pytest tests/ -v
+
+      - name: Python wrapper tests
+        working-directory: wrappers/python
+        run: pytest tests/ -v
+
+  # ---------------------------------------------------------------------
+  # JavaScript: wrapper tests.
+  # ---------------------------------------------------------------------
+  javascript:
+    name: JavaScript tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tests
+        working-directory: wrappers/javascript
+        run: npm test
+
+  # ---------------------------------------------------------------------
+  # Go: wrapper tests.
+  # ---------------------------------------------------------------------
+  go:
+    name: Go tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: wrappers/go/go.sum
+
+      - name: Run tests
+        working-directory: wrappers/go
+        run: go test ./registry -v
+
+  # ---------------------------------------------------------------------
+  # Rust: wrapper tests with cargo caching.
+  # ---------------------------------------------------------------------
+  rust:
+    name: Rust tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wrappers/rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('wrappers/rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        working-directory: wrappers/rust
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: wrappers/rust
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run tests
+        working-directory: wrappers/rust
+        run: cargo test --verbose
