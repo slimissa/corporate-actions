@@ -38,6 +38,24 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 
 ## Unreleased
 
+### Removed
+
+- **`tools/fetch_dividends_nasdaq.py`** — the Nasdaq dividends fetcher was
+  removed. The API times out from non-US IPs and CI runners. Yahoo Finance
+  covers the same dividend data reliably via `yfinance`. Passing
+  `--fetch-source nasdaq` to `scripts/run_update.sh` now exits with a
+  clear error message rather than running a broken code path.
+
+### Changed
+
+- `scripts/run_update.sh` fetch-source validation updated: `nasdaq` is now
+  reported as "removed", not "broken".
+
+### Documentation
+
+- `docs/data_sources.md` moved Nasdaq from "Current sources" (broken) to
+  "Rejected sources" with the removal rationale.
+  
 ### Planned for v1.1.0
 
 See [`docs/roadmap.md`](./docs/roadmap.md) for the full plan. Summary:

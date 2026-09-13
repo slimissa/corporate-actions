@@ -21,9 +21,9 @@
 #   --exchange-calendar PATH    Path to Exchange Calendar calendar.json
 #   --actions PATH              Path to actions.json (default: actions.json)
 #   --schema PATH               Path to schema.json (default: schema.json)
-#   --fetch-source SOURCE       Data source (default: yahoo). Only yahoo is
-#                               currently functional. 'sec' and 'nasdaq' are
-#                               reserved and will error with a clear message.
+#   --fetch-source SOURCE       Data source (default: yahoo).
+#                               Valid: yahoo. 'sec' is reserved but not yet working.
+#                               'nasdaq' was removed in v1.0.1.
 #   --ticker-limit N            Limit fetcher to first N tickers
 #   --min-actions N             Minimum number of actions required (default: 1)
 #   --skip-fetch                Do not run any fetcher
@@ -175,16 +175,19 @@ run_cmd() {
 # ----------------------------------------------------------------------
 if ! $SKIP_FETCH; then
     case "$FETCH_SOURCE" in
-        yahoo|sec|nasdaq) ;;
-        *) error_exit "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec, nasdaq)" ;;
+        yahoo|sec) ;;
+        nasdaq)
+            error_exit "The Nasdaq fetcher was removed in v1.0.1 because the API
+  times out from non-US IPs and CI runners, and Yahoo Finance covers the
+  same dividend data reliably.
+  Use --fetch-source yahoo instead."
+            ;;
+        *)
+            error_exit "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec)"
+            ;;
     esac
     if [[ "$FETCH_SOURCE" == "sec" ]]; then
         error_exit "SEC EDGAR fetcher is currently broken (endpoint returns HTTP 500).
-  Track progress at https://github.com/slimissa/corporate-actions/issues
-  For now, use --fetch-source yahoo."
-    fi
-    if [[ "$FETCH_SOURCE" == "nasdaq" ]]; then
-        error_exit "Nasdaq dividends fetcher is currently broken (API times out).
   Track progress at https://github.com/slimissa/corporate-actions/issues
   For now, use --fetch-source yahoo."
     fi

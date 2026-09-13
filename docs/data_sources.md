@@ -180,40 +180,6 @@ See `tools/fetch_sec_edgar_actions.py` for the current implementation.
 
 ---
 
-### Nasdaq dividends API (broken, removal candidate)
-
-| Attribute | Value |
-|-----------|-------|
-| Provider | Nasdaq |
-| Access method | REST API |
-| Endpoint | `https://api.nasdaq.com/api/quote/{ticker}/dividends` |
-| Data provided | Dividend history per ticker |
-| Action types covered | `DIVIDEND` |
-| Coverage | US-listed equities |
-| Fetcher | `tools/fetch_dividends_nasdaq.py` |
-| Status | **Broken** as of v1.0.0 |
-| Rate limit | Not documented; aggressive blocking |
-| Authentication | None, but browser-like headers required |
-| License | Unclear; access restrictions suggest restricted redistribution |
-
-**Why it is broken**
-
-The API times out from non-US IPs and from CI runners. It also requires
-browser-like headers (`Origin`, `Referer`) that are not sufficient on their
-own. Nasdaq has tightened access over time.
-
-**Removal candidate**
-
-The Nasdaq fetcher overlaps almost entirely with Yahoo Finance for the
-dividend data it provides. Since Yahoo works reliably via `yfinance`, the
-Nasdaq fetcher adds little value and adds a broken code path to maintain.
-
-**Recommendation**: remove `fetch_dividends_nasdaq.py` in v1.1.0 unless a
-compelling use case emerges (e.g. Yahoo coverage gaps for specific tickers).
-Tracked in the roadmap.
-
----
-
 ## Supporting registries
 
 The Corporate Actions Registry does not exist in isolation. Three sibling
@@ -400,6 +366,17 @@ do not re-investigate.
   is the accepted method.
 - **Use `yfinance` instead.**
 
+### Nasdaq dividends API
+
+- **Reason**: Removed in v1.0.1. The API times out from non-US IPs and CI
+  runners, and requires browser-like headers that are not sufficient on
+  their own. Nasdaq has tightened access over time.
+- **Overlap**: Covered by Yahoo Finance via `yfinance`, which is reliable
+  for the same dividend data.
+- **Removal**: The fetcher was deleted in v1.0.1. Passing
+  `--fetch-source nasdaq` to `scripts/run_update.sh` now exits with a
+  clear error message.
+  
 ---
 
 ## Licensing
