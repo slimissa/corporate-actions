@@ -176,7 +176,6 @@ Which tool?
 - [ ] `build.py`
 - [ ] `fetch_yahoo_actions.py`
 - [ ] `fetch_sec_edgar_actions.py`
-- [ ] `fetch_dividends_nasdaq.py`
 
 ### Behavior change
 

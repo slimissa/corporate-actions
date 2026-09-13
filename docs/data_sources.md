@@ -376,7 +376,7 @@ do not re-investigate.
 - **Removal**: The fetcher was deleted in v1.0.1. Passing
   `--fetch-source nasdaq` to `scripts/run_update.sh` now exits with a
   clear error message.
-  
+
 ---
 
 ## Licensing
@@ -547,6 +547,5 @@ A source will be accepted only if all of the following hold:
 - `docs/roadmap.md` — long-term plan
 - `tools/fetch_yahoo_actions.py` — the working fetcher
 - `tools/fetch_sec_edgar_actions.py` — the broken fetcher (needs repair)
-- `tools/fetch_dividends_nasdaq.py` — the redundant fetcher (removal candidate)
 - `.github/ISSUE_TEMPLATE/data_source.md` — how to propose new sources
 - `.github/workflows/check-sources.yml` — source health monitoring

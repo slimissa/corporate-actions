@@ -160,22 +160,10 @@ Plan:
 The alternative (`browse-edgar` scraping) is a fallback if
 `data.sec.gov` is insufficient.
 
-#### 2. Remove Nasdaq fetcher
+#### 2. ~~Remove Nasdaq fetcher~~ ✅ DONE (2026-09-13)
 
-**Priority**: Medium
-**Effort**: 1 hour
-**Blocker**: None.
-
-Plan:
-
-- Delete `tools/fetch_dividends_nasdaq.py`
-- Delete the corresponding test if any
-- Update `scripts/run_update.sh` to reject the source cleanly
-- Update `docs/data_sources.md` to reflect the removal
-
-The Nasdaq API overlaps almost entirely with Yahoo Finance for the dividend
-data it provides. Yahoo works; Nasdaq does not. Removing the code path
-reduces maintenance surface.
+**Status**: Completed. Deleted `tools/fetch_dividends_nasdaq.py`.
+See commit `864d746`.
 
 #### 3. Add MERGER support (2015+ only)
 

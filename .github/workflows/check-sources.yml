@@ -145,7 +145,7 @@ jobs:
 
   open-issue-on-failure:
     name: Open issue if any source failed
-    needs: [yahoo, sec-edgar, nasdaq]
+    needs: [yahoo, sec-edgar]
     if: failure()
     runs-on: ubuntu-latest
     permissions:

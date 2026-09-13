@@ -212,7 +212,6 @@ corporate-actions/
 │   ├── build.py                 # Distribution artifacts
 │   ├── fetch_yahoo_actions.py   # Working fetcher
 │   ├── fetch_sec_edgar_actions.py   # Broken fetcher
-│   └── fetch_dividends_nasdaq.py    # Redundant fetcher
 │
 ├── scripts/                     # Operational scripts
 │   ├── run_update.sh            # Full pipeline
