@@ -90,9 +90,14 @@ class RegistryLoadError(Exception):
 def resolve_default_identifiers_path() -> str:
     """
     Determine the default path to identifiers.json.
+
     Priority:
-      1. LAS_DATA_HOME environment variable → $LAS_DATA_HOME/identifiers.json
-      2. Fallback to the legacy relative path (../asset-identifiers/identifiers.json)
+      1. $LAS_DATA_HOME/identifiers.json (real data, never committed)
+      2. tests/fixtures/identifiers.json (synthetic, committed)
+
+    The synthetic fixture is a schema-compatible placeholder with no real
+    identifiers. CI uses it. Local development should set $LAS_DATA_HOME
+    to validate against real data.
     """
     las_data_home = os.environ.get(ENV_LAS_DATA_HOME)
     if las_data_home:
