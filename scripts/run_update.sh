@@ -212,16 +212,36 @@ fi
 for f in "$IDENTIFIERS_PATH" "$ISO4217_PATH" "$EXCHANGE_CALENDAR_PATH" "$SCHEMA_PATH"; do
     [[ -f "$f" ]] || error_exit "Required file not found: $f"
 done
+
 # ----------------------------------------------------------------------
 # Fetch new actions (optional)
 # ----------------------------------------------------------------------
 if ! $SKIP_FETCH; then
-    log "Fetching actions from Yahoo Finance..."
-    FETCH_SCRIPT="$REPO_ROOT/tools/fetch_yahoo_actions.py"
+    case "$FETCH_SOURCE" in
+        yahoo)
+            log "Fetching actions from Yahoo Finance..."
+            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_yahoo_actions.py"
+            FETCH_OUTPUT="$REPO_ROOT/fetched_actions.json"
+            LIMIT_FLAG="--ticker-limit"
+            ;;
+        sec)
+            log "Fetching actions from SEC EDGAR..."
+            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_sec_edgar_actions.py"
+            FETCH_OUTPUT="$REPO_ROOT/sec_actions.json"
+            LIMIT_FLAG="--cik-limit"
+            ;;
+        nasdaq)
+            error_exit "The Nasdaq fetcher was removed in v1.0.1.
+  Use --fetch-source yahoo instead."
+            ;;
+        *)
+            error_exit "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec)"
+            ;;
+    esac
+
     [[ -f "$FETCH_SCRIPT" ]] || error_exit "Fetcher not found: $FETCH_SCRIPT"
-    FETCH_OUTPUT="$REPO_ROOT/fetched_actions.json"
     ARGS=("$FETCH_SCRIPT" --identifiers "$IDENTIFIERS_PATH" --output "$FETCH_OUTPUT")
-    [[ -n "$TICKER_LIMIT" ]] && ARGS+=(--ticker-limit "$TICKER_LIMIT")
+    [[ -n "$TICKER_LIMIT" ]] && ARGS+=("$LIMIT_FLAG" "$TICKER_LIMIT")
     if $VERBOSE; then ARGS+=(--verbose); fi
     run_cmd python3 "${ARGS[@]}"
 

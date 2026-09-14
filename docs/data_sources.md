@@ -25,7 +25,7 @@ exist, why they were chosen, and what their limitations are.
 1. [Strategy](#strategy)
 2. [Current sources](#current-sources)
 3. [Supporting registries](#supporting-registries)
-4. [Broken sources](#broken-sources)
+4. [Sources with reduced scope](#sources-with-reduced-scope)
 5. [Planned sources](#planned-sources)
 6. [Rejected sources](#rejected-sources)
 7. [Licensing](#licensing)
@@ -64,10 +64,11 @@ or validation assumes machine extraction.
 
 ### 3. Fail loudly on unreliable sources
 
-The current pipeline uses `run_update.sh` to refuse broken sources
-(`--fetch-source sec` and `--fetch-source nasdaq` exit with an error). A
-silent failure in a data pipeline is worse than a loud one: it produces a
-partial registry that appears complete.
+The pipeline refuses sources that cannot produce usable data. Passing
+`--fetch-source nasdaq` to `scripts/run_update.sh` exits with a clear
+"fetcher was removed" message. This is deliberate: a silent skip would
+hide the problem, and a partial registry that appears complete is worse
+than an explicit error.
 
 ---
 
@@ -134,47 +135,63 @@ The output is then merged into `actions.json` with fuzzy dedup (see
 
 ---
 
-### SEC EDGAR (planned, currently broken)
+### SEC EDGAR (working, narrow scope)
 
 | Attribute | Value |
 |-----------|-------|
 | Provider | U.S. Securities and Exchange Commission |
-| Access method | Full-text search API + 8-K filing downloads |
-| Endpoint | `https://efts.sec.gov/LATEST/search-index` |
+| Access method | Submissions API + filing document downloads |
+| Endpoint | `https://data.sec.gov/submissions/CIK{cik}.json` |
 | Data provided | 8-K filings containing corporate action announcements |
-| Action types covered | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`, `SPINOFF`, `DELISTING`, `MERGER` |
+| Action types covered | `SYMBOL_CHANGE`, `DELISTING` |
 | Coverage | All US-listed issuers filing 8-K |
 | Fetcher | `tools/fetch_sec_edgar_actions.py` |
-| Status | **Broken** as of v1.0.0 |
+| Status | **Working**, narrow scope as of v1.0.0 |
 | Rate limit | 10 requests/second, User-Agent required |
 | Authentication | None, but User-Agent header is enforced |
 | License | Public domain |
 
-**Why it matters**
+**What it provides**
 
-SEC EDGAR is the only free source that contains filings for every action type,
-including ones Yahoo Finance does not expose (mergers, spinoffs, delistings).
-For the registry to reach full coverage, SEC EDGAR integration is required.
+- `SYMBOL_CHANGE` — ticker changes announced in 8-K filings
+- `DELISTING` — removal from an exchange announced in 8-K filings
 
-**Why it is broken**
+**What it does not provide**
 
-The full-text search endpoint used by the fetcher was retired by the SEC in
-2024. The endpoint returns HTTP 500 for the parameter combination the
-fetcher uses. The correct replacement endpoint is not documented and may
-require authenticated access via `data.sec.gov`.
+- Dividends or splits — Yahoo Finance is authoritative for both
+- Mergers or spinoffs — see the "Deferred" note below
+- Anything before roughly the last 1,000 filings — see "Known limitations"
 
-**Recovery plan (v1.1.0)**
+**Why the scope is narrow**
 
-Three options, in order of preference:
+An earlier version of this fetcher attempted to extract dividends and splits
+from SEC text. It produced false positives: the phrase "returned $X per
+share" and earnings-related "per share" figures were matched as dividends.
+The narrowed version extracts only the two action types that Yahoo cannot
+provide, and where the phrasing is unambiguous.
 
-1. **Use `data.sec.gov` submissions API.** The SEC publishes a structured
-   JSON index of every filing per company. Combine with full-text search
-   through the standard UI. This is the preferred path.
-2. **Scrape `browse-edgar`.** The legacy filing listing endpoint still
-   works. Download 8-K filings and parse the text locally.
-3. **Use a third-party mirror.** Sources like `sec-api.io` offer
-   re-hosted EDGAR data at commercial cost. Not preferred, but viable
-   if the SEC endpoints remain unstable.
+**Known limitations**
+
+- **Recent-filings cap.** The `data.sec.gov/submissions/CIK{cik}.json`
+  endpoint returns only the most recent ~1,000 filings in its `recent`
+  array. Older filings live in numbered archive files listed under
+  `filings.files[]`. The current fetcher reads only `recent`. Filings
+  older than roughly two years are not scanned. See the roadmap for the
+  archive-loading fix.
+- **Phrasing dependency.** Symbol-change and delisting detection relies on
+  specific phrase patterns ("will begin trading under the symbol X",
+  "will be delisted from"). Companies that phrase these announcements
+  differently may be missed. Widening the patterns risks false positives
+  and was deliberately deferred.
+
+**Deferred to v1.2.0**
+
+Mergers and spinoffs are not extracted. They require a delisted-instrument
+model that neither the Corporate Actions Registry nor the Asset Identifiers
+Registry currently has. Acquirer S-4 filings describe the acquirer's share
+issuance, not the target's conversion. The target is almost always a
+smaller, non-S&P-500 name that no longer trades. This is a joint schema
+design problem, not a data source problem.
 
 See `tools/fetch_sec_edgar_actions.py` for the current implementation.
 
@@ -194,7 +211,7 @@ that validates every corporate action entry.
 | Repository | `https://github.com/slimissa/asset-identifiers` |
 | Version used | Pinned to a specific local path or `$LAS_DATA_HOME` |
 | Load | `load_identifiers_registry()` in `tools/validate.py` |
-| Coverage (as of v1.0.0) | ~50 ISINs in the public subset, up to 515 in the private store |
+| Coverage (as of v1.0.0) | 10 synthetic instruments in the public fixture; 514 real instruments in the private store |
 
 **How it is used**
 
@@ -205,9 +222,30 @@ the coverage is complete.
 
 **Coverage caveat**
 
-The public repository ships no identifier data (ADR 0001). Data lives at
-`$LAS_DATA_HOME/identifiers.json` in a private store. The CI uses the
-repo-local fixtures in `tests/fixtures/identifiers.json`.
+The public repository ships no real identifier data (ADR 0001). The real
+registry lives at `$LAS_DATA_HOME/identifiers.json` in a private store:
+514 instruments with 100% ISIN coverage as of v1.0.0.
+
+The public repository contains a **synthetic** fixture at
+`tests/fixtures/identifiers.json`. It has 10 placeholder instruments
+(`TESTA` through `TESTJ`) with format-valid but fake ISINs. It exists
+solely so CI has a file to load without requiring secrets or external
+downloads. It is not real market data.
+
+Local development should set `LAS_DATA_HOME` to validate against real
+ISINs:
+
+```bash
+export LAS_DATA_HOME="$HOME/Documents/asset-identifiers-data"
+```
+
+The validator prints `Loaded N ISINs` on startup. N will be `10` for the
+synthetic fixture or `514` for the real registry.
+
+**Do not commit the real registry.** The enriched `identifiers.json`
+contains ISINs and CUSIPs sourced from FMP and CUSIP Global Services.
+Redistribution is prohibited by their terms. See `CONTRIBUTING.md`
+section 10.7 for the rule and its history.
 
 ---
 
@@ -247,17 +285,19 @@ this field, but the validator supports it for future expansion.
 
 ---
 
-## Broken sources
+## Sources with reduced scope
+
+The following sources work but with limitations. They are documented here
+so consumers know what to expect.
 
 ### Summary table
 
-| Source | Status | Reason | Recovery plan |
-|--------|--------|--------|---------------|
-| SEC EDGAR | Broken | Endpoint returns HTTP 500 | Use `data.sec.gov` submissions API (v1.1.0) |
-| Nasdaq | Broken | API times out, blocks non-US IPs | Remove, Yahoo covers same data (v1.1.0) |
+| Source | Status | Limitation | Fix |
+|--------|--------|------------|-----|
+| SEC EDGAR | Working | Only recent ~1,000 filings visible; narrow action-type scope | Archive loading deferred to v1.1.0 |
 
-Both broken sources are refused by `scripts/run_update.sh` with a clear
-error message. This is deliberate: a silent skip would hide the problem.
+None of these are refused. They run but produce less than a fully-scoped
+source would.
 
 ---
 
@@ -439,13 +479,10 @@ Three axes:
 3. **Data completeness.** Does the source cover what it claims to cover?
    Yahoo has full history for US equities but not international.
 
-### Current reliability summary
-
 | Source | Availability | Freshness | Completeness |
 |--------|--------------|-----------|--------------|
-| Yahoo Finance | High | 24 hours | US only |
-| SEC EDGAR | Broken | minutes | US, all action types |
-| Nasdaq | Broken | hours | US dividends |
+| Yahoo Finance | High | 24 hours | US splits, dividends |
+| SEC EDGAR | High | minutes | US symbol changes, delistings (recent window only) |
 | ESMA FIRDS | Not integrated | daily | EU |
 | JPX | Not integrated | 24 hours | Japan |
 | HKEX | Not integrated | 24 hours | Hong Kong |
@@ -517,15 +554,16 @@ A source will be accepted only if all of the following hold:
 - Weekly source health monitoring (`check-sources.yml`)
 - Weekly automated update workflow (`update-actions.yml`)
 
-### v1.1.0 (planned)
+### v1.1.0
 
-- Fix SEC EDGAR via `data.sec.gov` submissions API
-- Remove Nasdaq fetcher (redundant with Yahoo)
-- Add `MERGER` extraction from SEC S-4 filings
-- Expand to 50 tickers
+- Fixed SEC EDGAR to use `data.sec.gov/submissions/CIK{cik}.json`
+- Narrowed SEC EDGAR scope to `SYMBOL_CHANGE` and `DELISTING`
+- Removed Nasdaq fetcher (redundant with Yahoo)
+- Expansion to 50+ tickers in progress (blocked on Yahoo rate limit)
 
 ### v1.2.0 (planned)
 
+- Add `MERGER` extraction from SEC S-4 filings 
 - ESMA FIRDS integration for EU instrument metadata
 - JPX integration
 - HKEX integration
@@ -546,6 +584,6 @@ A source will be accepted only if all of the following hold:
 - `docs/validation_layers.md` — how data is validated
 - `docs/roadmap.md` — long-term plan
 - `tools/fetch_yahoo_actions.py` — the working fetcher
-- `tools/fetch_sec_edgar_actions.py` — the broken fetcher (needs repair)
+- `tools/fetch_sec_edgar_actions.py` — the SEC fetcher (SYMBOL_CHANGE, DELISTING)
 - `.github/ISSUE_TEMPLATE/data_source.md` — how to propose new sources
 - `.github/workflows/check-sources.yml` — source health monitoring
