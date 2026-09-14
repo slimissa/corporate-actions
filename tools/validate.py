@@ -17,6 +17,11 @@ Cross-references with Asset Identifiers:
   - Can be overridden with --identifiers or CORP_ACTIONS_IDENTIFIERS_PATH.
   - Remote HTTP(S) URLs are NOT supported. Local files only.
 
+Ticker → ISIN resolution:
+  - load_ticker_isin_index() builds a deterministic (ticker, exchange)
+    → ISIN index from the Asset Identifiers registry.
+  - Use this instead of scanning provenance.source_url for the ticker.
+    
 By default, missing ISINs are warnings, not errors, so the registry can
 be validated against a partial Asset Identifiers subset. Use --strict-isin
 to enforce hard errors when the subset is complete.
@@ -31,7 +36,7 @@ import json
 import os
 import sys
 import re
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Set, Any, Optional, Tuple
 
 try:
     import jsonschema
@@ -146,6 +151,81 @@ def load_identifiers_registry(path: str) -> Set[str]:
     if not isins:
         print("Warning: No ISINs found in Asset Identifiers registry", file=sys.stderr)
     return isins
+
+def build_ticker_isin_index(
+    instruments: List[Dict[str, Any]],
+) -> Dict[Tuple[str, str], str]:
+    """
+    Build a deterministic (ticker, exchange) → ISIN index.
+
+    Keys are (TICKER_UPPER, EXCHANGE_UPPER). Entries missing any of
+    ``ticker``, ``exchange``, or ``isin`` are skipped. Ticker and exchange
+    are uppercased on insert, so lookups are case-insensitive.
+
+    The pair (ticker, exchange) is unique across the Asset Identifiers
+    registry. A collision (same ticker on same exchange) is a data error;
+    the last one encountered wins, but callers should not rely on that.
+    """
+    index: Dict[Tuple[str, str], str] = {}
+    for inst in instruments:
+        ticker = inst.get("ticker")
+        exchange = inst.get("exchange")
+        isin = inst.get("isin")
+        if not ticker or not exchange or not isin:
+            continue
+        key = (str(ticker).upper(), str(exchange).upper())
+        index[key] = str(isin)
+    return index
+
+
+def load_ticker_isin_index(
+    path: Optional[str] = None,
+) -> Dict[Tuple[str, str], str]:
+    """
+    Load the Asset Identifiers registry and return the (ticker, exchange)
+    → ISIN index.
+
+    Path resolution (highest priority first):
+
+      1. Explicit ``path`` argument
+      2. ``$CORP_ACTIONS_IDENTIFIERS_PATH`` environment variable
+      3. ``$LAS_DATA_HOME/identifiers.json``
+      4. Legacy relative default (``../asset-identifiers/identifiers.json``)
+
+    Raises ``RegistryLoadError`` on file or structure errors.
+    """
+    if path is None:
+        path = (
+            os.environ.get(ENV_IDENTIFIERS)
+            or resolve_default_identifiers_path()
+        )
+
+    try:
+        data = load_json_file(path)
+    except Exception as e:
+        raise RegistryLoadError(f"Failed to load Asset Identifiers registry: {e}")
+
+    instruments: Optional[List[Dict[str, Any]]] = None
+    for key in ("instruments", "identifiers", "securities"):
+        if key in data and isinstance(data[key], list):
+            instruments = data[key]
+            break
+
+    if instruments is None:
+        for value in data.values():
+            if (
+                isinstance(value, list)
+                and value
+                and isinstance(value[0], dict)
+                and "ticker" in value[0]
+            ):
+                instruments = value
+                break
+
+    if not instruments:
+        raise RegistryLoadError("No instruments found in Asset Identifiers registry")
+
+    return build_ticker_isin_index(instruments)
 
 def load_iso4217_registry(path: str) -> Set[str]:
     """
