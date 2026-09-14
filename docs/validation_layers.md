@@ -880,6 +880,50 @@ change is wrong or the data is wrong. Investigate before committing.
 
 ## Version history
 
+## Additional utilities
+
+Beyond the seven validation layers, `tools/validate.py` provides two
+lookup utilities for ticker resolution.
+
+### `build_ticker_isin_index(instruments)`
+
+Pure transformation. Takes the `instruments` list from the Asset
+Identifiers registry and returns a dictionary keyed by
+`(TICKER_UPPER, EXCHANGE_UPPER)` mapping to ISIN.
+
+Entries missing any of `ticker`, `exchange`, or `isin` are skipped.
+Ticker and exchange are uppercased on insert, so lookups are
+case-insensitive. The pair `(ticker, exchange)` is unique across the
+registry; a collision is a data error and the last one wins.
+
+### `load_ticker_isin_index(path=None)`
+
+Loads the Asset Identifiers registry and returns the index. Path
+resolution, highest priority first:
+
+1. Explicit `path` argument
+2. `$CORP_ACTIONS_IDENTIFIERS_PATH`
+3. `$LAS_DATA_HOME/identifiers.json`
+4. Legacy relative default (`../asset-identifiers/identifiers.json`)
+
+Raises `RegistryLoadError` on file or structure errors.
+
+### Why the index exists
+
+Before this utility, ticker → ISIN resolution relied on scanning
+`provenance.source_url` for the ticker string. That worked for a handful
+of instruments but produced false positives at scale: tickers that
+appear as substrings of other strings, tickers that appear in unrelated
+URLs, and multi-class instruments like `GOOG` vs `GOOGL`.
+
+The `(ticker, exchange)` pair is unique. `PRU` on `XNYS` is Prudential
+Financial; `PRU` on `XLON` is Prudential plc. `GOOG` and `GOOGL` are
+distinct keys on the same exchange. The lookup is deterministic.
+
+A miss raises `KeyError`. Callers should handle that explicitly — it
+means the ticker is outside the S&P 500 universe the registry covers.
+Do not silently fall back to a heuristic.
+
 ### v1.0.0
 
 - All seven layers implemented

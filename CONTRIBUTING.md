@@ -207,6 +207,11 @@ The validator and fetchers read these environment variables:
 
 Resolution priority for each: CLI argument > env var > default path.
 
+Note: `LAS_DATA_HOME` and `CORP_ACTIONS_IDENTIFIERS_PATH` are also used
+by the ticker → ISIN index in `tools/validate.py`. Setting either enables
+`load_ticker_isin_index()` and the `examples/backtest_adjustment.py`
+ticker resolution path.
+
 Recommended local setup:
 
 ```bash
@@ -751,12 +756,39 @@ See [`docs/data_sources.md`](./docs/data_sources.md) for the licensing
 status of each source and [`docs/roadmap.md`](./docs/roadmap.md) for the
 plan to expand coverage without licensed data.
 
----
+### 10.8 Ticker resolution in scripts and examples
 
-## 11. Reporting bugs
+Use `load_ticker_isin_index()` from `tools/validate.py` to resolve a
+ticker+exchange pair to an ISIN. Do not scan `provenance.source_url` for
+the ticker string — the heuristic produces false positives at scale.
+
+Example:
+
+```python
+from tools.validate import load_ticker_isin_index, RegistryLoadError
+
+try:
+    index = load_ticker_isin_index()
+    isin = index[("AAPL", "XNAS")]
+except RegistryLoadError:
+    # LAS_DATA_HOME not set or identifiers.json not found
+    ...
+except KeyError:
+    # Ticker not in the registry
+    ...
+
+The index reads from the same path as the validator:
+$LAS_DATA_HOME/identifiers.json by default, overridable via
+--identifiers (in CLI tools) or $CORP_ACTIONS_IDENTIFIERS_PATH.
+
+See docs/validation_layers.md
+for the full API and behavior.
+```
 
 Use the bug report issue template (if present) or open a blank issue
 with this information:
+
+### 11. Reporting bugs
 
 ### 11.1 Required
 

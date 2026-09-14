@@ -172,12 +172,18 @@ provide, and where the phrasing is unambiguous.
 
 **Known limitations**
 
-- **Recent-filings cap.** The `data.sec.gov/submissions/CIK{cik}.json`
-  endpoint returns only the most recent ~1,000 filings in its `recent`
-  array. Older filings live in numbered archive files listed under
-  `filings.files[]`. The current fetcher reads only `recent`. Filings
-  older than roughly two years are not scanned. See the roadmap for the
-  archive-loading fix.
+- **Recent-filings cap** The data.sec.gov/submissions/CIK{cik}.json
+endpoint returns only the most recent ~1,000 filings in its recent
+array. Older filings live in numbered archive files listed under
+filings.files[]. The current fetcher reads only recent. Filings
+older than roughly two years are not scanned. See the roadmap for the
+archive-loading fix.
+
+- **Zero actions is normal** Symbol changes and delistings are rare.
+Running the fetcher across the entire 514-instrument universe over
+5 years yields fewer than 30 events. A run that produces zero actions
+is the expected result, not a failure.
+
 - **Phrasing dependency.** Symbol-change and delisting detection relies on
   specific phrase patterns ("will begin trading under the symbol X",
   "will be delisted from"). Companies that phrase these announcements
@@ -246,6 +252,18 @@ synthetic fixture or `514` for the real registry.
 contains ISINs and CUSIPs sourced from FMP and CUSIP Global Services.
 Redistribution is prohibited by their terms. See `CONTRIBUTING.md`
 section 10.7 for the rule and its history.
+
+    1. load_identifiers_registry() — returns a set of ISINs, used by
+    the validator's cross-reference layer.
+
+    2. load_ticker_isin_index() — returns a (ticker, exchange) → ISIN
+    index, used by the example scripts and any tool that needs to resolve
+    a ticker to an ISIN.
+
+Both are in tools/validate.py. Both read from the same resolved path
+($LAS_DATA_HOME/identifiers.json or overrides). See
+docs/validation_layers.md
+for the ticker index API.
 
 ---
 

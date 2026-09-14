@@ -38,6 +38,29 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 
 ## Unreleased
 
+### Added
+
+- **(ticker, exchange) → ISIN index** in `tools/validate.py`. Functions
+  `build_ticker_isin_index()` and `load_ticker_isin_index()` provide a
+  deterministic lookup from a ticker+exchange pair to an ISIN, built from
+  the Asset Identifiers registry. Case-insensitive. Handles multi-exchange
+  and multi-class disambiguation.
+- **41 tests** in `tests/test_ticker_index.py` covering the pure
+  transformation, file loading with all supported key variations, env var
+  precedence, error paths, and integration with the real 514-instrument
+  registry.
+- **SEC EDGAR fetcher rewritten** to use `data.sec.gov/submissions/CIK{cik}.json`
+  instead of the retired `efts.sec.gov` endpoint. Scope narrowed to
+  `SYMBOL_CHANGE` and `DELISTING` only. Dividends and splits are no longer
+  extracted from SEC text (Yahoo Finance is authoritative for both).
+
+### Changed
+
+- `examples/backtest_adjustment.py` now resolves tickers via
+  `load_ticker_isin_index()` instead of scanning `provenance.source_url`.
+  Adds `--exchange` flag (default `XNAS`). Gives actionable error messages
+  for missing `LAS_DATA_HOME`, unknown tickers, and wrong-exchange lookups.
+
 ### Removed
 
 - **`tools/fetch_dividends_nasdaq.py`** — the Nasdaq dividends fetcher was
