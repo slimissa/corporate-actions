@@ -123,4 +123,3 @@ actions.min.json
 # OS / Misc
 *.bak
 *.orig.venv/
-tests/fixtures/identifiers.json

@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "generated_at": "2026-09-14T00:00:00Z",
+    "source": "Synthetic fixture for CI. Not real market data."
+  },
+  "instruments": [
+    {
+      "isin": "US0000000001",
+      "ticker": "TESTA",
+      "exchange": "XNYS",
+      "name": "Test Instrument A",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000001"
+    },
+    {
+      "isin": "US0000000002",
+      "ticker": "TESTB",
+      "exchange": "XNAS",
+      "name": "Test Instrument B",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000002"
+    },
+    {
+      "isin": "US0000000003",
+      "ticker": "TESTC",
+      "exchange": "XNYS",
+      "name": "Test Instrument C",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000003"
+    },
+    {
+      "isin": "US0000000004",
+      "ticker": "TESTD",
+      "exchange": "XNAS",
+      "name": "Test Instrument D",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000004"
+    },
+    {
+      "isin": "US0000000005",
+      "ticker": "TESTE",
+      "exchange": "XNYS",
+      "name": "Test Instrument E",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000005"
+    },
+    {
+      "isin": "US0000000006",
+      "ticker": "TESTF",
+      "exchange": "XNAS",
+      "name": "Test Instrument F",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000006"
+    },
+    {
+      "isin": "US0000000007",
+      "ticker": "TESTG",
+      "exchange": "XNYS",
+      "name": "Test Instrument G",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000007"
+    },
+    {
+      "isin": "US0000000008",
+      "ticker": "TESTH",
+      "exchange": "XNAS",
+      "name": "Test Instrument H",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000008"
+    },
+    {
+      "isin": "US0000000009",
+      "ticker": "TESTI",
+      "exchange": "XNYS",
+      "name": "Test Instrument I",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000009"
+    },
+    {
+      "isin": "US0000000010",
+      "ticker": "TESTJ",
+      "exchange": "XNAS",
+      "name": "Test Instrument J",
+      "currency": "USD",
+      "country": "US",
+      "asset_class": "equity",
+      "active": true,
+      "cik": "0000000010"
+    }
+  ]
+}
