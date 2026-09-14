@@ -124,3 +124,4 @@ actions.min.json
 *.bak
 *.orig.venv/
 sec_actions.json
+fetched_actions.json
