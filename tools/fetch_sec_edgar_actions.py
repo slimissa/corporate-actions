@@ -1,424 +1,481 @@
 #!/usr/bin/env python3
 """
-Corporate Actions Fetcher from SEC EDGAR
+Fetch Corporate Actions from SEC EDGAR (Symbol Changes and Delistings)
 
-This script reads the Asset Identifiers registry (identifiers.json) and for each
-instrument, queries SEC EDGAR full-text search for 8-K filings containing
-corporate action keywords. It then downloads the filing text, extracts structured
-action data using heuristics, and builds actions.json.
+Scope is deliberately narrow. Extracts only action types that Yahoo Finance
+does not provide:
+
+    SYMBOL_CHANGE  — ticker symbol change
+    DELISTING      — removal from an exchange
+
+Dividends and splits are NOT extracted. Those come from the Yahoo fetcher
+(tools/fetch_yahoo_actions.py) with structured, reliable data. Extracting
+them from SEC text produced false positives that outweighed coverage gains.
+
+Endpoint:
+    https://data.sec.gov/submissions/CIK{cik:010d}.json
+Filing index:
+    https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/index.json
+Documents:
+    https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/{name}
+
+The SEC requires a descriptive User-Agent and a maximum of 10 requests per
+second. This script uses a 0.15s delay (~6.6/sec) and caches filings under
+.cache_sec_edgar/.
 
 Usage:
-    python fetch_sec_edgar_actions.py --identifiers ../asset-identifiers/identifiers.json \
-                                      --output actions.json \
-                                      --start 2019-01-01 --end 2024-12-31
+    python tools/fetch_sec_edgar_actions.py \
+        --identifiers tests/fixtures/identifiers.json \
+        --output sec_actions.json \
+        --cik-limit 5 \
+        --verbose
 
-Environment variables:
-    SEC_EDGAR_USER_AGENT : Required User-Agent for SEC EDGAR (e.g., "Name email@example.com")
-    CORP_ACTIONS_MIN_ACTIONS : Minimum number of actions to consider success (optional)
-
-Rate limits are handled with retries and exponential backoff. The script caches
-downloaded filing text in a local directory to avoid refetching.
-
-Action types supported in v1.0.0:
-    SPLIT, REVERSE_SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE, SPINOFF, DELISTING
+Exit codes:
+  0 - success
+  1 - no actions extracted (still a valid result, but a warning condition)
+  2 - missing or invalid input file
+  3 - network or API failure after retries
 """
 
+import argparse
+import hashlib
 import json
 import os
 import re
 import sys
 import time
-import hashlib
-import argparse
-import requests
 from datetime import date, datetime, timezone
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
-# Configuration
-SEC_EDGAR_USER_AGENT = os.environ.get(
-    "SEC_EDGAR_USER_AGENT",
-    "QuantOS Corporate Actions Fetcher contact@quantos.org"
+import requests
+
+
+SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
+SEC_FILING_INDEX_URL = (
+    "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/index.json"
 )
-SEC_EDGAR_BASE_URL = "https://efts.sec.gov/LATEST/search-index"
-SEC_EDGAR_ARCHIVE_URL = "https://www.sec.gov/Archives/edgar/data"
-REQUEST_DELAY = 0.5          # seconds between API requests (polite)
+SEC_DOCUMENT_URL = (
+    "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
+)
+USER_AGENT = os.environ.get(
+    "SEC_EDGAR_USER_AGENT",
+    "QuantOS Corporate Actions Registry contact@quantos.org",
+)
+REQUEST_DELAY = 0.15
 MAX_RETRIES = 3
 CACHE_DIR = ".cache_sec_edgar"
+DEFAULT_MIN_DATE = "2019-01-01"
 
-# Search parameters per action type
-ACTION_SEARCH_TERMS = {
-    "SPLIT": ["stock split", "forward split", "split of common stock"],
-    "REVERSE_SPLIT": ["reverse split", "reverse stock split"],
-    "DIVIDEND": ["dividend declared", "quarterly dividend"],
-    "SPECIAL_DIVIDEND": ["special dividend", "one-time dividend"],
-    "SYMBOL_CHANGE": ["symbol change", "name change", "ticker change"],
-    "SPINOFF": ["spin-off", "spinoff", "spin off"],
-    "DELISTING": ["delisting", "merger agreement", "going private"],
+
+SYMBOL_CHANGE_TRIGGERS = [
+    re.compile(
+        r"will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?(?:new\s+)?"
+        r"(?:ticker\s+)?symbol\s+['\"]?([A-Z]{1,6})['\"]?",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
+        r"(?:to|from\s+\S+\s+to)\s+['\"]?([A-Z]{1,6})['\"]?",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+"
+        r"['\"]?([A-Z]{1,6})['\"]?",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"trading\s+symbol\s+(?:will\s+)?(?:change|be\s+changed)\s+to\s+"
+        r"['\"]?([A-Z]{1,6})['\"]?",
+        re.IGNORECASE,
+    ),
+]
+
+DELISTING_TRIGGERS = [
+    re.compile(
+        r"will\s+be\s+(?:voluntarily\s+)?delisted\s+from",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:delisting|delisted)\s+from\s+(?:the\s+)?[A-Z][A-Za-z\s]+(?:Exchange|Market|Stock)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"intends?\s+to\s+(?:voluntarily\s+)?delist",
+        re.IGNORECASE,
+    ),
+]
+
+EFFECTIVE_DATE_PATTERNS = [
+    re.compile(
+        r"effective\s+(?:as\s+of|on)?\s*"
+        r"(January|February|March|April|May|June|July|August|September|October|November|December|"
+        r"Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)"
+        r"\.?\s+(\d{1,2}),?\s+(\d{4})",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:on|as\s+of)\s+(?:or\s+about\s+)?"
+        r"(January|February|March|April|May|June|July|August|September|October|November|December|"
+        r"Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)"
+        r"\.?\s+(\d{1,2}),?\s+(\d{4})",
+        re.IGNORECASE,
+    ),
+]
+
+MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4,
+    "may": 5, "june": 6, "july": 7, "august": 8,
+    "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7,
+    "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
 }
 
-# Regex patterns for extraction (simplistic, to be refined)
-PATTERNS = {
-    "SPLIT": {
-        "ratio": re.compile(r"(\d+)\s*[-:]\s*for\s*[-:]?\s*(\d+)", re.IGNORECASE),
-        "alternate_ratio": re.compile(r"(\d+)\s*[-:]\s*(\d+)", re.IGNORECASE),
-    },
-    "REVERSE_SPLIT": {
-        "ratio": re.compile(r"(\d+)\s*[-:]\s*for\s*[-:]?\s*(\d+)", re.IGNORECASE),
-        "alternate_ratio": re.compile(r"(\d+)\s*[-:]\s*(\d+)", re.IGNORECASE),
-    },
-    "DIVIDEND": {
-        "amount": re.compile(r"\$\s*([\d\.]+)\s*per\s*share", re.IGNORECASE),
-        "currency": re.compile(r"(US\$|\$|USD)", re.IGNORECASE),
-    },
-    "SPECIAL_DIVIDEND": {
-        "amount": re.compile(r"\$\s*([\d\.]+)\s*per\s*share", re.IGNORECASE),
-        "currency": re.compile(r"(US\$|\$|USD)", re.IGNORECASE),
-    },
-    "SYMBOL_CHANGE": {
-        # Not easily parseable; we may need to look for "will begin trading under new symbol"
-        # For v1.0.0 we might skip automatic symbol change detection or use Asset Identifiers history
-    },
-    "SPINOFF": {
-        # Usually described with distribution ratio, e.g., "one share of X for every three shares"
-        "ratio": re.compile(r"one\s+share\s+of\s+\w+\s+for\s+every\s+(\d+)\s+shares", re.IGNORECASE),
-    },
-    "DELISTING": {
-        # Effective date only; may not have ex/record
-    },
-}
+
+def load_instruments(path: str) -> List[Tuple[str, str, str]]:
+    """Load instruments with CIK. Returns (isin, ticker, cik)."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: file not found: {path}", file=sys.stderr)
+        sys.exit(2)
+    except json.JSONDecodeError as e:
+        print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    instruments = data.get("instruments") or data.get("identifiers") or []
+    result: List[Tuple[str, str, str]] = []
+    for inst in instruments:
+        isin = inst.get("isin")
+        ticker = inst.get("ticker")
+        cik = inst.get("cik")
+        if not isin or not ticker or not cik:
+            continue
+        cik_str = str(cik).lstrip("0").zfill(10)
+        result.append((isin, ticker.upper(), cik_str))
+    return result
 
 
-class SECEdgarClient:
-    """Minimal SEC EDGAR client with caching and polite request handling."""
+def parse_date(month_str: str, day_str: str, year_str: str) -> Optional[str]:
+    month = MONTHS.get(month_str.lower())
+    if not month:
+        return None
+    try:
+        d = date(int(year_str), month, int(day_str))
+        return d.isoformat()
+    except ValueError:
+        return None
 
-    def __init__(self, user_agent: str = SEC_EDGAR_USER_AGENT):
-        self.user_agent = user_agent
+
+def extract_effective_date(text: str) -> Optional[str]:
+    for pat in EFFECTIVE_DATE_PATTERNS:
+        m = pat.search(text)
+        if m:
+            iso = parse_date(m.group(1), m.group(2), m.group(3))
+            if iso:
+                return iso
+    return None
+
+
+def extract_new_symbol(text: str) -> Optional[str]:
+    for pat in SYMBOL_CHANGE_TRIGGERS:
+        m = pat.search(text)
+        if m:
+            symbol = m.group(1).upper()
+            if 1 <= len(symbol) <= 5 and symbol.isalpha():
+                return symbol
+    return None
+
+
+def is_delisting(text: str) -> bool:
+    return any(pat.search(text) for pat in DELISTING_TRIGGERS)
+
+
+def is_symbol_change(text: str) -> bool:
+    return any(pat.search(text) for pat in SYMBOL_CHANGE_TRIGGERS)
+
+
+class SECClient:
+    def __init__(self, user_agent: str = USER_AGENT):
         self.session = requests.Session()
         self.session.headers.update({
-            "User-Agent": self.user_agent,
+            "User-Agent": user_agent,
             "Accept-Encoding": "gzip, deflate",
-            "Host": "efts.sec.gov",
+            "Accept": "application/json, text/html, */*",
         })
         os.makedirs(CACHE_DIR, exist_ok=True)
 
-    def _request(self, url: str, params: Dict = None) -> requests.Response:
-        """Perform GET request with retry and delay."""
+    def _cache_path(self, key: str) -> str:
+        digest = hashlib.sha256(key.encode()).hexdigest()
+        return os.path.join(CACHE_DIR, digest + ".cache")
+
+    def _get(self, url: str) -> Optional[requests.Response]:
+        cache_path = self._cache_path(url)
+        if os.path.exists(cache_path):
+            with open(cache_path, "rb") as f:
+                content = f.read()
+            resp = requests.Response()
+            resp.status_code = 200
+            resp._content = content
+            return resp
+
         for attempt in range(MAX_RETRIES):
             try:
-                resp = self.session.get(url, params=params, timeout=30)
+                resp = self.session.get(url, timeout=30)
                 if resp.status_code == 429:
                     wait = 60 * (attempt + 1)
                     print(f"Rate limited. Waiting {wait}s...", file=sys.stderr)
                     time.sleep(wait)
                     continue
+                if resp.status_code == 404:
+                    return None
                 resp.raise_for_status()
+                with open(cache_path, "wb") as f:
+                    f.write(resp.content)
                 time.sleep(REQUEST_DELAY)
                 return resp
             except requests.exceptions.RequestException as e:
-                print(f"Request error (attempt {attempt+1}): {e}", file=sys.stderr)
+                print(f"Request error ({attempt + 1}/{MAX_RETRIES}): {e}",
+                      file=sys.stderr)
                 time.sleep(2 ** attempt)
-        raise RuntimeError(f"Failed to fetch {url} after {MAX_RETRIES} attempts")
+        return None
 
-    def search_filings(self, cik: str, keyword: str, start_date: str, end_date: str) -> List[Dict]:
-        """
-        Search SEC EDGAR full-text for 8-K filings matching keyword within date range.
-        Returns list of filing metadata dicts.
-        """
-        params = {
-            "q": f'"{keyword}"',
-            "ciks": cik,
-            "forms": "8-K",
-            "startdt": start_date,
-            "enddt": end_date,
-            "count": "100",
-        }
-        # Note: The actual full-text search endpoint may differ; adjust as needed.
-        url = f"{SEC_EDGAR_BASE_URL}"
-        resp = self._request(url, params=params)
-        data = resp.json()
-        # Response structure: {"hits": {"hits": [ {"_source": {...}}, ...]}}
-        hits = data.get("hits", {}).get("hits", [])
-        results = []
-        for hit in hits:
-            src = hit.get("_source", {})
-            # Extract relevant fields: accession number, file date, etc.
-            # Fields might include: "file_date", "accession_number", "cik", "form_type", etc.
-            results.append({
-                "accession_number": src.get("accession_number"),
-                "file_date": src.get("file_date"),
-                "form_type": src.get("form_type"),
-                "cik": src.get("cik"),
-                "display_name": src.get("display_name"),
-                # The URL to the filing index is not directly in search results;
-                # we need to construct from accession number.
-            })
-        return results
+    def get_submissions(self, cik: str) -> Optional[Dict[str, Any]]:
+        url = SEC_SUBMISSIONS_URL.format(cik=cik)
+        resp = self._get(url)
+        if resp is None:
+            return None
+        try:
+            return resp.json()
+        except ValueError:
+            return None
 
-    def get_filing_document_url(self, cik: str, accession_number: str) -> str:
-        """
-        Given CIK and accession number, return the URL to the primary document (htm/txt).
-        We first fetch the filing index to locate the primary document.
-        """
-        # Convert accession number: remove dashes
-        acc = accession_number.replace("-", "")
-        # Construct URL to filing index (directory)
-        # Format: /Archives/edgar/data/{cik_no_leading_zeros}/{accession_no}/{accession_no}-index.htm
-        cik_plain = cik.lstrip("0")
-        index_url = f"{SEC_EDGAR_ARCHIVE_URL}/{cik_plain}/{acc}/{acc}-index.htm"
-        resp = self._request(index_url)
-        # Parse the index page to find the primary document (usually .htm or .txt)
-        # Look for links to documents, prefer the main filing (8-K)
-        # A simple regex to find hrefs ending with .htm or .txt that are not index or XBRL
-        doc_links = re.findall(r'href="([^"]+\.(?:htm|txt))"', resp.text, re.IGNORECASE)
-        if not doc_links:
-            raise ValueError(f"No document links found at {index_url}")
-        # Pick the one that is likely the main body; often named like "a8-k.htm" or "8k.htm"
-        main_doc = None
-        for link in doc_links:
-            if "8-k" in link.lower() or "8k" in link.lower():
-                main_doc = link
-                break
-        if not main_doc:
-            main_doc = doc_links[0]  # fallback
-        # Resolve relative URL
-        if main_doc.startswith("/"):
-            doc_url = f"https://www.sec.gov{main_doc}"
-        else:
-            doc_url = f"{index_url.rsplit('/', 1)[0]}/{main_doc}"
-        return doc_url
+    def get_filing_text(self, cik: str, accession: str) -> Optional[str]:
+        cik_no_zeros = cik.lstrip("0") or "0"
+        acc_no_dashes = accession.replace("-", "")
+        index_url = SEC_FILING_INDEX_URL.format(cik=cik_no_zeros, acc=acc_no_dashes)
+        index_resp = self._get(index_url)
+        if index_resp is None:
+            return None
+        try:
+            index_data = index_resp.json()
+        except ValueError:
+            return None
 
-    def download_filing_text(self, doc_url: str) -> str:
-        """Download filing document and return plain text (strip HTML tags)."""
-        # Check cache
-        cache_key = hashlib.sha256(doc_url.encode()).hexdigest()
-        cache_path = os.path.join(CACHE_DIR, cache_key + ".txt")
-        if os.path.exists(cache_path):
-            with open(cache_path, "r", encoding="utf-8") as f:
-                return f.read()
-
-        resp = self._request(doc_url)
-        # Strip HTML to text (very crude, may need BeautifulSoup later)
-        text = re.sub(r"<[^>]+>", " ", resp.text)
-        text = re.sub(r"\s+", " ", text)
-        # Save to cache
-        with open(cache_path, "w", encoding="utf-8") as f:
-            f.write(text)
-        return text
+        items = index_data.get("directory", {}).get("item", [])
+        texts: List[str] = []
+        for item in items:
+            name = item.get("name", "")
+            if not name.lower().endswith((".htm", ".html", ".txt")):
+                continue
+            doc_url = SEC_DOCUMENT_URL.format(
+                cik=cik_no_zeros, acc=acc_no_dashes, doc=name
+            )
+            doc_resp = self._get(doc_url)
+            if doc_resp is None:
+                continue
+            text = re.sub(r"<[^>]+>", " ", doc_resp.text)
+            text = re.sub(r"&nbsp;?", " ", text)
+            text = re.sub(r"&amp;?", "&", text)
+            text = re.sub(r"\s+", " ", text)
+            texts.append(text)
+        return " ".join(texts) if texts else None
 
 
-def parse_split_ratio(text: str) -> Optional[Tuple[int, int]]:
-    """Extract split ratio as (new, old) from text."""
-    # Try "X-for-Y" phrase
-    m = re.search(r"(\d+)\s*[-:]\s*for\s*[-:]?\s*(\d+)", text, re.IGNORECASE)
-    if m:
-        return int(m.group(1)), int(m.group(2))
-    # Try "X-for-Y" without "for"
-    m = re.search(r"(\d+)\s*[-:]\s*(\d+)", text, re.IGNORECASE)
-    if m:
-        return int(m.group(1)), int(m.group(2))
-    # Try "X-for-1" by context: "a X-for-1 stock split"
-    m = re.search(r"(\d+)\s*[-:]\s*for\s*1\b", text, re.IGNORECASE)
-    if m:
-        return int(m.group(1)), 1
-    return None
-
-
-def extract_dates_from_text(text: str) -> Dict[str, Optional[str]]:
-    """
-    Look for dates near relevant phrases.
-    This is very simplistic; actual extraction requires NLP.
-    For v1.0.0 we may rely on filing date for announcement.
-    """
-    dates = {}
-    # Announcement date: often the filing date, we will set later from metadata.
-    # ex-date, record date, effective date may be mentioned.
-    # We'll leave them None for now; can be enhanced later.
-    return dates
-
-
-def build_action_from_extraction(
-    action_type: str,
+def build_symbol_change(
     isin: str,
+    current_ticker: str,
     cik: str,
     filing_date: str,
+    accession: str,
+    primary_doc: str,
     text: str,
-    source_url: str
-) -> Dict[str, Any]:
-    """Build an action dict from parsed text."""
-    action = {
+) -> Optional[Dict[str, Any]]:
+    new_symbol = extract_new_symbol(text)
+    if not new_symbol or new_symbol == current_ticker.upper():
+        return None
+
+    effective = extract_effective_date(text) or filing_date
+
+    cik_no_zeros = cik.lstrip("0") or "0"
+    acc_no_dashes = accession.replace("-", "")
+    source_url = (
+        f"https://www.sec.gov/Archives/edgar/data/"
+        f"{cik_no_zeros}/{acc_no_dashes}/{primary_doc}"
+    )
+
+    return {
         "isin": isin,
-        "action_id": "",  # filled later
-        "action_type": action_type,
+        "action_id": f"{isin}-SYMBOL_CHANGE-{effective}-{new_symbol}",
+        "action_type": "SYMBOL_CHANGE",
         "dates": {
             "announcement": filing_date,
-            "ex_date": None,
-            "record_date": None,
-            "effective_date": filing_date,  # default to announcement date if unknown
+            "effective_date": effective,
         },
         "status": "COMPLETED",
         "provenance": {
             "source": "SEC EDGAR",
             "source_url": source_url,
-            "verification_source": None,
         },
-        "impact": {},
+        "impact": {
+            "price_multiplier": 1.0,
+            "share_multiplier": 1.0,
+            "cash_adjustment": 0.0,
+        },
     }
 
-    if action_type in ["SPLIT", "REVERSE_SPLIT"]:
-        ratio_pair = parse_split_ratio(text)
-        if ratio_pair:
-            new, old = ratio_pair
-            # For forward split: ratio string "new:old"
-            action["ratio"] = f"{new}:{old}"
-            # Compute impact multipliers
-            action["impact"]["price_multiplier"] = old / new
-            action["impact"]["share_multiplier"] = new / old
-        else:
-            # No ratio found; mark as incomplete?
-            action["ratio"] = None
 
-    elif action_type in ["DIVIDEND", "SPECIAL_DIVIDEND"]:
-        amount_match = re.search(r"\$\s*([\d\.]+)\s*per\s*share", text, re.IGNORECASE)
-        if amount_match:
-            action["amount"] = float(amount_match.group(1))
-            action["currency"] = "USD"
-            action["impact"]["cash_adjustment"] = action["amount"]
-        else:
-            action["amount"] = None
+def build_delisting(
+    isin: str,
+    cik: str,
+    filing_date: str,
+    accession: str,
+    primary_doc: str,
+    text: str,
+) -> Optional[Dict[str, Any]]:
+    effective = extract_effective_date(text) or filing_date
 
-    elif action_type == "SPINOFF":
-        # Extract ratio like "one share of X for every N shares"
-        m = re.search(r"one\s+share\s+of\s+(\w+)\s+for\s+every\s+(\d+)\s+shares", text, re.IGNORECASE)
-        if m:
-            # Not enough to determine ratio; just record as note
-            action["ratio"] = f"1:{m.group(2)}"
-            # Impact not easily computed
-        else:
-            action["ratio"] = None
+    cik_no_zeros = cik.lstrip("0") or "0"
+    acc_no_dashes = accession.replace("-", "")
+    source_url = (
+        f"https://www.sec.gov/Archives/edgar/data/"
+        f"{cik_no_zeros}/{acc_no_dashes}/{primary_doc}"
+    )
 
-    elif action_type == "SYMBOL_CHANGE":
-        # No easy extraction; we'll skip or rely on Asset Identifiers history.
-        # For now we won't create SYMBOL_CHANGE actions from EDGAR.
-        return None
-
-    elif action_type == "DELISTING":
-        # effective date is enough; no other fields needed
-        pass
-
-    return action
+    return {
+        "isin": isin,
+        "action_id": f"{isin}-DELISTING-{effective}",
+        "action_type": "DELISTING",
+        "dates": {
+            "announcement": filing_date,
+            "effective_date": effective,
+        },
+        "status": "COMPLETED",
+        "provenance": {
+            "source": "SEC EDGAR",
+            "source_url": source_url,
+        },
+        "impact": {
+            "price_multiplier": 1.0,
+            "share_multiplier": 1.0,
+            "cash_adjustment": 0.0,
+        },
+    }
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Fetch corporate actions from SEC EDGAR")
-    parser.add_argument("--identifiers", required=True, help="Path to identifiers.json")
-    parser.add_argument("--output", default="actions.json", help="Output actions.json path")
-    parser.add_argument("--start", default="2019-01-01", help="Start date YYYY-MM-DD")
-    parser.add_argument("--end", default="2024-12-31", help="End date YYYY-MM-DD")
-    parser.add_argument("--cik-limit", type=int, default=None, help="Limit processing to first N CIKs (for testing)")
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Fetch SYMBOL_CHANGE and DELISTING actions from SEC EDGAR."
+    )
+    parser.add_argument("--identifiers", required=True)
+    parser.add_argument("--output", default="sec_actions.json")
+    parser.add_argument("--cik-limit", type=int, default=None)
+    parser.add_argument("--min-date", default=DEFAULT_MIN_DATE)
+    parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
-    # Load identifiers
-    with open(args.identifiers, "r") as f:
-        identifiers_data = json.load(f)
-
-    # Extract instruments list (assume key "instruments" or "identifiers")
-    instruments = identifiers_data.get("instruments") or identifiers_data.get("identifiers")
-    if not instruments:
-        print("Error: No instruments found in identifiers file", file=sys.stderr)
-        sys.exit(1)
-
-    # Filter instruments with CIK
-    valid_instruments = [inst for inst in instruments if inst.get("cik")]
+    instruments = load_instruments(args.identifiers)
     if args.cik_limit:
-        valid_instruments = valid_instruments[:args.cik_limit]
+        instruments = instruments[: args.cik_limit]
 
-    print(f"Processing {len(valid_instruments)} instruments with CIK...")
+    print(f"Processing {len(instruments)} instruments "
+          f"(min date {args.min_date})...")
+    print("Scope: SYMBOL_CHANGE and DELISTING only. "
+          "Dividends and splits come from the Yahoo fetcher.")
 
-    client = SECEdgarClient()
-    all_actions = []
-    errors = []
+    client = SECClient()
+    all_actions: List[Dict[str, Any]] = []
+    errors: List[str] = []
 
-    for idx, inst in enumerate(valid_instruments, start=1):
-        cik = inst["cik"].lstrip("0")
-        isin = inst.get("isin")
-        ticker = inst.get("ticker", "?")
-        if not isin:
-            print(f"  Skipping {ticker}: no ISIN")
+    for idx, (isin, ticker, cik) in enumerate(instruments, start=1):
+        if args.verbose:
+            print(f"[{idx}/{len(instruments)}] {ticker} (CIK {cik})")
+
+        submissions = client.get_submissions(cik)
+        if not submissions:
+            errors.append(f"{ticker}: could not fetch submissions")
             continue
 
-        if args.verbose:
-            print(f"[{idx}/{len(valid_instruments)}] {ticker} ({cik})")
+        recent = submissions.get("filings", {}).get("recent", {})
+        forms = recent.get("form", [])
+        accs = recent.get("accessionNumber", [])
+        docs = recent.get("primaryDocument", [])
+        filed = recent.get("filingDate", [])
 
-        # For each action type, search and extract
-        for action_type, keywords in ACTION_SEARCH_TERMS.items():
-            for keyword in keywords:
-                try:
-                    filings = client.search_filings(cik, keyword, args.start, args.end)
-                except Exception as e:
-                    errors.append(f"{ticker} {action_type} search failed: {e}")
+        eight_k_indices = [i for i, f in enumerate(forms) if f == "8-K"]
+        ticker_actions = 0
+
+        for i in eight_k_indices:
+            filing_date = filed[i]
+            if filing_date < args.min_date:
+                continue
+            accession = accs[i]
+            primary_doc = docs[i]
+            if not primary_doc:
+                continue
+
+            text = client.get_filing_text(cik, accession)
+            if not text:
+                continue
+
+            if is_symbol_change(text):
+                action = build_symbol_change(
+                    isin, ticker, cik, filing_date, accession, primary_doc, text
+                )
+                if action:
+                    all_actions.append(action)
+                    ticker_actions += 1
                     continue
 
-                for filing in filings:
-                    # Get accession number
-                    acc_no = filing.get("accession_number")
-                    if not acc_no:
-                        continue
-                    try:
-                        doc_url = client.get_filing_document_url(cik, acc_no)
-                        text = client.download_filing_text(doc_url)
-                    except Exception as e:
-                        errors.append(f"{ticker} {action_type} download failed: {e}")
-                        continue
+            if is_delisting(text):
+                action = build_delisting(
+                    isin, cik, filing_date, accession, primary_doc, text
+                )
+                if action:
+                    all_actions.append(action)
+                    ticker_actions += 1
 
-                    action = build_action_from_extraction(
-                        action_type, isin, cik, filing.get("file_date", ""), text, doc_url
-                    )
-                    if action:
-                        # Generate action_id
-                        action["action_id"] = (
-                            f"{isin}-{action_type}-{action['dates']['announcement']}-"
-                            f"{abs(hash((cik, acc_no))) % 10000:04d}"
-                        )
-                        all_actions.append(action)
-                        if args.verbose:
-                            print(f"    -> {action['action_id']}")
+        if args.verbose:
+            print(f"    actions extracted: {ticker_actions}")
 
-    # Deduplicate actions (same isin+type+date)
     seen = set()
-    unique_actions = []
-    for act in all_actions:
-        key = (act["isin"], act["action_type"], act["dates"]["announcement"])
-        if key not in seen:
-            seen.add(key)
-            unique_actions.append(act)
+    unique: List[Dict[str, Any]] = []
+    for a in all_actions:
+        aid = a["action_id"]
+        if aid not in seen:
+            seen.add(aid)
+            unique.append(a)
 
-    # Build output
+    unique.sort(key=lambda a: (a["dates"].get("effective_date") or "", a["action_id"]))
+
     output_data = {
         "meta": {
-            "version": "0.1.0",
+            "version": "0.3.0",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "source": "SEC EDGAR",
-            "notes": f"Generated by fetch_sec_edgar_actions.py from {len(valid_instruments)} instruments",
+            "notes": (
+                f"Symbol changes and delistings only. Generated from "
+                f"{len(instruments)} instruments; min_date={args.min_date}; "
+                f"total_actions={len(unique)}"
+            ),
         },
-        "actions": unique_actions,
+        "actions": unique,
     }
 
-    with open(args.output, "w") as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=2)
 
-    print(f"\nDone. Extracted {len(unique_actions)} actions -> {args.output}")
+    print(f"\nDone. Extracted {len(unique)} actions -> {args.output}")
     if errors:
         print(f"\n{len(errors)} errors occurred. First few:")
         for e in errors[:5]:
             print(f"  - {e}")
 
-    # Optional: exit with error if too few actions? Use min env var
-    min_actions = int(os.environ.get("CORP_ACTIONS_MIN_ACTIONS", "0"))
-    if len(unique_actions) < min_actions:
-        print(f"Error: only {len(unique_actions)} actions, minimum required {min_actions}", file=sys.stderr)
-        sys.exit(1)
+    if len(unique) == 0:
+        print("Note: zero actions is expected for most tickers. "
+              "Symbol changes and delistings are rare.", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
