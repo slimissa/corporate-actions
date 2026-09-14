@@ -123,3 +123,4 @@ actions.min.json
 # OS / Misc
 *.bak
 *.orig.venv/
+sec_actions.json
