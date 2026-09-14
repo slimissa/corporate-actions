@@ -171,41 +171,7 @@ run_cmd() {
         "$@" > /dev/null 2>&1
     fi
 }
-
-# ----------------------------------------------------------------------
-# Validate fetch source (fail fast on broken sources)
-# ----------------------------------------------------------------------
-if ! $SKIP_FETCH; then
-    case "$FETCH_SOURCE" in
-        yahoo)
-            log "Fetching actions from Yahoo Finance..."
-            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_yahoo_actions.py"
-            FETCH_OUTPUT="$REPO_ROOT/fetched_actions.json"
-            ;;
-        sec)
-            log "Fetching actions from SEC EDGAR..."
-            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_sec_edgar_actions.py"
-            FETCH_OUTPUT="$REPO_ROOT/sec_actions.json"
-            ;;
-        *)
-            error_exit "Unhandled fetch source: $FETCH_SOURCE"
-            ;;
-    esac
-
-    [[ -f "$FETCH_SCRIPT" ]] || error_exit "Fetcher not found: $FETCH_SCRIPT"
-    ARGS=("$FETCH_SCRIPT" --identifiers "$IDENTIFIERS_PATH" --output "$FETCH_OUTPUT")
-    [[ -n "$TICKER_LIMIT" ]] && ARGS+=(--ticker-limit "$TICKER_LIMIT")
-    if $VERBOSE; then ARGS+=(--verbose); fi
-    run_cmd python3 "${ARGS[@]}"
-
-    if [[ -f "$FETCH_OUTPUT" ]]; then
-        log "Merging fetched actions into $ACTIONS_PATH (fuzzy dedup)..."
-        # ... existing merge script unchanged ...
-    else
-        log "No fetched actions file produced; skipping merge."
-    fi
-fi
-
+    
 # ----------------------------------------------------------------------
 # Validate input files exist
 # ----------------------------------------------------------------------
