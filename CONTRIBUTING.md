@@ -119,6 +119,12 @@ source .venv/bin/activate
 # Install Python dependencies
 pip install --upgrade pip
 pip install pytest jsonschema yfinance requests
+
+# Point at real instrument data (recommended for local development)
+# Without this, the validator uses the synthetic fixture in tests/fixtures/,
+# which has 10 placeholder instruments and no real identifiers. Real data
+# lives outside the repository for licensing reasons. See section 10.7.
+export LAS_DATA_HOME="$HOME/Documents/asset-identifiers-data"
 ```
 
 The `.venv/` directory is in `.gitignore`. Never commit it.
@@ -145,8 +151,20 @@ Expected:
 - Validator: `OK: 242 actions validated successfully.`
 - Tests: `143 passed`
 
-If either fails on a clean checkout, open an issue. The `main` branch is
-expected to be green at all times.
+The validator prints `Loaded N ISINs`. What N is depends on which
+identifiers file it read:
+
+| N | Source | When |
+|---|--------|------|
+| `10` | `tests/fixtures/identifiers.json` | Synthetic fixture (default without `LAS_DATA_HOME`) |
+| `514` | `$LAS_DATA_HOME/identifiers.json` | Real Asset Identifiers registry (recommended) |
+
+Both are valid. The fixture exists so CI has something to load without
+requiring secrets or external downloads. Real development should use
+`$LAS_DATA_HOME`.
+
+If either check fails on a clean checkout, open an issue. The `main`
+branch is expected to be green at all times.
 
 ### 3.4 Per-language setup
 
@@ -174,7 +192,31 @@ cd wrappers/rust
 cargo test
 ```
 
-### 3.5 Editor configuration
+### 3.5 Environment variables
+
+The validator and fetchers read these environment variables:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `LAS_DATA_HOME` | Directory containing `identifiers.json` | (unset) |
+| `CORP_ACTIONS_IDENTIFIERS_PATH` | Full path to `identifiers.json` | (unset) |
+| `CORP_ACTIONS_ISO4217_PATH` | Path to `iso4217.json` | `tests/fixtures/iso4217.json` |
+| `CORP_ACTIONS_EXCHANGE_CALENDAR_PATH` | Path to `calendar.json` | `tests/fixtures/exchange_calendar.json` |
+| `CORP_ACTIONS_MIN_ACTIONS` | Minimum action count for coverage | `1` |
+| `SEC_EDGAR_USER_AGENT` | User-Agent for SEC requests | Built-in default |
+
+Resolution priority for each: CLI argument > env var > default path.
+
+Recommended local setup:
+
+```bash
+export LAS_DATA_HOME="$HOME/Documents/asset-identifiers-data"
+```
+
+Put this in your shell profile (`.bashrc`, `.zshrc`) so it persists
+across sessions.
+
+### 3.6 Editor configuration
 
 No `.editorconfig` is enforced, but every file in this repository uses:
 
@@ -211,7 +253,7 @@ corporate-actions/
 │   ├── derive_impacts.py        # Compute multipliers
 │   ├── build.py                 # Distribution artifacts
 │   ├── fetch_yahoo_actions.py   # Working fetcher
-│   ├── fetch_sec_edgar_actions.py   # Broken fetcher
+│   ├── fetch_sec_edgar_actions.py   # SYMBOL_CHANGE, DELISTING (narrow scope)
 │
 ├── scripts/                     # Operational scripts
 │   ├── run_update.sh            # Full pipeline
@@ -234,9 +276,9 @@ corporate-actions/
 ├── tests/                       # Root test suite
 │   ├── test_*.py
 │   └── fixtures/
-│       ├── identifiers.json
-│       ├── iso4217.json
-│       └── exchange_calendar.json
+│       ├── identifiers.json     # Synthetic (10 placeholder instruments)
+│       ├── iso4217.json         # Real ISO 4217 codes (public data)
+│       └── exchange_calendar.json  # Real exchange calendars (public data)
 │
 └── .github/
     ├── workflows/               # CI
@@ -657,6 +699,57 @@ verify a silent change.
 The PR template requires validator output. Paste the full output,
 including the summary line.
 
+Run the validator with `$LAS_DATA_HOME` set so the cross-reference check
+reads real ISINs:
+
+```bash
+python3 tools/validate.py \
+  --actions actions.json \
+  --schema schema.json \
+  --iso4217 tests/fixtures/iso4217.json \
+  --exchange-calendar tests/fixtures/exchange_calendar.json
+
+If $LAS_DATA_HOME is not set, the validator uses the synthetic fixture
+and every real ISIN in your PR will produce a warning. That is expected
+and not a failure — but it means the reviewer cannot verify your ISINs
+from the output alone. Always include the Loaded N ISINs line so the
+reviewer knows which registry was used.
+
+### 10.7 Third-party identifier data
+
+Do not commit files containing real ISINs, CUSIPs, SEDOLs, FIGIs, or
+LEIs sourced from commercial vendors (FMP, CUSIP Global Services, LSE,
+or any registry whose terms prohibit redistribution).
+
+**Rules:**
+
+- `tests/fixtures/identifiers.json` is **synthetic** and safe to commit.
+  It contains 10 placeholder instruments with format-valid but fake ISINs
+  (TESTA through TESTJ). It exists so CI has a file to load without
+  requiring secrets.
+- Real instrument data lives at `$LAS_DATA_HOME/identifiers.json`, outside
+  this repository. It is never committed.
+- If a fetcher or tool produces a file containing real identifiers, add
+  the file to `.gitignore` before the first commit. Never `git add -f` a
+  file that contains licensed identifiers.
+- The CI validator runs against the synthetic fixture. It does not fetch
+  real identifiers at CI time and does not have access to the private
+  Asset Identifiers store.
+
+**Historical note:** an earlier version of this repository committed an
+enriched `identifiers.json` with 510 real ISINs and 475 real CUSIPs. This
+was a licensing violation. It required a `git filter-repo` history rewrite
+on 2026-09-14 to remove. The rewrite changed every commit hash and broke
+the `v1.0.0` tag, which had to be force-repushed. Do not repeat it.
+
+**If you are unsure whether a file contains licensed data**, ask before
+committing. The cost of a history rewrite is high and affects every
+collaborator.
+
+See [`docs/data_sources.md`](./docs/data_sources.md) for the licensing
+status of each source and [`docs/roadmap.md`](./docs/roadmap.md) for the
+plan to expand coverage without licensed data.
+
 ---
 
 ## 11. Reporting bugs
@@ -755,8 +848,13 @@ sources that permit redistribution, as documented in
 [`docs/data_sources.md`](./docs/data_sources.md).
 
 Do not submit data extracted from sources that prohibit redistribution
-(Bloomberg, Refinitiv, CUSIP Global Services). If you are unsure about a
-source's licensing, ask before submitting.
+(Bloomberg, Refinitiv, CUSIP Global Services, FMP, LSE Masterfile). If
+you are unsure about a source's licensing, ask before submitting.
+
+The `tests/fixtures/identifiers.json` file is exempt: it is synthetic,
+contains no real identifiers, and exists only to satisfy CI. Do not
+replace it with real data. See section 10.7 for the full rule and for the
+history of why it matters.
 
 ---
 
