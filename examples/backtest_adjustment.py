@@ -19,11 +19,16 @@ The example:
 Prerequisites:
   - Python wrapper installed (pip install wrappers/python)
   - yfinance installed (pip install yfinance)
+  - Ticker→ISIN resolution requires the Asset Identifiers registry.
+    Set LAS_DATA_HOME to the directory containing identifiers.json, or
+    pass --isin explicitly to skip ticker resolution.
 
 Run:
   python examples/backtest_adjustment.py --ticker NVDA --start 2024-01-02 --end 2024-07-01
   python examples/backtest_adjustment.py --ticker AAPL --start 2020-01-02 --end 2021-01-02
   python examples/backtest_adjustment.py --ticker MSFT --start 2020-01-02 --end 2024-01-02
+  python examples/backtest_adjustment.py --ticker JPM --exchange XNYS --start 2020-01-02 --end 2024-01-02
+  python examples/backtest_adjustment.py --isin US67066G1040 --ticker NVDA --start 2024-01-02 --end 2024-07-01
 """
 
 import argparse
@@ -35,22 +40,36 @@ from pathlib import Path
 # ----------------------------------------------------------------------
 # Imports with friendly fallbacks
 # ----------------------------------------------------------------------
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+# Corporate Actions wrapper
 try:
     from corporate_actions_registry import CorporateActionsRegistry
 except ImportError:
-    repo_root = Path(__file__).resolve().parents[1]
-    sys.path.insert(0, str(repo_root / "wrappers" / "python"))
+    sys.path.insert(0, str(REPO_ROOT / "wrappers" / "python"))
     from corporate_actions_registry import CorporateActionsRegistry
 
+# Ticker → ISIN index lives in tools/validate.py
+sys.path.insert(0, str(REPO_ROOT))
+try:
+    from tools.validate import load_ticker_isin_index, RegistryLoadError
+except ImportError as e:
+    print(f"Error: could not import ticker index from tools.validate: {e}",
+          file=sys.stderr)
+    print("       Run this example from the repository root.", file=sys.stderr)
+    sys.exit(3)
+
+# Price data
 try:
     import yfinance as yf
 except ImportError:
-    print("Error: yfinance is required. Install with: pip install yfinance", file=sys.stderr)
+    print("Error: yfinance is required. Install with: pip install yfinance",
+          file=sys.stderr)
     sys.exit(3)
 
 
 # ----------------------------------------------------------------------
-# Path resolution (same logic as python_lookup.py)
+# Path resolution
 # ----------------------------------------------------------------------
 def find_actions_file(cli_path: str = None) -> Path:
     if cli_path:
@@ -62,10 +81,11 @@ def find_actions_file(cli_path: str = None) -> Path:
     cwd_file = Path.cwd() / "actions.json"
     if cwd_file.exists():
         return cwd_file
-    repo_file = Path(__file__).resolve().parents[1] / "actions.json"
+    repo_file = REPO_ROOT / "actions.json"
     if repo_file.exists():
         return repo_file
-    print("Error: could not find actions.json. Use --actions PATH.", file=sys.stderr)
+    print("Error: could not find actions.json. Use --actions PATH.",
+          file=sys.stderr)
     sys.exit(2)
 
 
@@ -95,29 +115,13 @@ def compute_naive_return(prices_start: float, prices_end: float) -> float:
     return (prices_end / prices_start - 1.0) * 100.0
 
 
-def adjust_prices_for_actions(
-    prices,
-    actions,
-    start: date,
-    end: date,
-):
+def adjust_prices_for_actions(prices, actions, start: date, end: date):
     """
     Adjust each historical price for actions whose ex-date falls between
     the price date and `end`.
 
-    Returns a dict mapping date -> adjusted price.
-
-    Adjustment logic:
-      - For a SPLIT with ratio "N:M": multiply prices before the ex-date
-        by M/N.
-      - For a DIVIDEND: cash dividends do not affect price-adjustment for
-        price-only returns. For total-return calculation, add cash back
-        separately (handled in compute_total_return).
-
-    Since we hold from `start` to `end`, actions with ex_date > end do
-    not affect the return. Actions with ex_date <= start affect both
-    endpoints equally, so they cancel out in the return. Only actions
-    with ex_date in (start, end] matter.
+    Only SPLIT and REVERSE_SPLIT affect the price series. Dividends are
+    handled separately in compute_total_return.
     """
     adjusted = {}
     for dt, price in prices.items():
@@ -132,7 +136,6 @@ def adjust_prices_for_actions(
                 continue
             ex_date = to_date(ex_date_str)
             if dt < ex_date:
-                # Apply split multiplier
                 ratio = action.ratio
                 if not ratio:
                     continue
@@ -160,11 +163,7 @@ def compute_total_return(prices, actions, start: date, end: date) -> float:
     """
     Total return = price return (split-adjusted) + cash dividends received
     during the holding period.
-
-    Simplification: assumes the position is held continuously. Dividends
-    are added to the end value.
     """
-    # Split-adjusted price return
     adjusted = adjust_prices_for_actions(prices, actions, start, end)
     start_p = None
     end_p = None
@@ -175,9 +174,7 @@ def compute_total_return(prices, actions, start: date, end: date) -> float:
             end_p = (dt, adjusted[dt])
     if not start_p or not end_p:
         return float("nan")
-    price_return_pct = (end_p[1] / start_p[1] - 1.0) * 100.0
 
-    # Cash dividends during holding period
     cash = 0.0
     for action in actions:
         if action.action_type not in ("DIVIDEND", "SPECIAL_DIVIDEND"):
@@ -187,14 +184,12 @@ def compute_total_return(prices, actions, start: date, end: date) -> float:
             continue
         if not in_range(ex_date_str, start, end):
             continue
-        if action.amount and action.action_type == "DIVIDEND":
-            cash += action.amount
-        elif action.amount and action.action_type == "SPECIAL_DIVIDEND":
+        if action.amount:
             cash += action.amount
 
-    # Add cash to end value
     total_end = end_p[1] + cash
     return (total_end / start_p[1] - 1.0) * 100.0
+
 
 def dedupe_actions(actions):
     """Remove duplicate actions with same (action_type, ex_date, ratio/amount)."""
@@ -216,6 +211,61 @@ def dedupe_actions(actions):
         result.append(a)
     return result
 
+
+# ----------------------------------------------------------------------
+# ISIN resolution
+# ----------------------------------------------------------------------
+def resolve_isin(ticker: str, exchange: str, explicit_isin: str = None):
+    """
+    Resolve a ticker+exchange pair to an ISIN.
+
+    Priority:
+      1. Explicit ISIN argument (skip lookup entirely).
+      2. Ticker→ISIN index built from the Asset Identifiers registry.
+
+    Returns the ISIN, or exits with a clear error.
+    """
+    if explicit_isin:
+        return explicit_isin
+
+    try:
+        index = load_ticker_isin_index()
+    except RegistryLoadError as e:
+        print(f"Error loading ticker→ISIN index: {e}", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("The index requires the Asset Identifiers registry.",
+              file=sys.stderr)
+        print("Set LAS_DATA_HOME to the directory containing identifiers.json:",
+              file=sys.stderr)
+        print("    export LAS_DATA_HOME=\"$HOME/Documents/asset-identifiers-data\"",
+              file=sys.stderr)
+        print("", file=sys.stderr)
+        print("Or pass --isin <ISIN> to skip ticker resolution.",
+              file=sys.stderr)
+        sys.exit(2)
+
+    key = (ticker.upper(), exchange.upper())
+    try:
+        return index[key]
+    except KeyError:
+        # Give a helpful hint if the ticker exists on a different exchange.
+        other_exchanges = sorted(
+            exch for (t, exch) in index if t == ticker.upper()
+        )
+        if other_exchanges:
+            print(f"Error: ticker '{ticker}' not found on exchange "
+                  f"'{exchange}'.", file=sys.stderr)
+            print(f"       It is listed on: {', '.join(other_exchanges)}",
+                  file=sys.stderr)
+            print(f"       Try --exchange {other_exchanges[0]}", file=sys.stderr)
+        else:
+            print(f"Error: ticker '{ticker}' not found in the Asset "
+                  f"Identifiers registry.", file=sys.stderr)
+            print("       Pass --isin <ISIN> if you know it directly.",
+                  file=sys.stderr)
+        sys.exit(2)
+
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
@@ -224,8 +274,11 @@ def main() -> int:
         description="Demonstrate price adjustment for corporate actions."
     )
     parser.add_argument("--ticker", default="NVDA", help="Ticker symbol")
+    parser.add_argument("--exchange", default="XNAS",
+                        help="Exchange MIC for ticker resolution "
+                             "(default: XNAS)")
     parser.add_argument("--isin", default=None,
-                        help="ISIN to use directly (overrides --ticker scan)")
+                        help="ISIN to use directly (overrides ticker lookup)")
     parser.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
     parser.add_argument("--actions", default=None, help="Path to actions.json")
@@ -237,33 +290,28 @@ def main() -> int:
         print("Error: start must be before end.", file=sys.stderr)
         return 2
 
+    isin = resolve_isin(args.ticker, args.exchange, args.isin)
+
     actions_path = find_actions_file(args.actions)
     registry = CorporateActionsRegistry(str(actions_path))
 
-    # Resolve ISIN
-    if args.isin:
-        isin = args.isin
-    else:
-        matching_isins = set()
-        for action in registry.actions:
-            src = action.provenance.source_url if action.provenance else None
-            if src and f"/{args.ticker}/" in src:
-                matching_isins.add(action.isin)
-        if not matching_isins:
-            print(f"Warning: no actions found for ticker {args.ticker}. "
-                  f"Try --isin if you know the ISIN.")
-            return 1
-        isin = sorted(matching_isins)[0]
-
     actions_for_ticker = dedupe_actions(registry.by_isin(isin))
-    print(f"Ticker: {args.ticker}  (ISIN {isin})")
+    print(f"Ticker: {args.ticker}  Exchange: {args.exchange}  (ISIN {isin})")
     print(f"Registry: {actions_path}")
     print(f"Actions on record after dedup: {len(actions_for_ticker)}")
 
+    if not actions_for_ticker:
+        print()
+        print("Note: no corporate actions found for this ISIN in the registry.")
+        print("      All three return values will be identical.")
+        print("      Try NVDA, AAPL, MSFT, GOOGL, or AMZN to see a difference.")
+
+    print()
     print(f"Fetching prices for {args.ticker} from {args.start} to {args.end}...")
     try:
         ticker_obj = yf.Ticker(args.ticker)
-        hist = ticker_obj.history(start=args.start, end=args.end, auto_adjust=False)
+        hist = ticker_obj.history(start=args.start, end=args.end,
+                                  auto_adjust=False)
     except Exception as e:
         print(f"Error fetching prices: {e}", file=sys.stderr)
         return 1
@@ -275,7 +323,8 @@ def main() -> int:
     first_price = prices[min(prices)]
     last_price = prices[max(prices)]
 
-    split_adj = adjust_prices_for_actions(prices, actions_for_ticker, start_d, end_d)
+    split_adj = adjust_prices_for_actions(prices, actions_for_ticker,
+                                          start_d, end_d)
     split_ret = compute_split_adjusted_return(split_adj, start_d, end_d)
     total_ret = compute_total_return(prices, actions_for_ticker, start_d, end_d)
 
@@ -286,7 +335,8 @@ def main() -> int:
     print(f"  First price:    {first_price:.4f}  (as reported by yfinance)")
     print(f"  Last price:     {last_price:.4f}")
     print("=" * 60)
-    print(f"  Raw price return (unadjusted):         {compute_naive_return(first_price, last_price):+7.2f}%")
+    print(f"  Raw price return (unadjusted):         "
+          f"{compute_naive_return(first_price, last_price):+7.2f}%")
     print(f"  Split-adjusted price return:           {split_ret:+7.2f}%")
     print(f"  Total return (splits + dividends):     {total_ret:+7.2f}%   CORRECT")
     print("=" * 60)
@@ -315,6 +365,7 @@ def main() -> int:
         print(f"Dividends in holding period: {len(dividends_in_range)} payments, "
               f"total cash per share {total_cash:.4f}")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
