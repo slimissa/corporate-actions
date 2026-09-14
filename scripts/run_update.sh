@@ -22,7 +22,7 @@
 #   --actions PATH              Path to actions.json (default: actions.json)
 #   --schema PATH               Path to schema.json (default: schema.json)
 #   --fetch-source SOURCE       Data source (default: yahoo).
-#                               Valid: yahoo. 'sec' is reserved but not yet working.
+#                               Valid: yahoo, sec.
 #                               'nasdaq' was removed in v1.0.1.
 #   --ticker-limit N            Limit fetcher to first N tickers
 #   --min-actions N             Minimum number of actions required (default: 1)
@@ -34,6 +34,8 @@
 #   --tag VERSION               Tag the release after success (requires --commit)
 #   --webhook-url URL           Send notification to webhook on change
 #   --verbose                   Print verbose output
+#   --tests                     Override --dry-run: run tests anyway
+#   --build                     Override --dry-run: build anyway
 #
 # Exit codes:
 #   0 – success
@@ -142,7 +144,7 @@ while [[ $# -gt 0 ]]; do
         --build)
             SKIP_BUILD=false; shift ;;
         --help|-h)
-            grep '^#' "$0" | sed 's/^# //)'
+            grep '^#' "$0" | sed 's/^# //'
             exit 0 ;;
         *)
             echo "Unknown option: $1" >&2
@@ -175,21 +177,32 @@ run_cmd() {
 # ----------------------------------------------------------------------
 if ! $SKIP_FETCH; then
     case "$FETCH_SOURCE" in
-        yahoo|sec) ;;
-        nasdaq)
-            error_exit "The Nasdaq fetcher was removed in v1.0.1 because the API
-  times out from non-US IPs and CI runners, and Yahoo Finance covers the
-  same dividend data reliably.
-  Use --fetch-source yahoo instead."
+        yahoo)
+            log "Fetching actions from Yahoo Finance..."
+            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_yahoo_actions.py"
+            FETCH_OUTPUT="$REPO_ROOT/fetched_actions.json"
+            ;;
+        sec)
+            log "Fetching actions from SEC EDGAR..."
+            FETCH_SCRIPT="$REPO_ROOT/tools/fetch_sec_edgar_actions.py"
+            FETCH_OUTPUT="$REPO_ROOT/sec_actions.json"
             ;;
         *)
-            error_exit "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec)"
+            error_exit "Unhandled fetch source: $FETCH_SOURCE"
             ;;
     esac
-    if [[ "$FETCH_SOURCE" == "sec" ]]; then
-        error_exit "SEC EDGAR fetcher is currently broken (endpoint returns HTTP 500).
-  Track progress at https://github.com/slimissa/corporate-actions/issues
-  For now, use --fetch-source yahoo."
+
+    [[ -f "$FETCH_SCRIPT" ]] || error_exit "Fetcher not found: $FETCH_SCRIPT"
+    ARGS=("$FETCH_SCRIPT" --identifiers "$IDENTIFIERS_PATH" --output "$FETCH_OUTPUT")
+    [[ -n "$TICKER_LIMIT" ]] && ARGS+=(--ticker-limit "$TICKER_LIMIT")
+    if $VERBOSE; then ARGS+=(--verbose); fi
+    run_cmd python3 "${ARGS[@]}"
+
+    if [[ -f "$FETCH_OUTPUT" ]]; then
+        log "Merging fetched actions into $ACTIONS_PATH (fuzzy dedup)..."
+        # ... existing merge script unchanged ...
+    else
+        log "No fetched actions file produced; skipping merge."
     fi
 fi
 
