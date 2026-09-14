@@ -776,14 +776,14 @@ except RegistryLoadError:
 except KeyError:
     # Ticker not in the registry
     ...
+```
 
 The index reads from the same path as the validator:
 $LAS_DATA_HOME/identifiers.json by default, overridable via
 --identifiers (in CLI tools) or $CORP_ACTIONS_IDENTIFIERS_PATH.
 
-See docs/validation_layers.md
+See [docs/validation_layers.md](./validation_layers.md#additional-utilities)
 for the full API and behavior.
-```
 
 Use the bug report issue template (if present) or open a blank issue
 with this information:

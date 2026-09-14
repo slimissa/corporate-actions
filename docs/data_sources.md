@@ -262,7 +262,7 @@ section 10.7 for the rule and its history.
 
 Both are in tools/validate.py. Both read from the same resolved path
 ($LAS_DATA_HOME/identifiers.json or overrides). See
-docs/validation_layers.md
+See [`docs/validation_layers.md`](./validation_layers.md#additional-utilities)
 for the ticker index API.
 
 ---

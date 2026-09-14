@@ -878,8 +878,6 @@ change is wrong or the data is wrong. Investigate before committing.
 
 ---
 
-## Version history
-
 ## Additional utilities
 
 Beyond the seven validation layers, `tools/validate.py` provides two
@@ -923,6 +921,8 @@ distinct keys on the same exchange. The lookup is deterministic.
 A miss raises `KeyError`. Callers should handle that explicitly — it
 means the ticker is outside the S&P 500 universe the registry covers.
 Do not silently fall back to a heuristic.
+
+## Version history
 
 ### v1.0.0
 

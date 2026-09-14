@@ -69,11 +69,6 @@ tag. `BREAKING` annotations appear inline for major-version changes.
   `--fetch-source nasdaq` to `scripts/run_update.sh` now exits with a
   clear error message rather than running a broken code path.
 
-### Changed
-
-- `scripts/run_update.sh` fetch-source validation updated: `nasdaq` is now
-  reported as "removed", not "broken".
-
 ### Documentation
 
 - `docs/data_sources.md` moved Nasdaq from "Current sources" (broken) to
