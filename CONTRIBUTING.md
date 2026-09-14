@@ -708,8 +708,9 @@ python3 tools/validate.py \
   --schema schema.json \
   --iso4217 tests/fixtures/iso4217.json \
   --exchange-calendar tests/fixtures/exchange_calendar.json
+```
 
-If $LAS_DATA_HOME is not set, the validator uses the synthetic fixture
+If `$LAS_DATA_HOME` is not set, the validator uses the synthetic fixture
 and every real ISIN in your PR will produce a warning. That is expected
 and not a failure — but it means the reviewer cannot verify your ISINs
 from the output alone. Always include the Loaded N ISINs line so the
