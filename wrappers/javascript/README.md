@@ -8,7 +8,7 @@ This is the official JavaScript wrapper for the **Corporate Actions Registry** (
 - **Fast in‑memory indexes** for O(1) lookups by ISIN, action ID, and action type
 - **Date range filtering** on any date field
 - **Serialization** to JSON (via `toJSON()` and `save()`)
-- **Works with Node.js 14+**
+- **Works with Node.js 18+**
 - **CommonJS** module (compatible with `require`)
 
 ## Installation
