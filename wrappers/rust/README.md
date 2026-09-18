@@ -31,7 +31,7 @@ cargo build
 ## Quick Start
 
 ```rust
-use corporate_actions::Registry;
+use corporate_actions_registry::Registry;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let registry = Registry::load_from_file("actions.json")?;
