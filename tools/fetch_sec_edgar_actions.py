@@ -87,19 +87,19 @@ DEFAULT_MIN_DATE = "2019-01-01"
 SYMBOL_CHANGE_TRIGGERS = [
     re.compile(
         r"(?i:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
-        r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})['\"]?"
+        r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
     re.compile(
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
-        r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})['\"]?"
+        r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
     re.compile(
         r"(?i:(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+)"
-        r"['\"]?([A-Z]{1,6})['\"]?"
+        r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
     re.compile(
         r"(?i:trading\s+symbol\s+(?:will\s+)?(?:change|be\s+changed)\s+to\s+)"
-        r"['\"]?([A-Z]{1,6})['\"]?"
+        r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
 ]
 
