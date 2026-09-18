@@ -45,6 +45,11 @@ except ImportError:
     print("Error: jsonschema is required. Install with: pip install jsonschema", file=sys.stderr)
     sys.exit(2)
 
+# Module-level FormatChecker. Constructed once. Requires rfc3339-validator
+# for `format: date-time`. Without that package, jsonschema silently
+# ignores date-time formats; `date` is always enforced.
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
 # Default paths (can be overridden by env vars or CLI args)
 DEFAULT_ACTIONS_PATH = "actions.json"
 DEFAULT_SCHEMA_PATH = "schema.json"
@@ -282,7 +287,7 @@ def validate_schema(action: Dict[str, Any], action_schema: Dict[str, Any]) -> Li
     """Validate a single action against the action sub-schema."""
     errors = []
     try:
-        schema_validate(action, action_schema)
+        schema_validate(action, action_schema, format_checker=_FORMAT_CHECKER)
     except jsonschema.ValidationError as e:
         errors.append(f"Schema error: {e.message} (path: {'/'.join(map(str, e.absolute_path))})")
     return errors
