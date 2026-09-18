@@ -226,7 +226,7 @@ class TestActionSchemaValidation:
         with pytest.raises(jsonschema.ValidationError):
             schema_validate(action, action_schema)
 
-    def test_unknown_action_type_rejected(tmp_path):
+    def test_unknown_action_type_rejected(self, tmp_path):
         """A typo in action_type must fail, not pass silently."""
         actions = json.loads((REPO_ROOT / "actions.json").read_text(encoding="utf-8"))
         # Introduce a typo in the first action

@@ -137,14 +137,9 @@ class TestShapeRejections:
         "not-an-id",
         "hello world",
         "US67066G1040",
-        "",
     ])
     def test_rejects(self, action_id):
         errors = validate_action_id_format({"action_id": action_id})
-        # Empty string is the one exception: the function treats it as
-        # "missing" and returns [], which is covered by TestMissingActionId.
-        if action_id == "":
-            pytest.skip("empty string is tested in TestMissingActionId")
         assert errors, f"expected rejection for {action_id!r}"
         # Every shape rejection must produce exactly one error, the shape one.
         # No consistency check runs when the shape does not match.
@@ -357,6 +352,13 @@ class TestDiscriminatorIsFreeForm:
 # Real registry
 # ---------------------------------------------------------------------------
 
+@pytest.fixture(scope="module")
+def real_actions():
+    """The committed actions.json's action list, loaded once per session."""
+    path = REPO_ROOT / "actions.json"
+    return json.loads(path.read_text(encoding="utf-8"))["actions"]
+
+
 class TestRealRegistry:
     """The committed actions.json must not produce a single ID-format error.
 
@@ -365,14 +367,9 @@ class TestRealRegistry:
     the file is ever committed.
     """
 
-    @pytest.fixture(scope="class")
-    def actions(self):
-        path = REPO_ROOT / "actions.json"
-        return json.loads(path.read_text(encoding="utf-8"))["actions"]
-
-    def test_every_id_passes(self, actions):
+    def test_every_id_passes(self, real_actions):
         failures = []
-        for action in actions:
+        for action in real_actions:
             errors = validate_action_id_format(action)
             if errors:
                 failures.append((action.get("action_id"), errors))
@@ -381,7 +378,7 @@ class TestRealRegistry:
             + "\n".join(f"  {aid}: {errs}" for aid, errs in failures[:10])
         )
 
-    def test_at_least_one_action_exists(self, actions):
+    def test_at_least_one_action_exists(self, real_actions):
         """Guard against the file being emptied and the previous test
         vacuously passing."""
-        assert len(actions) > 0
+        assert len(real_actions) > 0

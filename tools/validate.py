@@ -258,7 +258,11 @@ def load_iso4217_registry(path: str) -> Set[str]:
       }
     We only want the active codes.
     """
-    data = load_json_file(path)
+    try:
+        data = load_json_file(path)
+    except Exception as e:
+        raise RegistryLoadError(f"Failed to load ISO 4217 registry: {e}")
+
     try:
         active_list = data["currencies"]["active"]
     except (KeyError, TypeError):

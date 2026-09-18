@@ -482,12 +482,12 @@ class TestEdgeCases:
         }
         assert validate_temporal(action) == []
 
-    def test_missing_action_type_returns_error():
+    def test_missing_action_type_returns_error(self):
         errors = validate_temporal({
             "dates": {"announcement": "2024-01-01", "effective_date": "2024-01-01"},
         })
         assert errors == ["missing action_type"]
 
-    def test_empty_action_type_returns_error():
+    def test_empty_action_type_returns_error(self):
         errors = validate_temporal({"action_type": "", "dates": {}})
         assert errors == ["missing action_type"]

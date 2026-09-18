@@ -54,7 +54,7 @@ class TestISINCrossReference:
         action = {"isin": None}
         assert validate_cross_reference(action, isin_set, currency_set, mic_set) == []
 
-    def test_fallback_accepts_list_where_first_element_has_no_isin(tmp_path):
+    def test_fallback_accepts_list_where_first_element_has_no_isin(self, tmp_path):
         path = tmp_path / "identifiers.json"
         sys.path.write_text(json.dumps({
             "custom_key": [
