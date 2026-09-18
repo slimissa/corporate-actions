@@ -53,6 +53,32 @@ tag. `BREAKING` annotations appear inline for major-version changes.
   instead of the retired `efts.sec.gov` endpoint. Scope narrowed to
   `SYMBOL_CHANGE` and `DELISTING` only. Dividends and splits are no longer
   extracted from SEC text (Yahoo Finance is authoritative for both).
+  
+### Fixed (Session 2)
+
+- `derive_impacts.py` refuses to write when any action fails; ratio
+  parser aligned with `validate_arithmetic`
+- `build.py` output is deterministic; `build_timestamp` moved to a
+  `.meta.json` sidecar
+- `build.py` CSV column set collected from all actions and sorted
+- `build.py` `flatten_action` rejects nested dicts and lists
+- SEC fetcher warns when `filings.files[]` is non-empty; no longer
+  skips the delisting check after a symbol-change match
+- SEC fetcher `SYMBOL_CHANGE_TRIGGERS` reject candidates followed by
+  alphanumerics (`AB1`, `ABCDEFGH`)
+- Yahoo fetcher exits non-zero on ticker failure; adds retries with
+  exponential backoff
+- Validator collapses repeated missing-ISIN warnings on the synthetic
+  fixture
+
+### Added (Session 2)
+
+- `tests/test_derive_impacts.py`, 45 tests
+- `tests/test_build.py`, 101 tests
+- `tests/test_fetch_sec_edgar_actions.py`, 118 tests
+- `tests/test_fetch_yahoo_actions.py`, 112 tests
+- `tests/test_validator_integration.py`, 33 tests
+- `tests/test_action_id_format.py`, 76 tests
 
 ### Changed
 
