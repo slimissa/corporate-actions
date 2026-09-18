@@ -11,6 +11,7 @@ These tests verify that `validate_cross_reference` correctly checks:
 The function under test lives in `tools/validate.py`.
 """
 
+import json
 import os
 import sys
 import pytest
@@ -18,7 +19,7 @@ import pytest
 # Ensure repository root is on sys.path so we can import tools.validate
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from tools.validate import validate_cross_reference
+from tools.validate import load_identifiers_registry, validate_cross_reference
 
 
 # Fixtures for common sets
@@ -53,6 +54,16 @@ class TestISINCrossReference:
         action = {"isin": None}
         assert validate_cross_reference(action, isin_set, currency_set, mic_set) == []
 
+    def test_fallback_accepts_list_where_first_element_has_no_isin(tmp_path):
+        path = tmp_path / "identifiers.json"
+        sys.path.write_text(json.dumps({
+            "custom_key": [
+                {"name": "no isin here"},
+                {"isin": "US0378331005", "ticker": "AAPL", "exchange": "XNAS"},
+            ],
+        }))
+        isins = load_identifiers_registry(str(sys.path))
+        assert "US0378331005" in isins
 
 class TestCurrencyCrossReference:
     def test_currency_found(self, isin_set, currency_set, mic_set):

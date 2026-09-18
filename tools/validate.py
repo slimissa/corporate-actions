@@ -135,11 +135,16 @@ def load_identifiers_registry(path: str) -> Set[str]:
     else:
         # Fallback: find first list of dicts with "isin"
         for value in data.values():
-            if isinstance(value, list) and value and isinstance(value[0], dict) and "isin" in value[0]:
-                for item in value:
-                    if "isin" in item:
-                        isins.add(item["isin"])
-                break
+            if not isinstance(value, list) or not value:
+                continue
+            if not all(isinstance(item, dict) for item in value):
+                continue
+            if not any(item.get("isin") for item in value):
+                continue
+            for item in value:
+                if item.get("isin"):
+                    isins.add(item["isin"])
+            break
 
     if not isins:
         print("Warning: No ISINs found in Asset Identifiers registry", file=sys.stderr)
@@ -213,14 +218,14 @@ def load_ticker_isin_index(
 
     if instruments is None:
         for value in data.values():
-            if (
-                isinstance(value, list)
-                and value
-                and isinstance(value[0], dict)
-                and "ticker" in value[0]
-            ):
-                instruments = value
-                break
+            if not isinstance(value, list) or not value:
+                continue
+            if not all(isinstance(item, dict) for item in value):
+                continue
+            if not any(item.get("ticker") for item in value):
+                continue
+            instruments = value
+            break
 
     if not instruments:
         raise RegistryLoadError("No instruments found in Asset Identifiers registry")
