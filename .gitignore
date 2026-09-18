@@ -1,127 +1,116 @@
-# General
-.DS_Store
-Thumbs.db
-*.log
-*.tmp
-*.temp
-*.swp
-*.swo
+
 *~
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-*.egg
-build/
-dist/
-wheels/
-*.whl
-.venv/
-venv/
-env/
-ENV/
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-.tox/
-.nox/
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.eggs/
-develop-eggs/
-downloads/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.manifest
-*.spec
-pip-wheel-metadata/
-celerybeat-schedule
-celerybeat.pid
-*.sage.py
-
-# Node.js / JavaScript
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-.npm/
-.eslintcache
-.stylelintcache
-.cache/
-.next/
-out/
-build/
-dist/
-
-# Go
-# Binaries
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-
-# Dependency directories
-vendor/
-
-# Build artifacts
-/bin/
-/pkg/
-/cmd/*/main
-
-# Rust
-target/
-yahoo_actions_test.json
-wrappers/rust/target/
-**/*.rs.bk
-Cargo.lock  # Keep Cargo.lock for binaries; adjust if library
-
-# Project-specific
-# SEC EDGAR cache
-.cache_sec_edgar/
-# Local configuration / secrets
-.env
-.env.local
-.env.*.local
-*.local
-# Generated distribution files (created by tools/build.py)
 actions.dist.json
 actions.min.json
+*.bak
+/bin/
+# Binaries
+build/
+# Build artifacts
+.cache/
+.cache_sec_edgar/
+Cargo.lock  # Keep Cargo.lock for binaries; adjust if library
+celerybeat.pid
+celerybeat-schedule
+/cmd/*/main
+*.cover
+.coverage
+.coverage.*
+coverage.xml
+# Dependency directories
+develop-eggs/
+dist/
 *.dist.json
-*.min.json
-
-# IDE / Editors
+*.dll
+downloads/
+.DS_Store
+*.dylib
+*.egg
+*.egg-info/
+.eggs/
+.env
+env/
+ENV/
+.env.*.local
+.env.local
+.eslintcache
+*.exe
+*.exe~
+fetched_actions.json
+# General
+# Generated distribution files (created by tools/build.py)
+# Go
+htmlcov/
+.hypothesis/
 .idea/
-.vscode/
+# IDE / Editors
+lib64/
+*.local
+# Local configuration / secrets
+*.log
+*.manifest
+*.min.json
+.mypy_cache/
+.next/
+# Node.js / JavaScript
+node_modules/
+.nox/
+.npm/
+npm-debug.log*
+*.orig.venv/
+# OS / Misc
+*.out
+out/
+package-lock.json
+parts/
+pip-delete-this-directory.txt
+pip-log.txt
+pip-wheel-metadata/
+/pkg/
+pnpm-debug.log*
+pnpm-lock.yaml
+# Project-specific
+__pycache__/
+*.py[cod]
+*.py,cover
+*.pyd
+*.pyo
+.pytest_cache/
+# Python
+.Python
+**/*.rs.bk
+.ruff_cache/
+# Rust
+*.sage.py
+sdist/
+sec_actions.json
+# SEC EDGAR cache
+share/python-wheels/
+*.sln.docstates
+*.so
+*.spec
+.stylelintcache
 *.suo
+*.swo
+*.swp
+target/
+*.temp
+*.test
+Thumbs.db
+*.tmp
+.tox/
 *.user
 *.userosscache
-*.sln.docstates
-.DS_Store
-
-# OS / Misc
-*.bak
-*.orig.venv/
-sec_actions.json
-fetched_actions.json
+var/
+vendor/
+.venv/
+venv/
+.vscode/
+wheels/
+*.whl
+wrappers/rust/target/
+yahoo_actions.json
+yahoo_actions_test.json
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
