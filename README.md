@@ -213,6 +213,8 @@ total-return. For an instrument with a split in the holding period, the raw
 number is wrong and the adjusted numbers are correct. This is the concrete
 value of the registry.
 
+All four wrappers implement [`docs/wrapper_contract.md`](./docs/wrapper_contract.md).
+
 ---
 
 ## Why this exists
