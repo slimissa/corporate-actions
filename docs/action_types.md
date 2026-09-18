@@ -857,11 +857,10 @@ MERGER:             announcement ≤ effective_date (placeholder)
 
 ### v1.0.0
 
-- Seven active types: `SPLIT`, `REVERSE_SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`,
-  `SYMBOL_CHANGE`, `SPINOFF`, `DELISTING`.
-- `MERGER` reserved in schema but rejected by the validator.
-- All temporal rules as documented above.
-- All impact derivations as documented above.
+- Four populated types: `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`,
+  `SYMBOL_CHANGE`.
+- Four reserved types: `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER`.
+  `MERGER` is rejected by the validator in v1.0.0.
 
 ### v1.1.0 (planned)
 

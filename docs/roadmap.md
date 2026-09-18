@@ -36,7 +36,7 @@ As of v1.0.0, the Corporate Actions Registry has:
 |--------|-------|
 | Actions | 242 |
 | Instruments covered | ~10 US large caps |
-| Action types populated | 4 of 8 (`SPLIT`, `REVERSE_SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`) |
+| Action types populated | 4 of 8 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`) |
 | Languages | Python, JavaScript, Go, Rust |
 | Wrapper tests | 82 |
 | Root tests | 143 |
@@ -136,7 +136,7 @@ change that will be included in the next release.
 
 - [ ] All 8 action types populated (or explicitly deferred with reason)
 - [ ] Coverage expanded to at least 50 US instruments
-- [ ] SEC EDGAR integration working
+- [x] SEC EDGAR integration working (narrow scope: SYMBOL_CHANGE, DELISTING)
 - [ ] Cross-language consistency tests in CI
 - [ ] Wrappers published to their package registries
 - [ ] `--strict-isin` flipped to default
@@ -522,7 +522,7 @@ Explicitly out of scope, so no one assumes otherwise:
 | Dependency | Owner | Impact | Status |
 |------------|-------|--------|--------|
 | Asset Identifiers (500+ ISINs) | QuantOS | Blocks v1.1.0 expansion | In progress |
-| SEC EDGAR endpoint | SEC | Blocks v1.1.0 SEC fetcher | Broken upstream |
+| SEC EDGAR endpoint | SEC | None currently; fetched via data.sec.gov | Working |
 | ESMA FIRDS files | ESMA | Blocks v1.2.0 EU coverage | Available, not integrated |
 | npm / PyPI accounts | External | Blocks wrapper publishing | Not set up |
 | QLF Orchestrator design | QuantOS | Blocks v2.0.0 integration | Not started |

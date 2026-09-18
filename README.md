@@ -71,8 +71,8 @@ tool can depend on. It is language-agnostic by design.
 |----------|-------|-------|
 | Actions | 242 | Splits and dividends dominate |
 | Instruments | ~10 | AAPL, MSFT, GOOGL, AMZN, META, NVDA, and a few more |
-| Action types populated | 4 of 8 | `SPLIT`, `REVERSE_SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND` |
-| Action types reserved | 4 of 8 | `SYMBOL_CHANGE` (populated), `SPINOFF`, `DELISTING`, `MERGER` |
+| Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
+| Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
 | Currencies | 1 | USD only |
 | Exchanges | 1 | US equities (XNAS, XNYS) |
 | Historical depth | 1987+ | For the longest-history instruments |
@@ -246,12 +246,13 @@ prevent. The registry is that data layer.
 ## The 8 action types
 
 The registry supports eight corporate action types. Four are populated in
-v1.0.0; four are reserved for future versions.
+v1.0.0 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`); four
+are reserved (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER`).
 
 | Type | Status | Meaning |
 |------|--------|---------|
 | `SPLIT` | ✅ Populated | Forward stock split |
-| `REVERSE_SPLIT` | ✅ Populated | Reverse stock split |
+| `REVERSE_SPLIT` | Reserved | Reverse stock split |
 | `DIVIDEND` | ✅ Populated | Regular cash dividend |
 | `SPECIAL_DIVIDEND` | ✅ Populated | One-time cash dividend |
 | `SYMBOL_CHANGE` | ✅ Populated | Ticker change (ISIN unchanged) |
