@@ -110,15 +110,11 @@ complete documentation.
 
 ### Data
 
-- **242 actions** across 10 instruments
-- **5 action types populated**: `SPLIT`, `REVERSE_SPLIT`, `DIVIDEND`,
-  `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`
-- **3 action types reserved**: `SPINOFF`, `DELISTING`, `MERGER`
-  (schema-valid but not populated)
-- **10 instruments covered**: AAPL, AMZN, GOOGL, META, MSFT, NVDA, plus
-  a small number of ETFs and additional US large caps
-- **Historical depth**: dividends and splits back to 1987 for the
-  longest-history instruments
+- **241 actions** across 6 instruments
+- **4 action types populated**: SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE
+- **4 action types reserved**: REVERSE_SPLIT, SPINOFF, DELISTING, MERGER
+- **6 instruments covered**: AAPL, AMZN, GOOGL, META, MSFT, NVDA
+- **Historical depth**: earliest action in the registry is from 2000
 - **Currency**: USD only
 
 ### Added
