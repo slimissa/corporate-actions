@@ -157,7 +157,8 @@ def build_ticker_isin_index(
 
     The pair (ticker, exchange) is unique across the Asset Identifiers
     registry. A collision (same ticker on same exchange) is a data error;
-    the last one encountered wins, but callers should not rely on that.
+    A collision (same ticker and exchange mapping to different ISINs)
+    raises ValueError. Identical duplicates are permitted.
     """
     index: Dict[Tuple[str, str], str] = {}
     for inst in instruments:
@@ -167,7 +168,13 @@ def build_ticker_isin_index(
         if not ticker or not exchange or not isin:
             continue
         key = (str(ticker).upper(), str(exchange).upper())
-        index[key] = str(isin)
+        isin_s = str(isin)
+        if key in index and index[key] != isin_s:
+            raise ValueError(
+                f"duplicate (ticker, exchange) in Asset Identifiers: "
+                f"{key} maps to both {index[key]!r} and {isin_s!r}"
+            )
+        index[key] = isin_s
     return index
 
 
