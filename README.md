@@ -59,7 +59,7 @@ tool can depend on. It is language-agnostic by design.
 
 **Version**: v1.0.0
 **Actions**: 242
-**Instruments**: ~10 US large caps
+**Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
 **Total tests**: 225 (143 root + 82 wrapper)
@@ -70,12 +70,12 @@ tool can depend on. It is language-agnostic by design.
 | Category | Count | Notes |
 |----------|-------|-------|
 | Actions | 242 | Splits and dividends dominate |
-| Instruments | ~10 | AAPL, MSFT, GOOGL, AMZN, META, NVDA, and a few more |
+| Instruments | 6 | AAPL, MSFT, GOOGL, AMZN, META, NVDA |
 | Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
 | Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
 | Currencies | 1 | USD only |
 | Exchanges | 1 | US equities (XNAS, XNYS) |
-| Historical depth | 1987+ | For the longest-history instruments |
+| Historical depth | 2000+ | Earliest action in the registry is from 2000 |
 
 ### What works, what does not
 
