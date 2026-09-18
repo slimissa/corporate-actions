@@ -82,7 +82,7 @@ tool can depend on. It is language-agnostic by design.
 | Component | Status |
 |-----------|--------|
 | Yahoo Finance fetcher | ✅ Working |
-| SEC EDGAR fetcher | ❌ Broken (endpoint retired) |
+| SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
 | Nasdaq dividends fetcher | ❌ Broken (times out) |
 | Validator | ✅ All 7 layers |
 | Python wrapper | ✅ 23 tests |
@@ -317,7 +317,7 @@ rules each layer enforces.
 | Source | Status | Used for |
 |--------|--------|----------|
 | Yahoo Finance (via `yfinance`) | ✅ Working | US equity splits and dividends |
-| SEC EDGAR | ❌ Broken | Would cover mergers, spinoffs, delistings |
+| SEC EDGAR | ✅ Working (narrow scope) | Symbol changes and delistings since 2019 |
 | Nasdaq dividends API | ❌ Broken | Redundant with Yahoo; scheduled for removal |
 
 Every action in the registry has a `provenance.source_url` pointing at a
@@ -479,9 +479,10 @@ tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
 
 ### Sources
 
-- **SEC EDGAR fetcher is broken.** The legacy full-text search endpoint was
-  retired. Recovery is planned for v1.1.0 using the `data.sec.gov`
-  submissions API.
+- **SEC EDGAR fetcher is narrow.** Scope is limited to `SYMBOL_CHANGE`
+  and `DELISTING` and to the last ~1,000 filings per company. Older
+  filings exist in archive files that the fetcher does not yet read.
+  See `docs/roadmap.md` for the archive-loading item.
 
 - **Nasdaq fetcher is broken.** The API blocks non-US IPs and CI runners.
   Scheduled for removal in v1.1.0.

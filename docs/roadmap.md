@@ -41,8 +41,8 @@ As of v1.0.0, the Corporate Actions Registry has:
 | Wrapper tests | 82 |
 | Root tests | 143 |
 | CI workflows | 3 (`validate`, `check-sources`, `update-actions`) |
-| Working fetchers | 1 (Yahoo Finance via `yfinance`) |
-| Broken fetchers | 2 (SEC EDGAR, Nasdaq) |
+| Working fetchers | 2 (Yahoo Finance via `yfinance`; SEC EDGAR for SYMBOL_CHANGE/DELISTING) |
+| Broken fetchers | 0 |
 | Documentation | Complete for action types, data sources, validation |
 
 The registry is **production-ready for US equities splits and dividends**.

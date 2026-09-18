@@ -209,7 +209,7 @@ The chosen paths are printed only in `--verbose` mode.
 | Source | Status | Notes |
 |--------|--------|-------|
 | `yahoo` | ✅ Working | Uses `yfinance`. Reliable for US equities. |
-| `sec` | ❌ Broken | Endpoint returns HTTP 500. See issue tracker. |
+| `sec` | ✅ Working | Narrow scope: SYMBOL_CHANGE and DELISTING only. |
 | `nasdaq` | ❌ Broken | API times out. See issue tracker. |
 
 Passing `--fetch-source sec` or `--fetch-source nasdaq` exits with code 1
