@@ -23,6 +23,15 @@ The SEC requires a descriptive User-Agent and a maximum of 10 requests per
 second. This script uses a 0.15s delay (~6.6/sec) and caches filings under
 .cache_sec_edgar/.
 
+Known limitations
+-----------------
+The submissions endpoint returns only the most recent ~1,000 filings in
+its `recent` array. Older filings live in numbered archive files listed
+under `filings.files[]`. This script reads only `recent`, so it does not
+see filings older than roughly two years. When a company has archive
+files, a stderr warning names it, so a partial result is visible rather
+than silent.
+
 Usage:
     python tools/fetch_sec_edgar_actions.py \
         --identifiers tests/fixtures/identifiers.json \
@@ -31,10 +40,10 @@ Usage:
         --verbose
 
 Exit codes:
-  0 - success
-  1 - no actions extracted (still a valid result, but a warning condition)
+  0 - success, no instrument failed
+  1 - at least one instrument could not be fetched
   2 - missing or invalid input file
-  3 - network or API failure after retries
+  3 - nothing was processed (empty instrument list, or every fetch failed)
 """
 
 import argparse
@@ -63,30 +72,34 @@ USER_AGENT = os.environ.get(
 )
 REQUEST_DELAY = 0.15
 MAX_RETRIES = 3
-CACHE_DIR = ".cache_sec_edgar"
+CACHE_DIR = os.environ.get("SEC_EDGAR_CACHE", ".cache_sec_edgar")
 DEFAULT_MIN_DATE = "2019-01-01"
 
 
+# ---------------------------------------------------------------------------
+# Regexes
+# ---------------------------------------------------------------------------
+# Case-insensitivity is scoped to the prose with (?i:...) so the captured
+# symbol part [A-Z] only matches real uppercase. A bare re.IGNORECASE flag
+# would make [A-Z] match lowercase too, and produce false positives on
+# ordinary English text such as "the new symbol is US".
+
 SYMBOL_CHANGE_TRIGGERS = [
     re.compile(
-        r"will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?(?:new\s+)?"
-        r"(?:ticker\s+)?symbol\s+['\"]?([A-Z]{1,6})['\"]?",
-        re.IGNORECASE,
+        r"(?i:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
+        r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})['\"]?"
     ),
     re.compile(
-        r"(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
-        r"(?:to|from\s+\S+\s+to)\s+['\"]?([A-Z]{1,6})['\"]?",
-        re.IGNORECASE,
+        r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
+        r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})['\"]?"
     ),
     re.compile(
-        r"(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+"
-        r"['\"]?([A-Z]{1,6})['\"]?",
-        re.IGNORECASE,
+        r"(?i:(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+)"
+        r"['\"]?([A-Z]{1,6})['\"]?"
     ),
     re.compile(
-        r"trading\s+symbol\s+(?:will\s+)?(?:change|be\s+changed)\s+to\s+"
-        r"['\"]?([A-Z]{1,6})['\"]?",
-        re.IGNORECASE,
+        r"(?i:trading\s+symbol\s+(?:will\s+)?(?:change|be\s+changed)\s+to\s+)"
+        r"['\"]?([A-Z]{1,6})['\"]?"
     ),
 ]
 
@@ -130,11 +143,49 @@ MONTHS = {
     "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
 }
 
+# Common 2-5 letter English words that the weak-pattern extraction path
+# could mistake for a ticker symbol. The strong patterns (1 and 2) include
+# enough prose context that a random English word is unlikely, so this
+# blocklist only rejects candidates from patterns 3 and 4. Rejecting from
+# all four is cheap and safe.
+COMMON_ENGLISH_WORDS = frozenset({
+    # Two letters
+    "AN", "AS", "AT", "BE", "BY", "DO", "GO", "HE", "IF", "IN", "IS", "IT",
+    "ME", "MY", "NO", "OF", "ON", "OR", "SO", "TO", "UP", "US", "WE",
+    # Three letters
+    "ALL", "AND", "ANY", "ARE", "BOY", "BUT", "CAN", "DAY", "DID", "FOR",
+    "GET", "GOD", "HAD", "HAS", "HER", "HIM", "HIS", "HOW", "ITS", "LET",
+    "MAN", "MAY", "NEW", "NOT", "NOW", "OLD", "ONE", "OUT", "OWN", "PUT",
+    "SAY", "SEE", "SHE", "THE", "TOO", "TWO", "USE", "WAS", "WAY", "WHO",
+    "WHY", "YES", "YET", "YOU",
+    # Four letters
+    "ALSO", "BEEN", "BOTH", "CAME", "EACH", "EVEN", "EVER", "FROM", "GAVE",
+    "HAND", "HAVE", "HERE", "HIGH", "INTO", "JUST", "KEEP", "KIND", "KNOW",
+    "LAST", "LATE", "LESS", "LIKE", "LONG", "MADE", "MAKE", "MANY", "MORE",
+    "MOST", "MUCH", "MUST", "NEAR", "NEED", "NEXT", "ONCE", "ONLY", "OVER",
+    "PART", "SAID", "SAME", "SOME", "SUCH", "SURE", "TAKE", "THAN", "THAT",
+    "THEM", "THEN", "THEY", "THIS", "TIME", "UPON", "VERY", "WELL", "WENT",
+    "WERE", "WHAT", "WHEN", "WITH", "WORK", "YOUR",
+    # Five letters
+    "ABOUT", "AFTER", "AGAIN", "BEING", "COULD", "EVERY", "FIRST", "FOUND",
+    "GOING", "GREAT", "MIGHT", "NEVER", "OTHER", "PLACE", "RIGHT", "SHALL",
+    "SINCE", "SMALL", "STILL", "THEIR", "THERE", "THESE", "THOSE", "THREE",
+    "UNDER", "UNTIL", "WHICH", "WHILE", "WHERE", "WOULD", "WRITE",
+})
+
+
+# ---------------------------------------------------------------------------
+# Input
+# ---------------------------------------------------------------------------
 
 def load_instruments(path: str) -> List[Tuple[str, str, str]]:
-    """Load instruments with CIK. Returns (isin, ticker, cik)."""
+    """Load instruments with a CIK. Returns list of (isin, ticker, cik).
+
+    Skips entries missing any of the three fields. Rejects CIKs that
+    normalise to all zeros (no such filing exists on EDGAR).
+    """
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             data = json.load(f)
     except FileNotFoundError:
         print(f"Error: file not found: {path}", file=sys.stderr)
@@ -149,25 +200,35 @@ def load_instruments(path: str) -> List[Tuple[str, str, str]]:
         isin = inst.get("isin")
         ticker = inst.get("ticker")
         cik = inst.get("cik")
-        if not isin or not ticker or not cik:
+        if not isin or not ticker or cik is None:
             continue
-        cik_str = str(cik).lstrip("0").zfill(10)
+
+        cik_str = str(cik).strip().lstrip("0").zfill(10)
+        if cik_str == "0" * 10:
+            # A CIK of 0 or "0000000000" is not a real filing entity.
+            continue
+
         result.append((isin, ticker.upper(), cik_str))
     return result
 
 
+# ---------------------------------------------------------------------------
+# Text extraction
+# ---------------------------------------------------------------------------
+
 def parse_date(month_str: str, day_str: str, year_str: str) -> Optional[str]:
+    """Return YYYY-MM-DD, or None if the components do not form a valid date."""
     month = MONTHS.get(month_str.lower())
     if not month:
         return None
     try:
-        d = date(int(year_str), month, int(day_str))
-        return d.isoformat()
+        return date(int(year_str), month, int(day_str)).isoformat()
     except ValueError:
         return None
 
 
 def extract_effective_date(text: str) -> Optional[str]:
+    """Return the first ISO date found by any EFFECTIVE_DATE_PATTERNS."""
     for pat in EFFECTIVE_DATE_PATTERNS:
         m = pat.search(text)
         if m:
@@ -178,12 +239,23 @@ def extract_effective_date(text: str) -> Optional[str]:
 
 
 def extract_new_symbol(text: str) -> Optional[str]:
+    """Return the new ticker symbol, or None.
+
+    Rejects candidates in COMMON_ENGLISH_WORDS. The regex captures only
+    uppercase letters of length 1..6, and the `.isalpha()` check rejects
+    anything containing a digit or punctuation.
+    """
     for pat in SYMBOL_CHANGE_TRIGGERS:
         m = pat.search(text)
         if m:
-            symbol = m.group(1).upper()
-            if 1 <= len(symbol) <= 5 and symbol.isalpha():
-                return symbol
+            symbol = m.group(1)
+            if not (1 <= len(symbol) <= 6):
+                continue
+            if not symbol.isalpha():
+                continue
+            if symbol in COMMON_ENGLISH_WORDS:
+                continue
+            return symbol
     return None
 
 
@@ -195,7 +267,13 @@ def is_symbol_change(text: str) -> bool:
     return any(pat.search(text) for pat in SYMBOL_CHANGE_TRIGGERS)
 
 
+# ---------------------------------------------------------------------------
+# HTTP client
+# ---------------------------------------------------------------------------
+
 class SECClient:
+    """Minimal HTTP client for SEC EDGAR with on-disk caching and retries."""
+
     def __init__(self, user_agent: str = USER_AGENT):
         self.session = requests.Session()
         self.session.headers.update({
@@ -235,8 +313,10 @@ class SECClient:
                 time.sleep(REQUEST_DELAY)
                 return resp
             except requests.exceptions.RequestException as e:
-                print(f"Request error ({attempt + 1}/{MAX_RETRIES}): {e}",
-                      file=sys.stderr)
+                print(
+                    f"Request error ({attempt + 1}/{MAX_RETRIES}): {e}",
+                    file=sys.stderr,
+                )
                 time.sleep(2 ** attempt)
         return None
 
@@ -282,6 +362,19 @@ class SECClient:
         return " ".join(texts) if texts else None
 
 
+# ---------------------------------------------------------------------------
+# Action builders
+# ---------------------------------------------------------------------------
+
+def _filing_url(cik: str, accession: str, primary_doc: str) -> str:
+    cik_no_zeros = cik.lstrip("0") or "0"
+    acc_no_dashes = accession.replace("-", "")
+    return (
+        f"https://www.sec.gov/Archives/edgar/data/"
+        f"{cik_no_zeros}/{acc_no_dashes}/{primary_doc}"
+    )
+
+
 def build_symbol_change(
     isin: str,
     current_ticker: str,
@@ -296,13 +389,7 @@ def build_symbol_change(
         return None
 
     effective = extract_effective_date(text) or filing_date
-
-    cik_no_zeros = cik.lstrip("0") or "0"
-    acc_no_dashes = accession.replace("-", "")
-    source_url = (
-        f"https://www.sec.gov/Archives/edgar/data/"
-        f"{cik_no_zeros}/{acc_no_dashes}/{primary_doc}"
-    )
+    source_url = _filing_url(cik, accession, primary_doc)
 
     return {
         "isin": isin,
@@ -334,13 +421,7 @@ def build_delisting(
     text: str,
 ) -> Optional[Dict[str, Any]]:
     effective = extract_effective_date(text) or filing_date
-
-    cik_no_zeros = cik.lstrip("0") or "0"
-    acc_no_dashes = accession.replace("-", "")
-    source_url = (
-        f"https://www.sec.gov/Archives/edgar/data/"
-        f"{cik_no_zeros}/{acc_no_dashes}/{primary_doc}"
-    )
+    source_url = _filing_url(cik, accession, primary_doc)
 
     return {
         "isin": isin,
@@ -363,6 +444,27 @@ def build_delisting(
     }
 
 
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def _warn_about_archive_files(ticker: str, submissions: Dict[str, Any]) -> None:
+    """Emit a stderr warning when a company has older filings in archives.
+
+    The `data.sec.gov` submissions endpoint returns only ~1,000 recent
+    filings in `filings.recent`. Older filings live in numbered archive
+    files listed in `filings.files[]`. This script reads only `recent`.
+    """
+    files = submissions.get("filings", {}).get("files")
+    if not files:
+        return
+    print(
+        f"Warning: {ticker} has {len(files)} archive file(s) with older "
+        f"filings; only the recent ~1000 filings are scanned.",
+        file=sys.stderr,
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Fetch SYMBOL_CHANGE and DELISTING actions from SEC EDGAR."
@@ -378,14 +480,27 @@ def main() -> int:
     if args.cik_limit:
         instruments = instruments[: args.cik_limit]
 
-    print(f"Processing {len(instruments)} instruments "
-          f"(min date {args.min_date})...")
-    print("Scope: SYMBOL_CHANGE and DELISTING only. "
-          "Dividends and splits come from the Yahoo fetcher.")
+    if not instruments:
+        print(
+            "Error: no instruments with a CIK found in "
+            f"{args.identifiers}",
+            file=sys.stderr,
+        )
+        return 3
+
+    print(
+        f"Processing {len(instruments)} instruments "
+        f"(min date {args.min_date})..."
+    )
+    print(
+        "Scope: SYMBOL_CHANGE and DELISTING only. "
+        "Dividends and splits come from the Yahoo fetcher."
+    )
 
     client = SECClient()
     all_actions: List[Dict[str, Any]] = []
     errors: List[str] = []
+    processed = 0
 
     for idx, (isin, ticker, cik) in enumerate(instruments, start=1):
         if args.verbose:
@@ -395,6 +510,9 @@ def main() -> int:
         if not submissions:
             errors.append(f"{ticker}: could not fetch submissions")
             continue
+        processed += 1
+
+        _warn_about_archive_files(ticker, submissions)
 
         recent = submissions.get("filings", {}).get("recent", {})
         forms = recent.get("form", [])
@@ -418,18 +536,21 @@ def main() -> int:
             if not text:
                 continue
 
+            # A filing can announce both a symbol change and a delisting.
+            # Do not short-circuit: check both, in either order, and append
+            # every action that matches.
             if is_symbol_change(text):
                 action = build_symbol_change(
-                    isin, ticker, cik, filing_date, accession, primary_doc, text
+                    isin, ticker, cik, filing_date, accession,
+                    primary_doc, text,
                 )
                 if action:
                     all_actions.append(action)
                     ticker_actions += 1
-                    continue
 
             if is_delisting(text):
                 action = build_delisting(
-                    isin, cik, filing_date, accession, primary_doc, text
+                    isin, cik, filing_date, accession, primary_doc, text,
                 )
                 if action:
                     all_actions.append(action)
@@ -438,6 +559,7 @@ def main() -> int:
         if args.verbose:
             print(f"    actions extracted: {ticker_actions}")
 
+    # Deduplicate by action_id, preserving insertion order.
     seen = set()
     unique: List[Dict[str, Any]] = []
     for a in all_actions:
@@ -446,12 +568,16 @@ def main() -> int:
             seen.add(aid)
             unique.append(a)
 
-    unique.sort(key=lambda a: (a["dates"].get("effective_date") or "", a["action_id"]))
+    unique.sort(
+        key=lambda a: (a["dates"].get("effective_date") or "", a["action_id"])
+    )
 
     output_data = {
         "meta": {
-            "version": "0.3.0",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "version": "0.4.0",
+            "generated_at": datetime.now(timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
             "source": "SEC EDGAR",
             "notes": (
                 f"Symbol changes and delistings only. Generated from "
@@ -462,18 +588,35 @@ def main() -> int:
         "actions": unique,
     }
 
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2)
+    try:
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(output_data, f, indent=2)
+            f.write("\n")
+    except OSError as e:
+        print(f"Error writing {args.output}: {e}", file=sys.stderr)
+        return 3
 
     print(f"\nDone. Extracted {len(unique)} actions -> {args.output}")
     if errors:
-        print(f"\n{len(errors)} errors occurred. First few:")
+        print(f"\n{len(errors)} instrument(s) failed. First few:")
         for e in errors[:5]:
             print(f"  - {e}")
 
-    if len(unique) == 0:
-        print("Note: zero actions is expected for most tickers. "
-              "Symbol changes and delistings are rare.", file=sys.stderr)
+    if not unique:
+        print(
+            "Note: zero actions is expected for most tickers. "
+            "Symbol changes and delistings are rare.",
+            file=sys.stderr,
+        )
+
+    # Exit codes:
+    #   every instrument failed  -> 3
+    #   at least one failed      -> 1
+    #   none failed              -> 0
+    if processed == 0:
+        return 3
+    if errors:
+        return 1
     return 0
 
 
