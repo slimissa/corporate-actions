@@ -62,7 +62,7 @@ class TestISINCrossReference:
                 {"isin": "US0378331005", "ticker": "AAPL", "exchange": "XNAS"},
             ],
         }))
-        isins = load_identifiers_registry(str(sys.path))
+        isins = load_identifiers_registry(str(path))
         assert "US0378331005" in isins
 
 class TestCurrencyCrossReference:

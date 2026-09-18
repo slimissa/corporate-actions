@@ -188,13 +188,22 @@ class TestBuildTickerIsinIndex:
         assert idx[("GOOG", "XNAS")] == "US02079K1079"
         assert idx[("GOOGL", "XNAS")] == "US02079K3059"
 
-    def test_duplicate_key_last_wins(self):
+    def test_duplicate_key_raises(self):
         instruments = [
             make_instrument("AAPL", "XNAS", "US0378331005"),
             make_instrument("AAPL", "XNAS", "US0000000000"),
         ]
+        with pytest.raises(ValueError, match="duplicate"):
+            build_ticker_isin_index(instruments)
+
+    def test_identical_duplicate_is_allowed(self):
+        """Two entries with the same key and same ISIN are not a collision."""
+        instruments = [
+            make_instrument("AAPL", "XNAS", "US0378331005"),
+            make_instrument("AAPL", "XNAS", "US0378331005"),
+        ]
         idx = build_ticker_isin_index(instruments)
-        assert idx == {("AAPL", "XNAS"): "US0000000000"}
+        assert idx == {("AAPL", "XNAS"): "US0378331005"}
 
     def test_duplicate_key_raises(self):
         instruments = [
