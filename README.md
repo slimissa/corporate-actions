@@ -526,9 +526,9 @@ Ledger Foundation:
 
 | Registry | Purpose | Status |
 |----------|---------|--------|
-| [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.3.0 |
-| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.1.2 |
-| [Asset Identifiers](https://github.com/slimissa/asset-identifiers) | ISIN/CUSIP/FIGI | v1.0.1 |
+| [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.5.3 |
+| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.1.13 |
+| [Asset Identifiers](https://github.com/slimissa/asset-identifiers) | ISIN/CUSIP/FIGI | schema 1.2.1 |
 | **Corporate Actions** | **This registry** | **v1.0.0** |
 
 The four registries cross-reference each other. Every corporate action's
