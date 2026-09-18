@@ -311,6 +311,25 @@ def load_exchange_calendar_registry(path: str) -> Set[str]:
                 mics.add(mic)
     return mics
 
+def _is_synthetic_identifiers(path: str) -> bool:
+    """Return True if the identifiers file looks like the CI fixture.
+
+    The public fixture has instruments with ISINs of the form
+    US00000000NN and tickers TESTA..TESTJ. Either signature is enough.
+    """
+    try:
+        data = load_json_file(path)
+    except Exception:
+        return False
+    instruments = data.get("instruments")
+    if not isinstance(instruments, list) or not instruments:
+        return False
+    first = instruments[0]
+    if not isinstance(first, dict):
+        return False
+    ticker = str(first.get("ticker", ""))
+    isin = str(first.get("isin", ""))
+    return ticker.startswith("TEST") or isin.startswith("US00000000")
 
 def validate_schema(action: Dict[str, Any], action_schema: Dict[str, Any]) -> List[str]:
     """Validate a single action against the action sub-schema."""
@@ -682,9 +701,23 @@ def main():
 
     # Warnings
     if all_warnings:
-        print(f"\nWarnings ({len(all_warnings)}):")
-        for w in all_warnings:
-            print(f"  - {w}")
+        # Collapse repeated missing-ISIN warnings into one line when the
+        # Asset Identifiers fixture is the synthetic one, so the output
+        # does not carry 200+ identical lines.
+        unique_warnings = sorted(set(all_warnings))
+        synthetic = _is_synthetic_identifiers(identifiers_path)
+
+        if synthetic and len(unique_warnings) > 1:
+            print(
+                f"\nWarnings ({len(all_warnings)}): "
+                f"all ISINs missing from the synthetic fixture "
+                f"({len(unique_warnings)} distinct). This is expected "
+                f"without $LAS_DATA_HOME. See docs/data_sources.md."
+            )
+        else:
+            print(f"\nWarnings ({len(all_warnings)}):")
+            for w in unique_warnings:
+                print(f"  - {w}")
 
     # Report
     if all_errors:

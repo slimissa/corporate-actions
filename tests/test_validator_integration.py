@@ -27,8 +27,13 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from unittest import result
 
 import pytest
+
+from tests.test_schema_full import actions
+
+from tests.test_schema_full import actions
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -625,3 +630,25 @@ class TestExitCodes:
             exchange_calendar=project / "does-not-exist-cal.json",
         )
         assert result.returncode == 3
+
+    def test_synthetic_fixture_collapses_warnings(self, tmp_path):
+        """With a synthetic fixture and many missing ISINs, the warning
+        block collapses to one line."""
+        # Build 20 actions, all with an ISIN not in the fixture
+        actions = []
+        for i in range(20):
+            a = valid_split_action()
+            a["isin"] = "US9999999999"
+            a["action_id"] = f"US9999999999-SPLIT-2024-06-10-{i}-1"
+            actions.append(a)
+        write_actions(tmp_path, actions)
+
+        # Overwrite the fixture with a synthetic-shaped one
+        (tmp_path / "identifiers.json").write_text(json.dumps({
+            "instruments": [{"isin": "US0000000001", "ticker": "TESTA"}],
+        }))
+
+        result = run_validator(tmp_path / "actions.json", tmp_path, min_actions=1)
+        assert "synthetic fixture" in result.stdout
+        # Should not print 20 lines of identical warnings
+        assert result.stdout.count("ISIN not found") <= 2
