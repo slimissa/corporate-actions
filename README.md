@@ -222,9 +222,9 @@ a 10-for-1 split on 2024-06-10.
 
 | Method | Result | Correct? |
 |--------|--------|----------|
-| Raw prices, no adjustment | +156% | ❌ Wrong |
-| Split-adjusted | Correct value | ✅ |
-| Split + dividend adjusted | Correct total return | ✅ |
+| Raw prices, no adjustment | n/a — not available from yfinance | ❌ Wrong |
+| Split-adjusted (yfinance Close) | +156% | ✅ |
+| Split + dividend adjusted (yfinance Adj Close) | +157% | ✅ |
 
 Without the registry, a backtest framework would use the raw price series and
 produce a nonsense result. With the registry, the framework can query for
