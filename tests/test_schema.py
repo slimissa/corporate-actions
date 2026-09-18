@@ -236,7 +236,7 @@ class TestActionSchemaValidation:
 
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / "tools" / "validate.py"),
-             "--actions", str(sys.path),
+             "--actions", str(path),
              "--schema", str(REPO_ROOT / "schema.json"),
              "--identifiers", str(REPO_ROOT / "tests/fixtures/identifiers.json"),
              "--iso4217", str(REPO_ROOT / "tests/fixtures/iso4217.json"),

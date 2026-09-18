@@ -56,7 +56,7 @@ class TestISINCrossReference:
 
     def test_fallback_accepts_list_where_first_element_has_no_isin(self, tmp_path):
         path = tmp_path / "identifiers.json"
-        sys.path.write_text(json.dumps({
+        path.write_text(json.dumps({
             "custom_key": [
                 {"name": "no isin here"},
                 {"isin": "US0378331005", "ticker": "AAPL", "exchange": "XNAS"},
