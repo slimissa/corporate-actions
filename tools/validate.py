@@ -62,7 +62,7 @@ ENV_EXCHANGE_CAL = "CORP_ACTIONS_EXCHANGE_CALENDAR_PATH"
 ENV_MIN_ACTIONS = "CORP_ACTIONS_MIN_ACTIONS"
 
 # Minimum number of actions required (set via env or default)
-DEFAULT_MIN_ACTIONS = 1
+DEFAULT_MIN_ACTIONS = 100
 
 # Valid action types (MERGER placeholder not allowed in v1.0.0)
 VALID_ACTION_TYPES = [
