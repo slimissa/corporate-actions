@@ -167,9 +167,19 @@ error_exit() {
 run_cmd() {
     if $VERBOSE; then
         "$@"
-    else
-        "$@" > /dev/null 2>&1
+        return $?
     fi
+    local tmp rc
+    tmp="$(mktemp)"
+    "$@" > "$tmp" 2>&1 && rc=0 || rc=$?
+    if [[ $rc -eq 0 ]]; then
+        rm -f "$tmp"
+        return 0
+    fi
+    echo "--- command failed (exit $rc): $*" >&2
+    cat "$tmp" >&2
+    rm -f "$tmp"
+    return $rc
 }
     
 # ----------------------------------------------------------------------
