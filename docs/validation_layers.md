@@ -221,10 +221,7 @@ Dates are compared as ISO `YYYY-MM-DD` strings. Lexicographic comparison
 on ISO-formatted dates is equivalent to chronological comparison, so no
 date parsing is needed. This avoids timezone and calendar-system bugs.
 
-The validator does not validate that dates are real (e.g. `2024-02-30`).
-The schema's `format: date` check catches this at layer 1, provided
-`jsonschema` has format validation enabled. If you see a nonsense date
-slip through, it is a schema configuration issue, not a temporal issue.
+The validator does not validate that dates are real (e.g. 2024-02-30). The schema declares format: date, but tools/validate.py does not currently pass a FormatChecker, so the constraint is declared but not enforced. Dates that are lexically valid but calendar-invalid pass all layers. Enabling enforcement is a Phase 3 item.
 
 ### Example failures
 

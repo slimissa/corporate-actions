@@ -785,10 +785,7 @@ $LAS_DATA_HOME/identifiers.json by default, overridable via
 See [docs/validation_layers.md](./validation_layers.md#additional-utilities)
 for the full API and behavior.
 
-Use the bug report issue template (if present) or open a blank issue
-with this information:
-
-### 11. Reporting bugs
+## 11. Reporting bugs
 
 ### 11.1 Required
 

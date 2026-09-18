@@ -671,8 +671,7 @@ backticks for subsequent mentions.
   "Corporate Actions Registry".
 - "Asset Identifiers Registry" (capital R) is a specific sibling
   registry.
-- Section headings use title case: "What Lives Where", not "What lives
-  where". Exception: sentence case is used in this repository because
+- Exception: sentence case is used in this repository because
   section headings are often longer. Pick one and stay consistent within
   a file.
 

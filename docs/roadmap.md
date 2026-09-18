@@ -642,8 +642,7 @@ design: financial data cannot ship with sloppy reviews.
 | v2.0.0 | Planned mid 2027 | ~15,000 | Real-time |
 | v3.0.0 | Planned 2028+ | 50,000+ | Comprehensive |
 
-The v1.0.0 date reflects the current tag position (subject to the tag
-being moved to the latest commit; see the CHANGELOG).
+The v1.0.0 tag was force-pushed on 2026-09-14 as part of a history rewrite that removed licensed identifier data. Consumers who pinned the tag before that date must re-pin. See CHANGELOG.md.
 
 ---
 
