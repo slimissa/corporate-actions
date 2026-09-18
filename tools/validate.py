@@ -64,18 +64,6 @@ ENV_MIN_ACTIONS = "CORP_ACTIONS_MIN_ACTIONS"
 # Minimum number of actions required (set via env or default)
 DEFAULT_MIN_ACTIONS = 100
 
-# Valid action types (MERGER placeholder not allowed in v1.0.0)
-VALID_ACTION_TYPES = [
-    "SPLIT",
-    "REVERSE_SPLIT",
-    "DIVIDEND",
-    "SPECIAL_DIVIDEND",
-    "SYMBOL_CHANGE",
-    "SPINOFF",
-    "DELISTING",
-    "MERGER"
-]
-
 # Action types allowed in current version
 ALLOWED_ACTION_TYPES = [
     "SPLIT",
@@ -572,8 +560,11 @@ def main():
 
         # 0. Check if action type is allowed in this version
         action_type = action.get("action_type")
-        if action_type == "MERGER":
-            all_errors.append(f"Action {action_id}: MERGER is not allowed in v1.0.0")
+        if action_type not in ALLOWED_ACTION_TYPES:
+            all_errors.append(
+                f"Action {action_id}: action_type {action_type!r} is not "
+                f"allowed in v1.0.0 (allowed: {', '.join(ALLOWED_ACTION_TYPES)})"
+            )
 
         # 1. Schema validation
         schema_errors = validate_schema(action, action_schema)

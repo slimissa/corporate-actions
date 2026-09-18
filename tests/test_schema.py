@@ -16,10 +16,15 @@ The schema is expected to define:
 
 import json
 import os
+import subprocess
+import subprocess
 import sys
 from pathlib import Path
+from unittest import result
 
 import pytest
+
+from tests.test_schema_full import actions
 
 # Ensure repository root is on sys.path (not strictly needed, but for consistency)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -221,6 +226,25 @@ class TestActionSchemaValidation:
         with pytest.raises(jsonschema.ValidationError):
             schema_validate(action, action_schema)
 
+    def test_unknown_action_type_rejected(tmp_path):
+        """A typo in action_type must fail, not pass silently."""
+        actions = json.loads((REPO_ROOT / "actions.json").read_text(encoding="utf-8"))
+        # Introduce a typo in the first action
+        actions["actions"][0]["action_type"] = "SPLT"
+        path = tmp_path / "actions.json"
+        path.write_text(json.dumps(actions), encoding="utf-8")
+
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "validate.py"),
+             "--actions", str(sys.path),
+             "--schema", str(REPO_ROOT / "schema.json"),
+             "--identifiers", str(REPO_ROOT / "tests/fixtures/identifiers.json"),
+             "--iso4217", str(REPO_ROOT / "tests/fixtures/iso4217.json"),
+             "--exchange-calendar", str(REPO_ROOT / "tests/fixtures/exchange_calendar.json")],
+            capture_output=True, text=True, cwd=str(REPO_ROOT),
+        )
+        assert result.returncode == 1
+        assert "SPLT" in result.stdout
 
 class TestActualActionsFile:
     def test_actions_file_exists(self):
