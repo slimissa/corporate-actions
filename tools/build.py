@@ -2,262 +2,322 @@
 """
 Build Distribution Artifacts for Corporate Actions Registry
 
-Reads actions.json and generates:
-  - actions.dist.json  (pretty-printed, with metadata)
-  - actions.min.json   (minified, no extra whitespace)
-  - actions.csv        (flat CSV of all actions)
-  - actions.sql        (SQLite-compatible SQL dump)
+Reads actions.json and generates five artifacts:
 
-All output files are written to the same directory as actions.json
-or to a user-specified output directory.
+  actions.dist.json       Pretty-printed JSON.
+  actions.min.json        Minified JSON.
+  actions.csv             Flat CSV, one row per action.
+  actions.sql             SQLite-compatible SQL dump.
+  actions.meta.json       Build metadata (timestamp only).
+
+Determinism
+-----------
+The first four files are byte-identical across runs on identical input.
+The only source of variation between runs is actions.meta.json, whose
+build_timestamp changes per run. This makes the primary artifacts safe
+to check into a repository or diff in CI.
 
 Usage:
     python tools/build.py [--actions actions.json] [--output-dir dist/]
 
 Exit codes:
   0 - success
-  1 - validation errors (missing required fields, no actions)
-  2 - file not found or invalid JSON
+  1 - structural validation error (missing required fields, empty list)
+  2 - file not found, invalid JSON, or I/O error during write
 """
 
 import argparse
 import csv
+import io
 import json
-import os
-import sqlite3
 import sys
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 def load_actions(path: str) -> Dict[str, Any]:
-    """Load actions.json and return parsed dict."""
+    """Load actions.json, tolerating a UTF-8 BOM.
+
+    Exits 2 on any load failure.
+    """
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"Error: File not found: {path}", file=sys.stderr)
+        print(f"Error: file not found: {path}", file=sys.stderr)
         sys.exit(2)
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {path}: {e}", file=sys.stderr)
+        print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
         sys.exit(2)
 
 
 def validate_actions_data(data: Dict[str, Any]) -> List[str]:
-    """Basic structural validation before building artifacts."""
-    errors = []
+    """Structural validation before building artifacts.
+
+    Returns a list of error strings. Does not exit.
+    """
+    errors: List[str] = []
+
     if not isinstance(data, dict):
-        errors.append("Top-level JSON must be an object")
-        return errors
+        return ["top-level JSON must be an object"]
 
     if "actions" not in data:
-        errors.append("Missing 'actions' key")
-        return errors
+        return ["missing 'actions' key"]
 
     actions = data["actions"]
     if not isinstance(actions, list):
-        errors.append("'actions' must be a list")
-        return errors
+        return ["'actions' must be a list"]
 
     if len(actions) == 0:
         errors.append("'actions' list is empty")
 
-    required_fields = ["isin", "action_id", "action_type", "dates"]
+    required_fields = ("isin", "action_id", "action_type", "dates")
     for i, action in enumerate(actions):
         if not isinstance(action, dict):
-            errors.append(f"Action at index {i} is not an object")
+            errors.append(f"action at index {i} is not an object")
             continue
         for field in required_fields:
             if field not in action:
-                errors.append(f"Action {i} missing required field '{field}'")
-        # Check dates object
+                errors.append(f"action {i} missing required field {field!r}")
         dates = action.get("dates")
-        if isinstance(dates, dict):
-            if "announcement" not in dates or "effective_date" not in dates:
-                errors.append(f"Action {i} dates missing announcement or effective_date")
+        if not isinstance(dates, dict):
+            errors.append(f"action {i} 'dates' must be an object")
         else:
-            errors.append(f"Action {i} 'dates' must be an object")
+            for required_date in ("announcement", "effective_date"):
+                if required_date not in dates:
+                    errors.append(
+                        f"action {i} dates missing {required_date!r}"
+                    )
+
     return errors
 
 
 def flatten_action(action: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert nested action dict to flat dict suitable for CSV/SQL."""
-    flat = {}
+    """Flatten a nested action dict to a flat dict for CSV.
+
+    Nested dicts are flattened one level with an underscore separator:
+        {"dates": {"ex_date": "..."}} -> {"dates_ex_date": "..."}
+
+    A nested dict inside a nested dict, and any list value, raise
+    ValueError. This is deliberate: a CSV cell cannot hold a structured
+    value, and silently embedding Python repr() would produce a file that
+    looks correct but is not round-trippable.
+    """
+    flat: Dict[str, Any] = {}
     for key, value in action.items():
         if isinstance(value, dict):
-            # Flatten nested dicts with underscore prefix
             for subkey, subvalue in value.items():
+                if isinstance(subvalue, (dict, list)):
+                    raise ValueError(
+                        f"flatten_action: cannot flatten {key}.{subkey} "
+                        f"(got {type(subvalue).__name__}); "
+                        f"only one level of nesting is supported"
+                    )
                 flat[f"{key}_{subkey}"] = subvalue
+        elif isinstance(value, list):
+            raise ValueError(
+                f"flatten_action: cannot flatten list at {key!r}; "
+                f"lists are not representable in a flat CSV row"
+            )
         else:
             flat[key] = value
     return flat
 
 
-def build_dist(data: Dict[str, Any], output_path: str) -> None:
-    """Write pretty-printed distribution JSON."""
-    dist_data = dict(data)
-    # Add build metadata
-    dist_data["meta"] = dict(dist_data.get("meta", {}))
-    dist_data["meta"]["build_timestamp"] = datetime.now(timezone.utc).isoformat()
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(dist_data, f, indent=2, ensure_ascii=False)
+def _write_atomic(path: Path, payload: str) -> None:
+    """Write payload to path via a temp file and rename.
+
+    A killed process between the two steps leaves the original file
+    untouched rather than truncated.
+    """
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(payload, encoding="utf-8")
+    tmp.replace(path)
+
+
+def build_dist(data: Dict[str, Any], output_path: Path) -> None:
+    """Write pretty-printed distribution JSON.
+
+    Deterministic: no timestamp is added here. See build_meta_sidecar.
+    """
+    payload = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+    _write_atomic(output_path, payload)
     print(f"Created {output_path}")
 
 
-def build_minified(data: Dict[str, Any], output_path: str) -> None:
-    """Write minified JSON."""
-    min_data = dict(data)
-    min_data["meta"] = dict(min_data.get("meta", {}))
-    min_data["meta"]["build_timestamp"] = datetime.now(timezone.utc).isoformat()
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(min_data, f, separators=(',', ':'), ensure_ascii=False)
+def build_minified(data: Dict[str, Any], output_path: Path) -> None:
+    """Write minified JSON. Deterministic."""
+    payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False) + "\n"
+    _write_atomic(output_path, payload)
     print(f"Created {output_path}")
 
 
-def build_csv(data: Dict[str, Any], output_path: str) -> None:
-    """Write CSV export (flattened actions)."""
+def build_csv(data: Dict[str, Any], output_path: Path) -> None:
+    """Write a flat CSV, one row per action.
+
+    Columns are collected from every action, then sorted alphabetically
+    for deterministic ordering. Every key present on any action appears
+    as a column; no key is silently dropped.
+    """
     actions = data.get("actions", [])
     if not actions:
         print("No actions to export to CSV", file=sys.stderr)
         return
 
-    # Get all possible columns from first few actions to maintain order
-    all_keys = []
-    for action in actions[:10]:
-        flat = flatten_action(action)
-        for key in flat.keys():
-            if key not in all_keys:
-                all_keys.append(key)
+    flat_actions: List[Dict[str, Any]] = [flatten_action(a) for a in actions]
+    columns = sorted({k for flat in flat_actions for k in flat.keys()})
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=all_keys, extrasaction='ignore')
-        writer.writeheader()
-        for action in actions:
-            flat = flatten_action(action)
-            writer.writerow(flat)
+    buf = io.StringIO()
+    # lineterminator defaults to '\r\n', matching RFC 4180.
+    writer = csv.DictWriter(buf, fieldnames=columns, extrasaction="raise")
+    writer.writeheader()
+    for flat in flat_actions:
+        writer.writerow(flat)
+
+    _write_atomic(output_path, buf.getvalue())
     print(f"Created {output_path}")
 
 
-def build_sql(data: Dict[str, Any], output_path: str) -> None:
-    """Write SQLite-compatible SQL dump."""
+def _sql_escape(value: Any) -> str:
+    """Return a SQL literal for a scalar value."""
+    if value is None:
+        return "NULL"
+    if isinstance(value, bool):
+        # SQLite has no boolean type; store as 0 or 1.
+        return "1" if value else "0"
+    if isinstance(value, (int, float)):
+        return str(value)
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def build_sql(data: Dict[str, Any], output_path: Path) -> None:
+    """Write a SQLite-compatible SQL dump.
+
+    The table has a fixed schema. A field present on an action but not
+    in this table is not exported here; the CSV is the complete export.
+    """
     actions = data.get("actions", [])
     if not actions:
         print("No actions to export to SQL", file=sys.stderr)
         return
 
-    # Open SQLite in-memory to use proper escaping? Simpler to manually build.
-    # We'll create a single table 'corporate_actions' with common columns.
-    sql_lines = []
-    sql_lines.append("-- Corporate Actions Registry SQL Dump")
-    sql_lines.append(f"-- Generated: {datetime.now(timezone.utc).isoformat()}")
-    sql_lines.append("BEGIN TRANSACTION;")
-    sql_lines.append("DROP TABLE IF EXISTS corporate_actions;")
-    sql_lines.append("""
-CREATE TABLE corporate_actions (
-    action_id TEXT PRIMARY KEY,
-    isin TEXT NOT NULL,
-    action_type TEXT NOT NULL,
-    announcement_date TEXT,
-    ex_date TEXT,
-    record_date TEXT,
-    effective_date TEXT,
-    ratio TEXT,
-    amount REAL,
-    currency TEXT,
-    status TEXT,
-    source TEXT,
-    source_url TEXT,
-    verification_source TEXT,
-    price_multiplier REAL,
-    share_multiplier REAL,
-    cash_adjustment REAL
-);
-""".strip())
+    lines: List[str] = []
+    lines.append("-- Corporate Actions Registry SQL Dump")
+    lines.append("-- Generated by tools/build.py")
+    lines.append("BEGIN TRANSACTION;")
+    lines.append("DROP TABLE IF EXISTS corporate_actions;")
+    lines.append(
+        "CREATE TABLE corporate_actions (\n"
+        "    action_id TEXT PRIMARY KEY,\n"
+        "    isin TEXT NOT NULL,\n"
+        "    action_type TEXT NOT NULL,\n"
+        "    announcement_date TEXT,\n"
+        "    ex_date TEXT,\n"
+        "    record_date TEXT,\n"
+        "    effective_date TEXT,\n"
+        "    ratio TEXT,\n"
+        "    amount REAL,\n"
+        "    currency TEXT,\n"
+        "    status TEXT,\n"
+        "    source TEXT,\n"
+        "    source_url TEXT,\n"
+        "    verification_source TEXT,\n"
+        "    price_multiplier REAL,\n"
+        "    share_multiplier REAL,\n"
+        "    cash_adjustment REAL\n"
+        ");"
+    )
 
     for action in actions:
-        action_id = action.get("action_id", "")
-        isin = action.get("isin", "")
-        action_type = action.get("action_type", "")
-        dates = action.get("dates", {})
-        provenance = action.get("provenance", {})
-        impact = action.get("impact", {})
-
-        announcement = dates.get("announcement", "")
-        ex_date = dates.get("ex_date", "")
-        record_date = dates.get("record_date", "")
-        effective_date = dates.get("effective_date", "")
-        ratio = action.get("ratio", "")
-        amount = action.get("amount", None)
-        currency = action.get("currency", "")
-        status = action.get("status", "")
-        source = provenance.get("source", "")
-        source_url = provenance.get("source_url", "")
-        verification_source = provenance.get("verification_source", "")
-        price_mult = impact.get("price_multiplier", None)
-        share_mult = impact.get("share_multiplier", None)
-        cash_adj = impact.get("cash_adjustment", None)
-
-        # Escape single quotes
-        def esc(val):
-            if val is None:
-                return "NULL"
-            if isinstance(val, (int, float)):
-                return str(val)
-            return "'" + str(val).replace("'", "''") + "'"
-
+        dates = action.get("dates") or {}
+        provenance = action.get("provenance") or {}
+        impact = action.get("impact") or {}
         values = [
-            esc(action_id), esc(isin), esc(action_type),
-            esc(announcement), esc(ex_date), esc(record_date), esc(effective_date),
-            esc(ratio), esc(amount), esc(currency), esc(status),
-            esc(source), esc(source_url), esc(verification_source),
-            esc(price_mult), esc(share_mult), esc(cash_adj)
+            _sql_escape(action.get("action_id", "")),
+            _sql_escape(action.get("isin", "")),
+            _sql_escape(action.get("action_type", "")),
+            _sql_escape(dates.get("announcement")),
+            _sql_escape(dates.get("ex_date")),
+            _sql_escape(dates.get("record_date")),
+            _sql_escape(dates.get("effective_date")),
+            _sql_escape(action.get("ratio")),
+            _sql_escape(action.get("amount")),
+            _sql_escape(action.get("currency")),
+            _sql_escape(action.get("status")),
+            _sql_escape(provenance.get("source")),
+            _sql_escape(provenance.get("source_url")),
+            _sql_escape(provenance.get("verification_source")),
+            _sql_escape(impact.get("price_multiplier")),
+            _sql_escape(impact.get("share_multiplier")),
+            _sql_escape(impact.get("cash_adjustment")),
         ]
-        sql_lines.append("INSERT INTO corporate_actions VALUES (" + ", ".join(values) + ");")
+        lines.append(
+            "INSERT INTO corporate_actions VALUES (" + ", ".join(values) + ");"
+        )
 
-    sql_lines.append("COMMIT;")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("\n".join(sql_lines))
+    lines.append("COMMIT;")
+    _write_atomic(output_path, "\n".join(lines) + "\n")
     print(f"Created {output_path}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Build distribution artifacts for Corporate Actions Registry")
-    parser.add_argument("--actions", default="actions.json", help="Path to actions.json")
-    parser.add_argument("--output-dir", default=None, help="Directory for output files (defaults to same dir as actions.json)")
+def build_meta_sidecar(output_path: Path) -> None:
+    """Write a small metadata sidecar with the build timestamp.
+
+    This is the only file whose contents change between runs on the same
+    input. Everything else is deterministic.
+    """
+    meta = {
+        "build_timestamp": datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
+    }
+    _write_atomic(output_path, json.dumps(meta, indent=2) + "\n")
+    print(f"Created {output_path}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Build distribution artifacts for the Corporate Actions Registry"
+    )
+    parser.add_argument("--actions", default="actions.json",
+                        help="Path to actions.json")
+    parser.add_argument("--output-dir", default=None,
+                        help="Directory for output files "
+                             "(defaults to the directory containing actions.json)")
     args = parser.parse_args()
 
-    actions_path = args.actions
-    data = load_actions(actions_path)
+    actions_path = Path(args.actions)
+    data = load_actions(str(actions_path))
 
-    # Validate basic structure
     errors = validate_actions_data(data)
     if errors:
-        print("Validation errors:")
+        print("Validation errors:", file=sys.stderr)
         for e in errors:
-            print(f"  - {e}")
-        sys.exit(1)
+            print(f"  - {e}", file=sys.stderr)
+        return 1
 
-    # Determine output directory
     if args.output_dir:
-        out_dir = args.output_dir
-        os.makedirs(out_dir, exist_ok=True)
+        out_dir = Path(args.output_dir)
     else:
-        out_dir = os.path.dirname(os.path.abspath(actions_path)) or "."
+        out_dir = actions_path.resolve().parent
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    base = os.path.splitext(os.path.basename(actions_path))[0]  # "actions"
+    base = actions_path.stem  # "actions" for actions.json
 
-    dist_path = os.path.join(out_dir, f"{base}.dist.json")
-    min_path = os.path.join(out_dir, f"{base}.min.json")
-    csv_path = os.path.join(out_dir, f"{base}.csv")
-    sql_path = os.path.join(out_dir, f"{base}.sql")
-
-    build_dist(data, dist_path)
-    build_minified(data, min_path)
-    build_csv(data, csv_path)
-    build_sql(data, sql_path)
+    try:
+        build_dist(data, out_dir / f"{base}.dist.json")
+        build_minified(data, out_dir / f"{base}.min.json")
+        build_csv(data, out_dir / f"{base}.csv")
+        build_sql(data, out_dir / f"{base}.sql")
+        build_meta_sidecar(out_dir / f"{base}.meta.json")
+    except (OSError, ValueError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
 
     print("Build completed successfully.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
