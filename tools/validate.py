@@ -707,7 +707,7 @@ def main():
         unique_warnings = sorted(set(all_warnings))
         synthetic = _is_synthetic_identifiers(identifiers_path)
 
-        if synthetic and len(unique_warnings) > 1:
+        if synthetic and len(unique_warnings) > 5:
             print(
                 f"\nWarnings ({len(all_warnings)}): "
                 f"all ISINs missing from the synthetic fixture "

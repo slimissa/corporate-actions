@@ -631,24 +631,30 @@ class TestExitCodes:
         )
         assert result.returncode == 3
 
-    def test_synthetic_fixture_collapses_warnings(self, tmp_path):
+    def test_synthetic_fixture_collapses_warnings(self, project):
         """With a synthetic fixture and many missing ISINs, the warning
-        block collapses to one line."""
-        # Build 20 actions, all with an ISIN not in the fixture
+        block collapses to one line.
+
+        Uses the project fixture so iso4217.json and exchange_calendar.json
+        are present. Each action uses a distinct ISIN so unique_warnings
+        has more than one entry; if the collapse only fired on identical
+        warnings, this would pass for the wrong reason.
+        """
         actions = []
         for i in range(20):
+            isin = f"US00000010{i:02d}"  # US0000001000 .. US0000001019
             a = valid_split_action()
-            a["isin"] = "US9999999999"
-            a["action_id"] = f"US9999999999-SPLIT-2024-06-10-{i}-1"
+            a["isin"] = isin
+            a["action_id"] = f"{isin}-SPLIT-2024-06-10-{i}-1"
             actions.append(a)
-        write_actions(tmp_path, actions)
+        write_actions(project, actions)
 
         # Overwrite the fixture with a synthetic-shaped one
-        (tmp_path / "identifiers.json").write_text(json.dumps({
+        (project / "identifiers.json").write_text(json.dumps({
             "instruments": [{"isin": "US0000000001", "ticker": "TESTA"}],
         }))
 
-        result = run_validator(tmp_path / "actions.json", tmp_path, min_actions=1)
-        assert "synthetic fixture" in result.stdout
-        # Should not print 20 lines of identical warnings
+        result = run_validator(project / "actions.json", project, min_actions=1)
+        assert "synthetic fixture" in result.stdout, result.stdout
+        # The summary line replaces twenty individual lines.
         assert result.stdout.count("ISIN not found") <= 2
