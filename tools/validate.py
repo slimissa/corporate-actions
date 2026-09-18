@@ -327,7 +327,11 @@ def validate_temporal(action: Dict[str, Any]) -> List[str]:
       - MERGER: placeholder (will not be checked further)
     """
     errors = []
-    action_type = action["action_type"]
+    action_type = action.get("action_type")
+    if not action_type:
+        # Schema layer will catch this; return a single clear error so
+        # the validator reports it rather than crashing with KeyError.
+        return ["missing action_type"]
     dates = action.get("dates") or {}
 
     announcement = dates.get("announcement")

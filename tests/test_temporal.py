@@ -9,6 +9,7 @@ The function under test lives in `tools/validate.py`.
 
 import os
 import sys
+from xml.parsers.expat import errors
 
 # Ensure repository root is on sys.path so we can import tools.validate
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -480,3 +481,13 @@ class TestEdgeCases:
             },
         }
         assert validate_temporal(action) == []
+
+    def test_missing_action_type_returns_error():
+        errors = validate_temporal({
+            "dates": {"announcement": "2024-01-01", "effective_date": "2024-01-01"},
+        })
+        assert errors == ["missing action_type"]
+
+    def test_empty_action_type_returns_error():
+        errors = validate_temporal({"action_type": "", "dates": {}})
+        assert errors == ["missing action_type"]
