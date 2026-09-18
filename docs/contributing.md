@@ -382,7 +382,7 @@ lines without a marker.
 
 ```text
 Loading Asset Identifiers registry...
-  Loaded 294 ISINs
+  Loaded 10 ISINs
 ...
 OK: 242 actions validated successfully.
 ```

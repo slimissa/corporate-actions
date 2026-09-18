@@ -4,9 +4,9 @@
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Registry](https://img.shields.io/badge/registry-v1.0.0-orange.svg)](./CHANGELOG.md)
-[![Actions](https://img.shields.io/badge/actions-242-green.svg)](./actions.json)
+[![Actions](https://img.shields.io/badge/actions-241-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
-[![Tests](https://img.shields.io/badge/tests-225-success.svg)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-226-success.svg)](./tests/)
 
 **A canonical, versioned, machine-readable registry of corporate actions.**
 One JSON file as the source of truth. Four language wrappers. Seven-layer
@@ -58,18 +58,18 @@ tool can depend on. It is language-agnostic by design.
 ## Current status
 
 **Version**: v1.0.0
-**Actions**: 242
+**Actions**: 241
 **Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
-**Total tests**: 225 (143 root + 82 wrapper)
+**Total tests**: 225 (144 root + 82 wrapper)
 **CI**: All three workflows green
 
 ### Coverage
 
 | Category | Count | Notes |
 |----------|-------|-------|
-| Actions | 242 | Splits and dividends dominate |
+| Actions | 241 | Splits and dividends dominate |
 | Instruments | 6 | AAPL, MSFT, GOOGL, AMZN, META, NVDA |
 | Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
 | Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
@@ -295,15 +295,15 @@ Expected output:
 
 ```
 Loading Asset Identifiers registry...
-  Loaded 294 ISINs
+  Loaded 10 ISINs
 Loading ISO 4217 registry...
   Loaded 167 active currencies
 Loading Exchange Calendar registry...
   Loaded 74 exchange MICs
 
-Validating 242 actions...
+Validating 241 actions...
 
-OK: 242 actions validated successfully.
+OK: 241 actions validated successfully.
 Cross-reference: 242 ISINs validated, 0 missing (warnings)
 All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage
 ```
@@ -447,10 +447,9 @@ tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
 
 ### Data coverage
 
-- **10 instruments.** The registry covers a small set of US large caps. It
-  is not yet a comprehensive US equity registry. Expansion to 50+ instruments
-  is planned for v1.1.0 and depends on the Asset Identifiers registry
-  reaching 500+ ISINs.
+- **6 instruments.** The registry covers a small set of US large caps.
+  Expansion to 50+ instruments is planned for v1.1.0 and depends on the
+  Asset Identifiers registry reaching 500+ ISINs.
 
 - **US only.** No international coverage. Expansion to EU, JP, HK, and UK
   is planned for v1.2.0.
@@ -458,8 +457,8 @@ tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
 - **USD only.** All current instruments trade in USD. Non-USD dividend
   amounts and currency conversion are planned for v1.2.0.
 
-- **Historical depth varies.** Some instruments have data going back to the
-  1980s; others only to the 2000s. Coverage is data-source dependent.
+- **Historical depth.** Earliest action in the registry is from 2000.
+  Extending back to the 1980s is planned for v2.0.0.
 
 ### Action types
 
