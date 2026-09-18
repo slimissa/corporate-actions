@@ -262,7 +262,9 @@ new_actions = [a for a in fetched_actions if dedup_key(a) not in existing_keys]
 
 if new_actions:
     current["actions"].extend(new_actions)
-    current.setdefault("meta", {})["updated_at"] = datetime.now(timezone.utc).isoformat()
+    current.setdefault("meta", {})["updated_at"] = (
+    datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
     with open(actions_path, "w") as f:
         json.dump(current, f, indent=2)
     print(f"Added {len(new_actions)} new actions (total: {len(current['actions'])}).")
