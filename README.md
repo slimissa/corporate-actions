@@ -447,9 +447,10 @@ tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
 
 ### Data coverage
 
-- **6 instruments.** The registry covers a small set of US large caps.
-  Expansion to 50+ instruments is planned for v1.1.0 and depends on the
-  Asset Identifiers registry reaching 500+ ISINs.
+- **6 instruments.** The registry covers a small set of US large caps. It
+  is not yet a comprehensive US equity registry. Expansion to 50+ instruments
+  is planned for v1.1.0 and depends on the Asset Identifiers registry
+  reaching 500+ ISINs.
 
 - **US only.** No international coverage. Expansion to EU, JP, HK, and UK
   is planned for v1.2.0.
@@ -458,7 +459,7 @@ tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
   amounts and currency conversion are planned for v1.2.0.
 
 - **Historical depth.** Earliest action in the registry is from 2000.
-  Extending back to the 1980s is planned for v2.0.0.
+  Extending coverage further back is planned for v2.0.0.
 
 ### Action types
 

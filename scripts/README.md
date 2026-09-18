@@ -167,7 +167,7 @@ scripts/run_update.sh --commit --tag v1.0.2
 | `--schema PATH` | `schema.json` | Schema file |
 | `--fetch-source SOURCE` | `yahoo` | Only `yahoo` works today; `sec` and `nasdaq` refuse |
 | `--ticker-limit N` | *(all)* | Limit fetcher to first N tickers |
-| `--min-actions N` | `1` | Minimum action count for validation to pass |
+| `--min-actions N` | `100` | Minimum action count for validation to pass |
 | `--skip-fetch` | `false` | Skip step 4 |
 | `--skip-tests` | `false` | Skip step 8 |
 | `--skip-build` | `false` | Skip step 9 |

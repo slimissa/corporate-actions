@@ -593,7 +593,7 @@ CI fails.
 
 | Context | Recommended `--min-actions` |
 |---------|----------------------------|
-| Local development | `1` (default) |
+| Local development | `100` (default) |
 | CI validation | `100` |
 | Pre-release tag | Current total minus 5% |
 | Post-release sanity | Current total minus 1% |

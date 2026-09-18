@@ -25,7 +25,7 @@
 #                               Valid: yahoo, sec.
 #                               'nasdaq' was removed in v1.0.1.
 #   --ticker-limit N            Limit fetcher to first N tickers
-#   --min-actions N             Minimum number of actions required (default: 1)
+#   --min-actions N             Minimum number of actions required (default: 100)
 #   --skip-fetch                Do not run any fetcher
 #   --skip-tests                Do not run test suites
 #   --skip-build                Do not run build.py
