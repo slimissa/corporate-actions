@@ -45,6 +45,19 @@ except ImportError:
     print("Error: jsonschema is required. Install with: pip install jsonschema", file=sys.stderr)
     sys.exit(2)
 
+CANONICAL_ACTION_ID_RE = re.compile(
+    r"^"
+    r"(?P<isin>[A-Z]{2}[A-Z0-9]{9}[0-9])"
+    r"-"
+    r"(?P<type>SPLIT|REVERSE_SPLIT|DIVIDEND|SPECIAL_DIVIDEND"
+    r"|SYMBOL_CHANGE|SPINOFF|DELISTING|MERGER)"
+    r"-"
+    r"(?P<date>\d{4}-\d{2}-\d{2})"
+    r"-"
+    r"(?P<disc>.+)"
+    r"$"
+)
+
 # Module-level FormatChecker. Constructed once. Requires rfc3339-validator
 # for `format: date-time`. Without that package, jsonschema silently
 # ignores date-time formats; `date` is always enforced.
@@ -486,6 +499,43 @@ def validate_provenance(action: Dict[str, Any]) -> List[str]:
             errors.append(f"source_url must be HTTP(S): {url}")
     return errors
 
+def validate_action_id_format(action: Dict[str, Any]) -> List[str]:
+    """Check that action_id matches the canonical shape and its parts.
+
+    Shape: {isin}-{TYPE}-{effective_date}-{discriminator}
+    Also checks that the isin, type, and date embedded in the id match
+    the corresponding fields on the action itself.
+    """
+    errors = []
+    action_id = action.get("action_id")
+    if not action_id:
+        return []  # schema catches the missing field
+
+    m = CANONICAL_ACTION_ID_RE.match(action_id)
+    if not m:
+        errors.append(
+            f"action_id {action_id!r} does not match the canonical format "
+            f"{{isin}}-{{TYPE}}-{{effective_date}}-{{discriminator}}"
+        )
+        return errors
+
+    if action.get("isin") and m.group("isin") != action["isin"]:
+        errors.append(
+            f"action_id isin {m.group('isin')!r} does not match "
+            f"action.isin {action['isin']!r}"
+        )
+    if action.get("action_type") and m.group("type") != action["action_type"]:
+        errors.append(
+            f"action_id type {m.group('type')!r} does not match "
+            f"action.action_type {action['action_type']!r}"
+        )
+    effective = (action.get("dates") or {}).get("effective_date")
+    if effective and m.group("date") != effective:
+        errors.append(
+            f"action_id date {m.group('date')!r} does not match "
+            f"dates.effective_date {effective!r}"
+        )
+    return errors
 
 def main():
     import argparse
@@ -601,6 +651,11 @@ def main():
         arith_errors = validate_arithmetic(action)
         if arith_errors:
             all_errors.extend([f"Action {action_id}: arithmetic: {e}" for e in arith_errors])
+
+        # 3b. action_id format
+        id_errors = validate_action_id_format(action)
+        if id_errors:
+            all_errors.extend([f"Action {action_id}: {e}" for e in id_errors])
 
         # 4. Cross-reference validation
         cross_errors = validate_cross_reference(action, isin_set,currency_set, mic_set, strict_isin=args.strict_isin, isin_warnings=all_warnings,)
