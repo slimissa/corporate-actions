@@ -9,7 +9,7 @@
   "actions": [
     {
       "isin": "US67066G1040",
-      "action_id": "US67066G1040-SPLIT-2024-06-10-0001",
+      "action_id": "US67066G1040-SPLIT-2024-06-10-10-1",
       "action_type": "SPLIT",
       "ratio": "10:1",
       "dates": {
@@ -32,7 +32,7 @@
     },
     {
       "isin": "US0378331005",
-      "action_id": "US0378331005-SPLIT-2020-08-31-0002",
+      "action_id": "US0378331005-SPLIT-2020-08-31-4-1",
       "action_type": "SPLIT",
       "ratio": "4:1",
       "dates": {
@@ -55,7 +55,7 @@
     },
     {
       "isin": "US0378331005",
-      "action_id": "US0378331005-DIVIDEND-2024-05-16-0003",
+      "action_id": "US0378331005-DIVIDEND-2024-05-23-0.2500",
       "action_type": "DIVIDEND",
       "amount": 0.25,
       "currency": "USD",
@@ -79,7 +79,7 @@
     },
     {
       "isin": "US5949181045",
-      "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-11-17-0004",
+      "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-12-03-3.0000",
       "action_type": "SPECIAL_DIVIDEND",
       "amount": 3.0,
       "currency": "USD",
@@ -103,7 +103,7 @@
     },
     {
       "isin": "US30303M1027",
-      "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-0005",
+      "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL",
       "action_type": "SYMBOL_CHANGE",
       "dates": {
         "announcement": "2022-06-09",
@@ -2634,29 +2634,6 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.51
-      }
-    },
-    {
-      "isin": "US0378331005",
-      "action_id": "US0378331005-SPLIT-2020-08-31-4-1",
-      "action_type": "SPLIT",
-      "ratio": "4:1",
-      "dates": {
-        "announcement": "2020-08-31",
-        "ex_date": "2020-08-31",
-        "record_date": null,
-        "effective_date": "2020-08-31"
-      },
-      "status": "COMPLETED",
-      "provenance": {
-        "source": "Yahoo Finance (yfinance)",
-        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
-        "verification_source": null
-      },
-      "impact": {
-        "price_multiplier": 0.25,
-        "share_multiplier": 4.0,
-        "cash_adjustment": 0.0
       }
     },
     {
