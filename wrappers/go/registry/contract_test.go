@@ -104,7 +104,6 @@ func buildRegistryFromFixture(t *testing.T, fixture contractFixture) *Registry {
 	return reg
 }
 
-
 // stringSlicesEqual reports whether two string slices are equal in
 // length and content, position by position.
 //
