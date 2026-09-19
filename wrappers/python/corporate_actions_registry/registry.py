@@ -16,6 +16,7 @@ Typical usage:
 import json
 import os
 from typing import Any, Dict, List, Optional, Union
+from unittest import result
 
 from .models import Action, RegistryMeta
 
@@ -57,7 +58,7 @@ class CorporateActionsRegistry:
         if actions_data is not None:
             raw_data = actions_data
         elif actions_path is not None:
-            with open(actions_path, "r", encoding="utf-8") as f:
+            with open(actions_path, "r", encoding="utf-8-sig") as f:
                 raw_data = json.load(f)
         else:
             raise ValueError("Either actions_path or actions_data must be provided.")
@@ -104,16 +105,12 @@ class CorporateActionsRegistry:
         return list(self._index_by_isin.get(isin, []))
 
     def by_action_id(self, action_id: str) -> Optional[Action]:
-        """
-        Return a single action by its unique action_id.
-
-        Args:
-            action_id: The unique action identifier.
-
-        Returns:
-            Action object if found, else None.
-        """
-        return self._index_by_id.get(action_id)
+        action = self._index_by_id.get(action_id)
+        if action is None:
+            return None
+        # Return a copy so a caller cannot mutate the registry's internal
+        # state by editing the returned object.
+        return Action.from_dict(action.to_dict())
 
     def by_action_type(self, action_type: str) -> List[Action]:
         """
@@ -127,39 +124,38 @@ class CorporateActionsRegistry:
         """
         return list(self._index_by_type.get(action_type, []))
 
-    def by_date_range(
-        self,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-        date_field: str = "ex_date",
-    ) -> List[Action]:
+    _VALID_DATE_FIELDS = ("announcement", "ex_date", "record_date", "effective_date")
+
+    def by_date_range(self, start_date=None, end_date=None, date_field="ex_date"):
+        """Return actions whose `date_field` falls in [start_date, end_date].
+
+        Bounds are inclusive. Pass None (or omit) for an open bound.
+        Actions lacking `date_field` are skipped silently.
+
+        Raises ValueError if `date_field` is not one of the four valid names.
+        Results are sorted by the requested field, then by action_id.
         """
-        Filter actions by a date range on a specified date field.
-
-        The date comparison is lexicographic (ISO date strings), which
-        works correctly for YYYY-MM-DD format.
-
-        Args:
-            start_date: Only include actions with date_field >= start_date.
-            end_date: Only include actions with date_field <= end_date.
-            date_field: Which date field to compare (default 'ex_date').
-                Can be 'announcement', 'ex_date', 'record_date', 'effective_date'.
-
-        Returns:
-            List of Action objects matching the date range.
-        """
+        if date_field not in self._VALID_DATE_FIELDS:
+            raise ValueError(
+                f"invalid date_field {date_field!r}; "
+                f"expected one of {sorted(self._VALID_DATE_FIELDS)}"
+            )
         result = []
         for action in self.actions:
-            date_value = getattr(action.dates, date_field, None)
-            if date_value is None:
+            value = getattr(action.dates, date_field, None)
+            if value is None:
                 continue
-            if start_date and date_value < start_date:
+            if start_date and value < start_date:
                 continue
-            if end_date and date_value > end_date:
+            if end_date and value > end_date:
                 continue
             result.append(action)
+        result.sort(key=lambda a: (
+            getattr(a.dates, date_field, "") or "",
+            a.action_id or "",
+        ))
         return result
-
+    
     def all_action_types(self) -> List[str]:
         """Return a sorted list of unique action types in the registry."""
         return sorted(self._index_by_type.keys())
