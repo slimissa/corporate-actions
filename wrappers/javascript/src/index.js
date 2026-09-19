@@ -17,6 +17,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const VALID_DATE_FIELDS = ['announcement', 'ex_date', 'record_date', 'effective_date'];
 
 class CorporateActionsRegistry {
   /**
@@ -33,7 +34,10 @@ class CorporateActionsRegistry {
     if (typeof source === 'string') {
       // It's a file path: read synchronously
       const filePath = path.resolve(source);
-      const fileContent = fs.readFileSync(filePath, 'utf8');
+      let fileContent = fs.readFileSync(filePath, 'utf8');
+      if (fileContent.charCodeAt(0) === 0xFEFF) {
+        fileContent = fileContent.slice(1);
+      }
       rawData = JSON.parse(fileContent);
     } else if (typeof source === 'object') {
       rawData = source;
@@ -84,7 +88,7 @@ class CorporateActionsRegistry {
    * @returns {Array<object>} List of action objects (possibly empty).
    */
   byIsin(isin) {
-    return this._indexByIsin.get(isin) || [];
+    return [...(this._indexByIsin.get(isin) || [])];
   }
 
   /**
@@ -93,7 +97,8 @@ class CorporateActionsRegistry {
    * @returns {object|null} Action object if found, otherwise null.
    */
   byActionId(actionId) {
-    return this._indexById.get(actionId) || null;
+    const action = this._indexById.get(actionId);
+    return action ? JSON.parse(JSON.stringify(action)) : null;
   }
 
   /**
@@ -102,7 +107,7 @@ class CorporateActionsRegistry {
    * @returns {Array<object>} List of action objects (possibly empty).
    */
   byActionType(actionType) {
-    return this._indexByType.get(actionType) || [];
+      return [...(this._indexByType.get(actionType) || [])];
   }
 
   /**
@@ -116,15 +121,31 @@ class CorporateActionsRegistry {
    *   'announcement', 'ex_date', 'record_date', 'effective_date'.
    * @returns {Array<object>} Actions matching the date range.
    */
+  
+
   byDateRange(startDate, endDate, dateField = 'ex_date') {
-    return this.actions.filter((action) => {
+    if (!VALID_DATE_FIELDS.includes(dateField)) {
+      throw new Error(
+        `invalid dateField '${dateField}'; expected one of ${VALID_DATE_FIELDS.join(', ')}`
+      );
+    }
+    const result = this.actions.filter((action) => {
       const dates = action.dates || {};
-      const dateValue = dates[dateField];
-      if (!dateValue) return false;
-      if (startDate && dateValue < startDate) return false;
-      if (endDate && dateValue > endDate) return false;
+      const value = dates[dateField];
+      if (!value) return false;
+      if (startDate && value < startDate) return false;
+      if (endDate && value > endDate) return false;
       return true;
     });
+    result.sort((a, b) => {
+      const av = (a.dates || {})[dateField] || '';
+      const bv = (b.dates || {})[dateField] || '';
+      if (av !== bv) return av < bv ? -1 : 1;
+      const aid = a.action_id || '';
+      const bid = b.action_id || '';
+      return aid < bid ? -1 : aid > bid ? 1 : 0;
+    });
+    return result;
   }
 
   /**
