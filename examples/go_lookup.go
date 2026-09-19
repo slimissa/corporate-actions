@@ -9,14 +9,9 @@
 //     cd wrappers/go
 //     go run ../../examples/go_lookup.go ../../actions.json
 //
-// Or, place this file in wrappers/go/examples/ and run:
-//
-//     cd wrappers/go
-//     go run ./examples/go_lookup.go ../../actions.json
-//
 // Command-line usage:
 //
-//     go_lookup [OPTIONS]
+//     go_lookup [OPTIONS] [PATH]
 //
 //     --actions PATH                Path to actions.json
 //     --isin ISIN                   Look up all actions for an ISIN
@@ -24,8 +19,14 @@
 //     --action-type TYPE            Filter by action type
 //     --date-range START END        Filter by date range (YYYY-MM-DD)
 //     --date-field FIELD            Date field for --date-range
-//     --summary                     Only print summary counts
+//     --summary                     Suppress the illustration block
 //     --help, -h                    Show this help message
+//
+// Exit codes:
+//     0  success
+//     1  runtime error (registry loaded but could not be parsed)
+//     2  usage error (bad flag, missing value, flag-like value)
+//     3  file not found
 
 package main
 
@@ -38,7 +39,7 @@ import (
 	registry "github.com/slimissa/corporate-actions/wrappers/go/registry"
 )
 
-const usage = `Usage: go_lookup [OPTIONS]
+const usage = `Usage: go_lookup [OPTIONS] [PATH]
 
 Options:
   --actions PATH                Path to actions.json
@@ -48,8 +49,14 @@ Options:
   --date-range START END        Filter by date range (YYYY-MM-DD)
   --date-field FIELD            Date field for --date-range
                                 (announcement, ex_date, record_date, effective_date)
-  --summary                     Only print summary counts
+  --summary                     Suppress the illustration block
   --help, -h                    Show this help message
+
+Exit codes:
+  0  success
+  1  runtime error
+  2  usage error
+  3  file not found
 `
 
 type args struct {
@@ -63,6 +70,32 @@ type args struct {
 	summary    bool
 }
 
+// usageError prints msg to stderr, prints the usage block, and exits 2.
+func usageError(msg string) {
+	fmt.Fprintln(os.Stderr, msg)
+	fmt.Fprint(os.Stderr, usage)
+	os.Exit(2)
+}
+
+// takeValue returns argv[i+1] if it exists and is not itself a flag.
+//
+// Rejecting a flag-like value is what makes
+// `go_lookup --date-range 2020-01-01 --isin X` a usage error rather
+// than a silent misparse where the ISIN becomes the end date.
+func takeValue(argv []string, i int, flag string) string {
+	if i+1 >= len(argv) {
+		usageError(fmt.Sprintf("Error: %s requires an argument", flag))
+	}
+	value := argv[i+1]
+	if strings.HasPrefix(value, "--") {
+		usageError(fmt.Sprintf(
+			"Error: %s requires an argument, got %q (looks like a flag)",
+			flag, value,
+		))
+	}
+	return value
+}
+
 func parseArgs() args {
 	a := args{dateField: "ex_date"}
 	argv := os.Args[1:]
@@ -70,49 +103,36 @@ func parseArgs() args {
 		arg := argv[i]
 		switch arg {
 		case "--actions":
+			a.actions = takeValue(argv, i, "--actions")
 			i++
-			if i >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --actions requires a path")
-				os.Exit(2)
-			}
-			a.actions = argv[i]
 		case "--isin":
+			a.isin = takeValue(argv, i, "--isin")
 			i++
-			if i >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --isin requires an argument")
-				os.Exit(2)
-			}
-			a.isin = argv[i]
 		case "--action-id":
+			a.actionID = takeValue(argv, i, "--action-id")
 			i++
-			if i >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --action-id requires an argument")
-				os.Exit(2)
-			}
-			a.actionID = argv[i]
 		case "--action-type":
+			a.actionType = takeValue(argv, i, "--action-type")
 			i++
-			if i >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --action-type requires an argument")
-				os.Exit(2)
-			}
-			a.actionType = argv[i]
 		case "--date-range":
 			if i+2 >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --date-range requires START and END")
-				os.Exit(2)
+				usageError("Error: --date-range requires START and END arguments")
 			}
-			a.dateRange[0] = argv[i+1]
-			a.dateRange[1] = argv[i+2]
+			start := argv[i+1]
+			end := argv[i+2]
+			if strings.HasPrefix(start, "--") || strings.HasPrefix(end, "--") {
+				usageError(
+					"Error: --date-range requires START and END arguments; " +
+						"got a flag-like value",
+				)
+			}
+			a.dateRange[0] = start
+			a.dateRange[1] = end
 			a.hasRange = true
 			i += 2
 		case "--date-field":
+			a.dateField = takeValue(argv, i, "--date-field")
 			i++
-			if i >= len(argv) {
-				fmt.Fprintln(os.Stderr, "Error: --date-field requires an argument")
-				os.Exit(2)
-			}
-			a.dateField = argv[i]
 		case "--summary":
 			a.summary = true
 		case "--help", "-h":
@@ -120,17 +140,12 @@ func parseArgs() args {
 			os.Exit(0)
 		default:
 			if strings.HasPrefix(arg, "--") {
-				fmt.Fprintf(os.Stderr, "Unknown argument: %s\n", arg)
-				fmt.Print(usage)
-				os.Exit(2)
+				usageError(fmt.Sprintf("Unknown argument: %s", arg))
 			}
-			// Positional: path to actions.json
 			if a.actions == "" {
 				a.actions = arg
 			} else {
-				fmt.Fprintf(os.Stderr, "Unexpected positional argument: %s\n", arg)
-				fmt.Print(usage)
-				os.Exit(2)
+				usageError(fmt.Sprintf("Unexpected positional argument: %s", arg))
 			}
 		}
 	}
@@ -143,7 +158,7 @@ func findActionsFile(cliPath string) string {
 	if cliPath != "" {
 		if _, err := os.Stat(cliPath); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: file not found: %s\n", cliPath)
-			os.Exit(2)
+			os.Exit(3)
 		}
 		return cliPath
 	}
@@ -160,7 +175,7 @@ func findActionsFile(cliPath string) string {
 		}
 	}
 	fmt.Fprintln(os.Stderr, "Error: could not find actions.json. Use --actions PATH.")
-	os.Exit(2)
+	os.Exit(3)
 	return ""
 }
 
@@ -266,7 +281,10 @@ func main() {
 	if a.actionID != "" {
 		action := r.ByActionID(a.actionID)
 		if action != nil {
-			printActions([]registry.Action{*action}, fmt.Sprintf("Lookup by action_id '%s'", a.actionID))
+			printActions(
+				[]registry.Action{*action},
+				fmt.Sprintf("Lookup by action_id '%s'", a.actionID),
+			)
 		} else {
 			printActions(nil, fmt.Sprintf("Lookup by action_id '%s'", a.actionID))
 		}
@@ -286,8 +304,18 @@ func main() {
 	}
 
 	if a.hasRange {
-		actions := r.ByDateRange(a.dateRange[0], a.dateRange[1], a.dateField)
-		printActions(actions, fmt.Sprintf("Lookup by %s between %s and %s", a.dateField, a.dateRange[0], a.dateRange[1]))
+		actions, err := r.ByDateRange(a.dateRange[0], a.dateRange[1], a.dateField)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(2)
+		}
+		printActions(
+			actions,
+			fmt.Sprintf(
+				"Lookup by %s between %s and %s",
+				a.dateField, a.dateRange[0], a.dateRange[1],
+			),
+		)
 		return
 	}
 
@@ -296,6 +324,19 @@ func main() {
 	for _, t := range r.AllActionTypes() {
 		acts := r.ByActionType(t)
 		fmt.Printf("  %s: %d\n", t, len(acts))
+	}
+
+	if !a.summary {
+		fmt.Println()
+		fmt.Println("First 3 actions (for illustration):")
+		all := r.ByActionType("SPLIT")
+		if len(all) == 0 {
+			all = r.ByISIN("US0378331005")
+		}
+		for i := 0; i < len(all) && i < 3; i++ {
+			fmt.Println()
+			printAction(all[i])
+		}
 	}
 
 	fmt.Println()
