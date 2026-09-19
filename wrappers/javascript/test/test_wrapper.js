@@ -228,7 +228,7 @@ describe('Loading', () => {
   });
 
   it('throws when constructed with a boolean', () => {
-    assert.throws(() => new CorporateActionsRegistry(true), /must be provided/);
+    assert.throws(() => new CorporateActionsRegistry(true), /string path or an object/);
   });
 
   it('throws when the object has no actions key', () => {

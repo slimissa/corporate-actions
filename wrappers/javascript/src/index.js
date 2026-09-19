@@ -49,8 +49,19 @@ class CorporateActionsRegistry {
       throw new Error('Invalid actions data: expected object with "actions" array.');
     }
 
-    this.meta = rawData.meta || {};
-    this.actions = rawData.actions || [];
+    for (let i = 0; i < rawData.actions.length; i++) {
+      const a = rawData.actions[i];
+      if (!a || typeof a !== 'object' || Array.isArray(a)) {
+        throw new Error(
+          `Invalid actions data: action at index ${i} is not an object.`
+        );
+      }
+    }
+
+    this.meta = (rawData.meta && typeof rawData.meta === 'object' && !Array.isArray(rawData.meta))
+      ? { ...rawData.meta }
+      : {};
+    this.actions = rawData.actions;
     this._buildIndexes();
   }
 
@@ -170,8 +181,8 @@ class CorporateActionsRegistry {
    */
   toJSON() {
     return {
-      meta: this.meta,
-      actions: this.actions,
+      meta: { ...this.meta },
+      actions: this.actions.map((a) => JSON.parse(JSON.stringify(a))),
     };
   }
 
