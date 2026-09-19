@@ -965,3 +965,18 @@ class TestContractFixture:
         for bad in fixture["invalid_date_fields"]:
             with pytest.raises(ValueError, match="invalid date_field"):
                 registry.by_date_range(None, None, bad)
+
+    def test_load_non_object_action_raises(self):
+        """An entry in the actions array that is not a JSON object is a
+        structural error. See docs/wrapper_contract.md section 5.4."""
+        with pytest.raises(ValueError, match="not an object"):
+            CorporateActionsRegistry(
+                actions_data={"actions": ["not an object"]},
+            )
+
+    def test_load_actions_is_dict_not_list_raises(self):
+        """An actions value that is an object, not an array, is an error."""
+        with pytest.raises(ValueError, match="must be a list"):
+            CorporateActionsRegistry(
+                actions_data={"actions": {"not": "a list"}},
+            )

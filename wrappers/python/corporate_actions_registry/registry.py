@@ -16,7 +16,6 @@ Typical usage:
 import json
 import os
 from typing import Any, Dict, List, Optional, Union
-from unittest import result
 
 from .models import Action, RegistryMeta
 
@@ -65,6 +64,19 @@ class CorporateActionsRegistry:
 
         if not isinstance(raw_data, dict) or "actions" not in raw_data:
             raise ValueError("Invalid actions data: expected dict with 'actions' key.")
+
+        if not isinstance(raw_data["actions"], list):
+            raise ValueError(
+                "Invalid actions data: 'actions' must be a list, got "
+                f"{type(raw_data['actions']).__name__}"
+            )
+
+        for i, item in enumerate(raw_data["actions"]):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"Invalid actions data: action at index {i} is not "
+                    f"an object, got {type(item).__name__}"
+                )
 
         self.meta = RegistryMeta.from_dict(raw_data.get("meta"))
         self.actions: List[Action] = [
