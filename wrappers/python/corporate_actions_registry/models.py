@@ -2,13 +2,15 @@
 Data models for the Corporate Actions Registry.
 
 These dataclasses provide a typed representation of the JSON structure
-defined in actions.json. Each model includes a `from_dict` classmethod
-to parse raw dictionaries, and a `to_dict` method to serialize back,
-ensuring round-trip fidelity.
+defined in actions.json. Each model has `from_dict()` and `to_dict()`. `to_dict()` produces a
+minimal representation with None-valued fields omitted. This is
+deliberate: the on-disk format never carries explicit nulls for
+optional fields, so round-tripping through `to_dict()` produces a
+document of the same shape.
 """
 
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
