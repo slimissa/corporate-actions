@@ -80,6 +80,19 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 - `tests/test_validator_integration.py`, 33 tests
 - `tests/test_action_id_format.py`, 76 tests
 
+### Added (Session 3.5)
+
+- `tests/wrapper_contract.json` — the shared fixture that all four
+  wrappers' contract tests read. Six actions, nine queries, eight
+  invalid date field names. Every wrapper now asserts identical
+  answers for `by_date_range` filter semantics.
+
+### Fixed (Session 3.5)
+
+- Rust contract test path used `../../../tests/wrapper_contract.json`,
+  which resolves from the crate root to the parent of the repository.
+  Uses `CARGO_MANIFEST_DIR` so the path is independent of cwd.
+  
 ### Changed
 
 - `examples/backtest_adjustment.py` now resolves tickers via
