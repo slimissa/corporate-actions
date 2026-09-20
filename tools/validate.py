@@ -625,9 +625,9 @@ def main():
         )
     except jsonschema.ValidationError as exc:
         path = "/".join(str(p) for p in exc.absolute_path) or "<root>"
-        print("Error: actions.json does not validate against schema.json", file=sys.stderr)
-        print(f"  path:    {path}", file=sys.stderr)
-        print(f"  message: {exc.message}", file=sys.stderr)
+        print("Error: actions.json does not validate against schema.json")
+        print(f"  path:    {path}")
+        print(f"  message: {exc.message}")
         sys.exit(1)
 
     # Extract action sub-schema
