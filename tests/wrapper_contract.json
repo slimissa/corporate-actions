@@ -1,0 +1,205 @@
+{
+  "actions": [
+    {
+      "isin": "US0000000001",
+      "action_id": "US0000000001-SPLIT-2024-03-01-2-1",
+      "action_type": "SPLIT",
+      "ratio": "2:1",
+      "dates": {
+        "announcement": "2024-02-01",
+        "ex_date": "2024-03-01",
+        "record_date": "2024-02-28",
+        "effective_date": "2024-03-01"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A1"
+      }
+    },
+    {
+      "isin": "US0000000002",
+      "action_id": "US0000000002-SPLIT-2024-01-01-3-1",
+      "action_type": "SPLIT",
+      "ratio": "3:1",
+      "dates": {
+        "announcement": "2024-01-01",
+        "ex_date": "2024-01-01",
+        "record_date": null,
+        "effective_date": "2024-01-01"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A2"
+      }
+    },
+    {
+      "isin": "US0000000003",
+      "action_id": "US0000000003-DIVIDEND-2024-02-01-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-01-15",
+        "ex_date": "2024-02-01",
+        "record_date": "2024-02-02",
+        "effective_date": "2024-02-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A3"
+      }
+    },
+    {
+      "isin": "US0000000004",
+      "action_id": "US0000000004-SYMBOL_CHANGE-2024-01-15-SYMBOL",
+      "action_type": "SYMBOL_CHANGE",
+      "dates": {
+        "announcement": "2024-01-15",
+        "effective_date": "2024-01-15"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A4"
+      }
+    },
+    {
+      "isin": "US0000000005",
+      "action_id": "US0000000005-SPLIT-2023-12-01-4-1",
+      "action_type": "SPLIT",
+      "ratio": "4:1",
+      "dates": {
+        "announcement": "2023-11-15",
+        "ex_date": "2023-12-01",
+        "record_date": "2023-11-28",
+        "effective_date": "2023-12-01"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A5"
+      }
+    },
+    {
+      "isin": "US0000000006",
+      "action_id": "US0000000006-SPLIT-2024-01-01-5-1",
+      "action_type": "SPLIT",
+      "ratio": "5:1",
+      "dates": {
+        "announcement": "2024-01-01",
+        "ex_date": "2024-01-01",
+        "record_date": null,
+        "effective_date": "2024-01-01"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "fixture",
+        "source_url": "https://example.com/A6"
+      }
+    }
+  ],
+  "queries": [
+    {
+      "date_field": "ex_date",
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "expected_action_ids": [
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "effective_date",
+      "start": "2024-02-01",
+      "end": "2024-03-15",
+      "expected_action_ids": [
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "ex_date",
+      "start": null,
+      "end": "2024-02-01",
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1",
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500"
+      ]
+    },
+    {
+      "date_field": "ex_date",
+      "start": "2024-02-01",
+      "end": null,
+      "expected_action_ids": [
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "ex_date",
+      "start": null,
+      "end": null,
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1",
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "record_date",
+      "start": null,
+      "end": null,
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "announcement",
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "expected_action_ids": [
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000004-SYMBOL_CHANGE-2024-01-15-SYMBOL",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "date_field": "ex_date",
+      "start": "2024-01-01",
+      "end": "2024-01-01",
+      "expected_action_ids": [
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1"
+      ]
+    },
+    {
+      "date_field": "ex_date",
+      "start": "1900-01-01",
+      "end": "1900-12-31",
+      "expected_action_ids": []
+    }
+  ],
+  "invalid_date_fields": [
+    "exdate",
+    "ex-date",
+    "effective",
+    "Ex_Date",
+    "EX_DATE",
+    "ex_date ",
+    " ex_date",
+    ""
+  ]
+}

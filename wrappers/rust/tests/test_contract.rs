@@ -25,7 +25,15 @@ use std::path::Path;
 /// Path to the shared fixture, resolved from this test file's directory.
 ///
 /// `wrappers/rust/tests/test_contract.rs` → repo root is three levels up.
-const FIXTURE_PATH: &str = "../../../tests/wrapper_contract.json";
+/// Path to the shared fixture, resolved relative to this crate's root.
+///
+/// `CARGO_MANIFEST_DIR` is `wrappers/rust/`, so `../../tests/` climbs
+/// to the repository root. Using the compile-time variable rather than
+/// a runtime-relative path means the test works regardless of cwd.
+const FIXTURE_PATH: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../tests/wrapper_contract.json"
+);
 
 /// One query entry from the fixture.
 #[derive(Debug, Deserialize)]
