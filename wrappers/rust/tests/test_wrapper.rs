@@ -600,8 +600,7 @@ fn by_date_range_invalid_field_error_names_value() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let err = registry
         .by_date_range(None, None, "exdate")
-        .err()
-        .expect("expected an error");
+        .expect_err("expected an error");
     assert!(err.to_string().contains("exdate"), "got: {}", err);
 }
 
