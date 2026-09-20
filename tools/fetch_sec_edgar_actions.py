@@ -393,7 +393,7 @@ def build_symbol_change(
 
     return {
         "isin": isin,
-        "action_id": f"{isin}-SYMBOL_CHANGE-{effective}-{new_symbol}",
+        "action_id": f"{isin}-SYMBOL_CHANGE-{effective}-SYMBOL",
         "action_type": "SYMBOL_CHANGE",
         "dates": {
             "announcement": filing_date,
@@ -425,7 +425,7 @@ def build_delisting(
 
     return {
         "isin": isin,
-        "action_id": f"{isin}-DELISTING-{effective}",
+        "action_id": f"{isin}-DELISTING-{effective}-DELISTED",
         "action_type": "DELISTING",
         "dates": {
             "announcement": filing_date,

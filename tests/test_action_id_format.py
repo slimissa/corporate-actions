@@ -71,9 +71,6 @@ class TestValidShape:
         "US90184L1026-DELISTING-2022-10-28-DELISTED",
         "US3696041033-SPINOFF-2023-01-04-1-3",
         "US67066G1040-MERGER-2024-06-10-1-1",
-        # Legacy sequence discriminators (pre-Phase-1 format)
-        "US67066G1040-SPLIT-2024-06-10-0001",
-        "US30303M1027-SYMBOL_CHANGE-2022-06-09-0005",
         # Other ISIN country codes
         "GB0007099541-DIVIDEND-2020-03-12-0.2500",
         "JP3633400001-SPLIT-2021-09-30-3-1",
@@ -382,3 +379,75 @@ class TestRealRegistry:
         """Guard against the file being emptied and the previous test
         vacuously passing."""
         assert len(real_actions) > 0
+
+class TestDiscriminatorConsistency:
+    """The discriminator suffix must match the action's fields.
+
+    These tests pin the behavior that validate_action_id_format now
+    enforces: the suffix after the effective_date is derived from the
+    action, not free-form.
+    """
+
+    def test_split_correct_discriminator_passes(self):
+        assert validate_action_id_format({
+            "action_id": "US67066G1040-SPLIT-2024-06-10-10-1",
+            "action_type": "SPLIT",
+            "ratio": "10:1",
+        }) == []
+
+    def test_split_wrong_discriminator_rejected(self):
+        errors = validate_action_id_format({
+            "action_id": "US67066G1040-SPLIT-2024-06-10-999-999",
+            "action_type": "SPLIT",
+            "ratio": "10:1",
+        })
+        assert any("discriminator" in e for e in errors), errors
+
+    def test_split_colon_form_rejected(self):
+        errors = validate_action_id_format({
+            "action_id": "US67066G1040-SPLIT-2024-06-10-10:1",
+            "action_type": "SPLIT",
+            "ratio": "10:1",
+        })
+        assert any("discriminator" in e for e in errors), errors
+
+    def test_dividend_correct_discriminator_passes(self):
+        assert validate_action_id_format({
+            "action_id": "US0378331005-DIVIDEND-2024-05-16-0.2500",
+            "action_type": "DIVIDEND",
+            "amount": 0.25,
+        }) == []
+
+    def test_dividend_wrong_discriminator_rejected(self):
+        errors = validate_action_id_format({
+            "action_id": "US0378331005-DIVIDEND-2024-05-16-9999",
+            "action_type": "DIVIDEND",
+            "amount": 0.25,
+        })
+        assert any("discriminator" in e for e in errors), errors
+
+    def test_symbol_change_must_use_symbol(self):
+        errors = validate_action_id_format({
+            "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-META",
+            "action_type": "SYMBOL_CHANGE",
+        })
+        assert any("SYMBOL" in e for e in errors), errors
+
+    def test_symbol_change_correct_form_passes(self):
+        assert validate_action_id_format({
+            "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL",
+            "action_type": "SYMBOL_CHANGE",
+        }) == []
+
+    def test_delisting_must_use_delisted(self):
+        errors = validate_action_id_format({
+            "action_id": "US90184L1026-DELISTING-2022-10-28",
+            "action_type": "DELISTING",
+        })
+        assert any("DELISTED" in e for e in errors), errors
+
+    def test_delisting_correct_form_passes(self):
+        assert validate_action_id_format({
+            "action_id": "US90184L1026-DELISTING-2022-10-28-DELISTED",
+            "action_type": "DELISTING",
+        }) == []

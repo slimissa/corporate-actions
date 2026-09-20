@@ -514,7 +514,7 @@ a new position will appear to open. The correct handling:
 ```json
 {
   "isin": "US30303M1027",
-  "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09",
+  "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL",
   "action_type": "SYMBOL_CHANGE",
   "dates": {
     "announcement": "2022-06-09",
@@ -680,7 +680,7 @@ or a bankruptcy recovery amount, which is not in the registry.
 ```json
 {
   "isin": "US90184L1026",
-  "action_id": "US90184L1026-DELISTING-2022-10-28",
+  "action_id": "US90184L1026-DELISTING-2022-10-28-DELISTED",
   "action_type": "DELISTING",
   "dates": {
     "announcement": "2022-10-27",

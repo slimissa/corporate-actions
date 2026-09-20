@@ -558,6 +558,42 @@ def validate_action_id_format(action: Dict[str, Any]) -> List[str]:
             f"action_id date {m.group('date')!r} does not match "
             f"dates.effective_date {effective!r}"
         )
+    # Discriminator content check: the suffix must match the action's
+    # type-appropriate derivation. This is what makes the "canonical
+    # format" claim one-directional instead of purely descriptive.
+    disc = m.group("disc")
+    action_type = action.get("action_type")
+
+    if action_type in ("SPLIT", "REVERSE_SPLIT", "SPINOFF"):
+        ratio = action.get("ratio")
+        if isinstance(ratio, str) and ":" in ratio:
+            expected = ratio.replace(":", "-")
+            if disc != expected:
+                errors.append(
+                    f"action_id discriminator {disc!r} does not match "
+                    f"ratio {ratio!r} (expected {expected!r})"
+                )
+    elif action_type in ("DIVIDEND", "SPECIAL_DIVIDEND"):
+        amount = action.get("amount")
+        if isinstance(amount, (int, float)):
+            expected = f"{float(amount):.4f}"
+            if disc != expected:
+                errors.append(
+                    f"action_id discriminator {disc!r} does not match "
+                    f"amount {expected!r}"
+                )
+    elif action_type == "SYMBOL_CHANGE":
+        if disc != "SYMBOL":
+            errors.append(
+                f"action_id discriminator {disc!r} must be 'SYMBOL' "
+                f"for SYMBOL_CHANGE"
+            )
+    elif action_type == "DELISTING":
+        if disc != "DELISTED":
+            errors.append(
+                f"action_id discriminator {disc!r} must be 'DELISTED' "
+                f"for DELISTING"
+            )
     return errors
 
 def main():
