@@ -66,8 +66,8 @@ fn load_fixture() -> Option<ContractFixture> {
         );
         return None;
     }
-    let content = fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
+    let content =
+        fs::read_to_string(path).unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
     let fixture: ContractFixture = serde_json::from_str(&content)
         .unwrap_or_else(|e| panic!("parse fixture {}: {}", FIXTURE_PATH, e));
     Some(fixture)
@@ -119,11 +119,7 @@ fn contract_fixture_shape_is_valid() {
     }
 
     for (i, q) in fixture.queries.iter().enumerate() {
-        assert!(
-            !q.date_field.is_empty(),
-            "query {} missing date_field",
-            i
-        );
+        assert!(!q.date_field.is_empty(), "query {} missing date_field", i);
     }
 }
 
@@ -172,11 +168,7 @@ fn contract_queries_match() {
     let registry = build_registry(&fixture);
 
     for (i, q) in fixture.queries.iter().enumerate() {
-        let result = registry.by_date_range(
-            q.start.as_deref(),
-            q.end.as_deref(),
-            &q.date_field,
-        );
+        let result = registry.by_date_range(q.start.as_deref(), q.end.as_deref(), &q.date_field);
         let actions = match result {
             Ok(a) => a,
             Err(e) => panic!(
@@ -209,20 +201,13 @@ fn contract_invalid_date_fields_rejected() {
         let result = registry.by_date_range(None, None, bad);
         match result {
             Err(RegistryError::InvalidDateField(field)) => {
-                assert_eq!(
-                    &field, bad,
-                    "error carried {:?}, expected {:?}",
-                    field, bad
-                );
+                assert_eq!(&field, bad, "error carried {:?}, expected {:?}", field, bad);
             }
             Err(other) => panic!(
                 "field {:?}: expected InvalidDateField, got {:?}",
                 bad, other
             ),
-            Ok(_) => panic!(
-                "field {:?}: expected an error, got Ok",
-                bad
-            ),
+            Ok(_) => panic!("field {:?}: expected an error, got Ok", bad),
         }
     }
 }
