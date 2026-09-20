@@ -10,10 +10,9 @@ incorrect returns.
 The example:
   1. Loads the Corporate Actions Registry via the Python wrapper.
   2. Fetches historical prices for a ticker via yfinance.
-  3. Computes P&L three ways:
-       a. Naive (raw prices, no adjustment)   — WRONG
-       b. Split-adjusted only                 — PARTIALLY CORRECT
-       c. Split + dividend adjusted           — CORRECT (total return)
+3. Computes P&L two ways:
+   a. Price return  — yfinance's Close series, already split-adjusted
+   b. Total return  — price return plus dividends paid in the window
   4. Prints the difference for the same holding period.
 
 Prerequisites:
@@ -110,71 +109,28 @@ def in_range(d: str, start: date, end: date) -> bool:
 # ----------------------------------------------------------------------
 # P&L calculations
 # ----------------------------------------------------------------------
-def compute_naive_return(prices_start: float, prices_end: float) -> float:
-    """Return percentage change using raw prices (WRONG if split occurred)."""
-    return (prices_end / prices_start - 1.0) * 100.0
+def compute_price_return(first_price: float, last_price: float) -> float:
+    """Percentage change from first to last, using the prices as returned.
 
-
-def adjust_prices_for_actions(prices, actions, start: date, end: date):
+    The prices from yfinance are already split-adjusted. No further
+    adjustment is applied here.
     """
-    Adjust each historical price for actions whose ex-date falls between
-    the price date and `end`.
+    return (last_price / first_price - 1.0) * 100.0
 
-    Only SPLIT and REVERSE_SPLIT affect the price series. Dividends are
-    handled separately in compute_total_return.
+
+def compute_total_return(
+    first_price: float,
+    last_price: float,
+    actions,
+    start: date,
+    end: date,
+) -> float:
+    """Price return plus dividends paid in [start, end].
+
+    Dividends are added to the final price before computing the return.
+    This is an approximation: it does not model reinvestment or the
+    timing of dividend payments within the window.
     """
-    adjusted = {}
-    for dt, price in prices.items():
-        p = float(price)
-        for action in actions:
-            if action.action_type not in ("SPLIT", "REVERSE_SPLIT"):
-                continue
-            ex_date_str = action.dates.ex_date if action.dates else None
-            if not ex_date_str:
-                continue
-            if not in_range(ex_date_str, start, end):
-                continue
-            ex_date = to_date(ex_date_str)
-            if dt < ex_date:
-                ratio = action.ratio
-                if not ratio:
-                    continue
-                num, den = map(int, ratio.split(":"))
-                p *= den / num
-        adjusted[dt] = p
-    return adjusted
-
-
-def compute_split_adjusted_return(adjusted_prices, start: date, end: date) -> float:
-    """Percentage change using split-adjusted prices."""
-    start_p = None
-    end_p = None
-    for dt in sorted(adjusted_prices):
-        if dt <= start and (start_p is None or dt > start_p[0]):
-            start_p = (dt, adjusted_prices[dt])
-        if dt <= end:
-            end_p = (dt, adjusted_prices[dt])
-    if not start_p or not end_p:
-        return float("nan")
-    return (end_p[1] / start_p[1] - 1.0) * 100.0
-
-
-def compute_total_return(prices, actions, start: date, end: date) -> float:
-    """
-    Total return = price return (split-adjusted) + cash dividends received
-    during the holding period.
-    """
-    adjusted = adjust_prices_for_actions(prices, actions, start, end)
-    start_p = None
-    end_p = None
-    for dt in sorted(adjusted):
-        if dt <= start:
-            start_p = (dt, adjusted[dt])
-        if dt <= end:
-            end_p = (dt, adjusted[dt])
-    if not start_p or not end_p:
-        return float("nan")
-
     cash = 0.0
     for action in actions:
         if action.action_type not in ("DIVIDEND", "SPECIAL_DIVIDEND"):
@@ -186,9 +142,8 @@ def compute_total_return(prices, actions, start: date, end: date) -> float:
             continue
         if action.amount:
             cash += action.amount
-
-    total_end = end_p[1] + cash
-    return (total_end / start_p[1] - 1.0) * 100.0
+    total_end = last_price + cash
+    return (total_end / first_price - 1.0) * 100.0
 
 
 def dedupe_actions(actions):
@@ -323,27 +278,21 @@ def main() -> int:
     first_price = prices[min(prices)]
     last_price = prices[max(prices)]
 
-    split_adj = adjust_prices_for_actions(prices, actions_for_ticker,
-                                          start_d, end_d)
-    split_ret = compute_split_adjusted_return(split_adj, start_d, end_d)
-    total_ret = compute_total_return(prices, actions_for_ticker, start_d, end_d)
+    price_ret = compute_price_return(first_price, last_price)
+    total_ret = compute_total_return(
+        first_price, last_price, actions_for_ticker, start_d, end_d,
+    )
 
     print()
     print("=" * 60)
-    print(f"Backtest P&L for {args.ticker}")
+    print(f"Backtest return for {args.ticker}")
     print(f"  Holding period: {args.start} to {args.end}")
     print(f"  First price:    {first_price:.4f}  (as reported by yfinance)")
     print(f"  Last price:     {last_price:.4f}")
     print("=" * 60)
-    print(f"  Raw price return (unadjusted):         "
-          f"{compute_naive_return(first_price, last_price):+7.2f}%")
-    print(f"  Split-adjusted price return:           {split_ret:+7.2f}%")
-    print(f"  Total return (splits + dividends):     {total_ret:+7.2f}%   CORRECT")
+    print(f"  Price return:                     {price_ret:+7.2f}%")
+    print(f"  Total return (price + dividends): {total_ret:+7.2f}%")
     print("=" * 60)
-    print()
-    print("  NOTE: yfinance returns split-adjusted prices by default.")
-    print("        'Raw price return' is therefore already split-adjusted.")
-    print("        Use a vendor with unadjusted prices for the classic demo.")
 
     splits_in_range = [
         a for a in actions_for_ticker
