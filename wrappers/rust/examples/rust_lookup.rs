@@ -8,12 +8,6 @@
 //!     cd wrappers/rust
 //!     cargo run --example rust_lookup -- ../../actions.json
 //!
-//! Or, if you copied this file to wrappers/rust/examples/, cargo will
-//! pick it up automatically as an example:
-//!
-//!     cd wrappers/rust
-//!     cargo run --example rust_lookup -- --help
-//!
 //! Command-line usage:
 //!
 //!     rust_lookup [OPTIONS]
@@ -29,6 +23,7 @@
 
 use corporate_actions_registry::{Action, Registry};
 use std::env;
+use std::iter::Skip;
 use std::path::PathBuf;
 use std::process;
 
@@ -46,6 +41,27 @@ Options:
   --summary                     Only print summary counts
   --help, -h                    Show this help message
 ";
+
+/// Take the next argument as a value, rejecting a flag-like value.
+///
+/// `--date-range 2024-01-01 --isin X` must be a usage error, not a
+/// silent misparse where `--isin` becomes the end date.
+fn take_value(iter: &mut Skip<env::Args>, flag: &str) -> String {
+    match iter.next() {
+        Some(v) if !v.starts_with("--") => v,
+        Some(v) => {
+            eprintln!(
+                "Error: {} requires a value, got {:?} (looks like a flag)",
+                flag, v
+            );
+            process::exit(2);
+        }
+        None => {
+            eprintln!("Error: {} requires a value", flag);
+            process::exit(2);
+        }
+    }
+}
 
 #[derive(Default, Debug)]
 struct Args {
@@ -68,71 +84,47 @@ fn parse_args() -> Args {
     while let Some(arg) = iter.next() {
         match arg.as_str() {
             "--actions" => {
-                args.actions = iter.next().map(PathBuf::from);
-                if args.actions.is_none() {
-                    eprintln!("Error: --actions requires a path argument");
-                    process::exit(2);
-                }
+                args.actions = Some(PathBuf::from(take_value(&mut iter, "--actions")));
             }
             "--isin" => {
-                args.isin = iter.next();
-                if args.isin.is_none() {
-                    eprintln!("Error: --isin requires an argument");
-                    process::exit(2);
-                }
+                args.isin = Some(take_value(&mut iter, "--isin"));
             }
             "--action-id" => {
-                args.action_id = iter.next();
-                if args.action_id.is_none() {
-                    eprintln!("Error: --action-id requires an argument");
-                    process::exit(2);
-                }
+                args.action_id = Some(take_value(&mut iter, "--action-id"));
             }
             "--action-type" => {
-                args.action_type = iter.next();
-                if args.action_type.is_none() {
-                    eprintln!("Error: --action-type requires an argument");
-                    process::exit(2);
-                }
+                args.action_type = Some(take_value(&mut iter, "--action-type"));
+            }
+            "--date-field" => {
+                args.date_field = take_value(&mut iter, "--date-field");
             }
             "--date-range" => {
-                let start = iter.next();
-                let end = iter.next();
-                match (start, end) {
-                    (Some(s), Some(e)) => args.date_range = Some((s, e)),
-                    _ => {
-                        eprintln!("Error: --date-range requires START and END arguments");
+                let start = take_value(&mut iter, "--date-range");
+                let end = match iter.next() {
+                    Some(v) if !v.starts_with("--") => v,
+                    Some(v) => {
+                        eprintln!(
+                            "Error: --date-range requires END, got {:?} (looks like a flag)",
+                            v
+                        );
                         process::exit(2);
                     }
-                }
+                    None => {
+                        eprintln!("Error: --date-range requires START and END");
+                        process::exit(2);
+                    }
+                };
+                args.date_range = Some((start, end));
             }
-            "--date-field" => match iter.next() {
-                Some(f) => args.date_field = f,
-                None => {
-                    eprintln!("Error: --date-field requires an argument");
-                    process::exit(2);
-                }
-            },
             "--summary" => args.summary = true,
             "--help" | "-h" => {
                 print!("{}", USAGE);
                 process::exit(0);
             }
             other => {
-                if other.starts_with("--") {
-                    eprintln!("Unknown argument: {}", other);
-                    print!("{}", USAGE);
-                    process::exit(2);
-                } else {
-                    // Positional argument: treat as path to actions.json
-                    if args.actions.is_none() {
-                        args.actions = Some(PathBuf::from(other));
-                    } else {
-                        eprintln!("Error: unexpected positional argument: {}", other);
-                        print!("{}", USAGE);
-                        process::exit(2);
-                    }
-                }
+                eprintln!("Unknown argument: {}", other);
+                print!("{}", USAGE);
+                process::exit(2);
             }
         }
     }
@@ -141,8 +133,8 @@ fn parse_args() -> Args {
 }
 
 /// Locate actions.json.
-/// Priority: --actions > cwd/actions.json > ../actions.json relative to
-/// the current working directory.
+/// Priority: --actions > cwd/actions.json > ../actions.json >
+/// ../../actions.json relative to the current working directory.
 fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
     if let Some(p) = cli_path {
         if !p.exists() {
@@ -154,7 +146,6 @@ fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
 
     let cwd = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
 
-    // Check cwd, then parent, then grandparent (for wrappers/rust layout).
     let candidates = [
         cwd.join("actions.json"),
         cwd.join("..").join("actions.json"),
@@ -166,7 +157,9 @@ fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
         }
     }
 
-    eprintln!("Error: could not find actions.json. Use --actions PATH or pass a path as a positional argument.");
+    eprintln!(
+        "Error: could not find actions.json. Use --actions PATH or pass a path as a positional argument."
+    );
     process::exit(2);
 }
 
@@ -291,14 +284,19 @@ fn main() {
     }
 
     if let Some((start, end)) = &args.date_range {
-        let actions = registry.by_date_range(Some(start), Some(end), &args.date_field);
-        print_actions(
-            &actions,
-            &format!(
-                "Lookup by {} between {} and {}",
-                args.date_field, start, end
+        match registry.by_date_range(Some(start), Some(end), &args.date_field) {
+            Ok(actions) => print_actions(
+                &actions,
+                &format!(
+                    "Lookup by {} between {} and {}",
+                    args.date_field, start, end
+                ),
             ),
-        );
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                process::exit(2);
+            }
+        }
         return;
     }
 
@@ -309,16 +307,17 @@ fn main() {
         println!("  {}: {}", t, acts.len());
     }
 
-    println!();
-    println!("First 3 actions (for illustration):");
-    for a in registry.all_actions().iter().take(3) {
-        println!();
-        print_action(a);
-    }
-
     if !args.summary {
         println!();
-        println!("Use --isin, --action-id, --action-type, or --date-range for targeted queries.");
+        println!("First 3 actions (for illustration):");
+        for a in registry.all_actions().iter().take(3) {
+            println!();
+            print_action(a);
+        }
+        println!();
+        println!(
+            "Use --isin, --action-id, --action-type, or --date-range for targeted queries."
+        );
         println!("Run with --help for full usage.");
     }
 }
