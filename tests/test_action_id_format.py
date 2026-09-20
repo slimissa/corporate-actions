@@ -441,7 +441,7 @@ class TestDiscriminatorConsistency:
 
     def test_delisting_must_use_delisted(self):
         errors = validate_action_id_format({
-            "action_id": "US90184L1026-DELISTING-2022-10-28",
+            "action_id": "US90184L1026-DELISTING-2022-10-28-WRONG",
             "action_type": "DELISTING",
         })
         assert any("DELISTED" in e for e in errors), errors

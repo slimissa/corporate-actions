@@ -516,7 +516,7 @@ class TestBuildSymbolChange:
     def test_action_id_format(self):
         action = self._build()
         # Falls back to filing_date when no effective date in text.
-        assert action["action_id"] == "US30303M1027-SYMBOL_CHANGE-2022-06-01-META"
+        assert action["action_id"] == "US30303M1027-SYMBOL_CHANGE-2022-06-01-SYMBOL"
 
     def test_effective_date_from_text(self):
         action = self._build(
@@ -584,12 +584,12 @@ class TestBuildDelisting:
 
     def test_action_id_format(self):
         action = self._build()
-        assert action["action_id"] == "US90184L1026-DELISTING-2022-10-27"
+        assert action["action_id"] == "US90184L1026-DELISTING-2022-10-27-DELISTED"
 
     def test_effective_date_from_text(self):
         action = self._build("effective October 28, 2022")
         assert action["dates"]["effective_date"] == "2022-10-28"
-        assert action["action_id"].endswith("-2022-10-28")
+        assert action["action_id"].endswith("-2022-10-28-DELISTED")
 
     def test_effective_date_falls_back_to_filing_date(self):
         action = self._build("will be delisted from the NYSE")
