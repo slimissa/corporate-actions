@@ -84,7 +84,10 @@ jobs:
       - name: Python wrapper tests
         working-directory: wrappers/python
         run: pytest tests/ -v
-
+      
+      - name: Run shell tests
+        run: bash tests/test_run_update.sh
+        
   # ---------------------------------------------------------------------
   # JavaScript: wrapper tests.
   # ---------------------------------------------------------------------

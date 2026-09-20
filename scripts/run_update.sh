@@ -153,6 +153,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 # ----------------------------------------------------------------------
+# Cross-flag validation
+# ----------------------------------------------------------------------
+if [[ -n "$TAG_VERSION" && "$DO_COMMIT" != "true" ]]; then
+    error_exit "--tag requires --commit"
+fi
+
+if [[ -n "$TAG_VERSION" && "$DRY_RUN" == "true" ]]; then
+    log "DRY RUN: would tag $TAG_VERSION (skipped)."
+    TAG_VERSION=""
+fi
+
+# ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
 log() {
@@ -181,7 +193,7 @@ run_cmd() {
     rm -f "$tmp"
     return $rc
 }
-    
+
 # ----------------------------------------------------------------------
 # Validate input files exist
 # ----------------------------------------------------------------------
@@ -240,12 +252,25 @@ def dedup_key(action):
     dates = action.get("dates") or {}
     ratio = action.get("ratio") or ""
     amount = action.get("amount")
+    if amount is None:
+        amount_val = 0.0
+    else:
+        try:
+            amount_val = float(amount)
+        except (TypeError, ValueError):
+            # Refuse rather than silently dedup on a sentinel. A
+            # non-numeric amount is a data error and should surface
+            # loudly, not turn into a different key.
+            raise SystemExit(
+                f"Error: action {action.get('action_id', '?')} has "
+                f"non-numeric amount {amount!r}"
+            )
     return (
         action.get("isin", ""),
         action.get("action_type", ""),
         dates.get("ex_date", ""),
         ratio,
-        round(float(amount), 4) if amount is not None else 0.0,
+        round(amount_val, 4),
     )
 
 
@@ -355,14 +380,16 @@ if $DO_COMMIT && ! $DRY_RUN; then
     git add "$ACTIONS_PATH" 2>/dev/null || true
     if git diff --cached --quiet; then
         log "No changes to commit."
+        if [[ -n "$TAG_VERSION" ]]; then
+            error_exit "Refusing to tag $TAG_VERSION: no changes were committed."
+        fi
     else
         git commit -m "Automated registry update"
-    fi
-
-    if [[ -n "$TAG_VERSION" ]]; then
-        log "Tagging release $TAG_VERSION"
-        git tag "$TAG_VERSION"
-        git push origin "$TAG_VERSION"
+        if [[ -n "$TAG_VERSION" ]]; then
+            log "Tagging release $TAG_VERSION"
+            git tag "$TAG_VERSION"
+            git push origin "$TAG_VERSION"
+        fi
     fi
 
     git push origin main

@@ -20,8 +20,11 @@ Usage:
     python scripts/notify_on_change.py --actions actions.json --state .state --verbose
 
 Exit codes:
-  0 – success (either no change or notification sent)
-  1 – error (missing file, invalid arguments, webhook failure)
+  0 - success, whether or not a change was detected
+      and whether or not the webhook delivery succeeded
+  1 - error: missing or unreadable actions file,
+      or the state file could not be written
+  2 - usage error (reserved; not currently returned)
 """
 
 import argparse
@@ -79,18 +82,22 @@ def load_state(state_path: str) -> Dict[str, Any]:
 
 def save_state(state_path: str, new_hash: str) -> None:
     """
-    Save the new hash to the state file.
+    Save the new hash to the state file, atomically.
 
-    Args:
-        state_path: Path to the state file.
-        new_hash: Hex digest of the current actions.json.
+    Writes to a temp file in the same directory, then renames it over
+    the destination. A killed process between the two steps leaves the
+    original file untouched rather than truncated.
     """
     state = {
         "hash": new_hash,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
     }
-    with open(state_path, "w", encoding="utf-8") as f:
+    tmp_path = state_path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
+    os.replace(tmp_path, state_path)
 
 
 def send_webhook_notification(
@@ -119,7 +126,6 @@ def send_webhook_notification(
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     try:
-        # Use urllib to avoid external dependencies
         import urllib.request
         import urllib.error
 
@@ -130,8 +136,10 @@ def send_webhook_notification(
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=10) as response:
-            return response.status < 400
+        # urlopen raises HTTPError for any 4xx or 5xx response, so the
+        # body of the with-block only runs on a 2xx success.
+        with urllib.request.urlopen(req, timeout=10) as _response:
+            return True
     except Exception as e:
         print(f"Webhook delivery failed: {e}", file=sys.stderr)
         return False

@@ -101,7 +101,48 @@ class TestStatePersistence:
         data = json.loads(tmp_state.read_text(encoding="utf-8"))
         assert set(data.keys()) >= {"hash", "updated_at"}
 
+    def test_save_is_atomic_no_tmp_left_behind(self, tmp_state):
+        noc.save_state(str(tmp_state), "abc123")
+        parent = tmp_state.parent
+        leftovers = [
+            p.name for p in parent.iterdir()
+            if p.name.startswith(".notify_state.json.tmp")
+        ]
+        assert leftovers == [], f"temp files left behind: {leftovers}"
 
+    def test_state_write_does_not_truncate_on_failure(self, tmp_state, monkeypatch):
+        """If the write fails, the original file is preserved."""
+        noc.save_state(str(tmp_state), "original")
+        original = tmp_state.read_text(encoding="utf-8")
+
+        # Patch json.dump to raise after the temp file is opened.
+        import notify_on_change as n
+        def _fail(*a, **kw):
+            raise OSError("simulated write failure")
+        monkeypatch.setattr(n.json, "dump", _fail)
+
+        with pytest.raises(OSError):
+            noc.save_state(str(tmp_state), "new")
+        # Original is unchanged because os.replace was never reached.
+        assert tmp_state.read_text(encoding="utf-8") == original
+
+    def test_state_written_even_when_webhook_fails(self, tmp_actions, tmp_state):
+        """A webhook failure is logged but does not prevent the state
+        from being updated, so the next run does not retry the same
+        notification."""
+        result = run_cli(
+            [
+                "--actions", str(tmp_actions),
+                "--state", str(tmp_state),
+                "--webhook-url", "http://192.0.2.1/hook",
+            ],
+            cwd=str(tmp_actions.parent),
+        )
+        assert result.returncode == 0
+        assert "webhook notification failed" in result.stderr.lower()
+        assert tmp_state.exists()
+        state = json.loads(tmp_state.read_text(encoding="utf-8"))
+        assert "hash" in state
 # ----------------------------------------------------------------------
 # send_webhook_notification
 # ----------------------------------------------------------------------
@@ -213,3 +254,17 @@ class TestCLI:
         assert result.returncode == 0
         assert "Actions path" in result.stdout
         assert "New hash" in result.stdout
+
+    def test_corrupted_state_file_is_recovered(self, tmp_actions, tmp_state):
+        """A corrupted state file does not crash the CLI. It is treated
+        as "first run" and the state is rewritten."""
+        tmp_state.write_text("not valid json", encoding="utf-8")
+        result = run_cli(
+            ["--actions", str(tmp_actions), "--state", str(tmp_state)],
+            cwd=str(tmp_actions.parent),
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "First run detected" in result.stdout
+        # State was rewritten with valid JSON.
+        state = json.loads(tmp_state.read_text(encoding="utf-8"))
+        assert "hash" in state
