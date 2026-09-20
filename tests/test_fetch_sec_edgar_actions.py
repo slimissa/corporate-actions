@@ -847,7 +847,11 @@ class TestMainIntegration:
         data = json.loads(out.read_text(encoding="utf-8"))
         # Only the 2022 filing is within range.
         assert len(data["actions"]) == 1
-        assert "META" in data["actions"][0]["action_id"]
+        # The 2022 filing is the one extracted; its ID uses the canonical
+        # -SYMBOL discriminator (the new ticker is not encoded in the ID).
+        assert data["actions"][0]["action_id"] == (
+            "US30303M1027-SYMBOL_CHANGE-2022-06-01-SYMBOL"
+        )
         # And the old accession was never fetched.
         assert "old-acc" not in fake.get_filing_text_calls
 
@@ -893,7 +897,11 @@ class TestMainIntegration:
         ])
         data = json.loads(out.read_text(encoding="utf-8"))
         assert len(data["actions"]) == 1
-        assert "META" in data["actions"][0]["action_id"]
+        # Only the 8-K filing yielded an action; its ID uses the
+        # canonical -SYMBOL discriminator.
+        assert data["actions"][0]["action_id"] == (
+            "US30303M1027-SYMBOL_CHANGE-2024-06-01-SYMBOL"
+        )
 
     def test_output_is_valid_json_with_expected_shape(self, tmp_path, monkeypatch, patch_client):
         path = _write_identifiers(tmp_path, [
