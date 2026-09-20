@@ -92,7 +92,23 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 - Rust contract test path used `../../../tests/wrapper_contract.json`,
   which resolves from the crate root to the parent of the repository.
   Uses `CARGO_MANIFEST_DIR` so the path is independent of cwd.
-  
+
+### Fixed (Session 4)
+
+- `run_update.sh`: `--tag` requires `--commit`; refuses to tag an empty
+  commit; merge rejects non-numeric amounts with the offending
+  action_id
+- `notify_on_change.py`: atomic state writes; correct exit-code
+  docstring; dead `< 400` status check removed
+- `scripts/README.md`: encoding corrected (mojibake reversed)
+
+### Added (Session 4)
+
+- `tests/test_run_update.sh`, six shell tests
+- `tests/test_notify_on_change.py`: four tests for corrupted state,
+  atomic writes, and webhook-failure recovery
+- `validate.yml` runs the shell test on every push
+
 ### Changed
 
 - `examples/backtest_adjustment.py` now resolves tickers via
