@@ -66,6 +66,11 @@ error_exit() {
     exit 1
 }
 
+usage_error() {
+    echo "ERROR: $*" >&2
+    exit 2
+}
+
 run_cmd() {
     if $VERBOSE; then
         "$@"
