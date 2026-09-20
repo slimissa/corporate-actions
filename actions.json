@@ -54,54 +54,6 @@
       }
     },
     {
-      "isin": "US0378331005",
-      "action_id": "US0378331005-DIVIDEND-2024-05-23-0.2500",
-      "action_type": "DIVIDEND",
-      "amount": 0.25,
-      "currency": "USD",
-      "dates": {
-        "announcement": "2024-05-02",
-        "ex_date": "2024-05-16",
-        "record_date": "2024-05-17",
-        "effective_date": "2024-05-23"
-      },
-      "status": "COMPLETED",
-      "provenance": {
-        "source": "Apple Inc. press release",
-        "source_url": "https://www.apple.com/newsroom/2024/05/apple-reports-second-quarter-results/",
-        "verification_source": "SEC EDGAR 8-K"
-      },
-      "impact": {
-        "price_multiplier": 1.0,
-        "share_multiplier": 1.0,
-        "cash_adjustment": 0.25
-      }
-    },
-    {
-      "isin": "US5949181045",
-      "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-12-03-3.0000",
-      "action_type": "SPECIAL_DIVIDEND",
-      "amount": 3.0,
-      "currency": "USD",
-      "dates": {
-        "announcement": "2004-11-15",
-        "ex_date": "2004-11-17",
-        "record_date": "2004-11-19",
-        "effective_date": "2004-12-03"
-      },
-      "status": "COMPLETED",
-      "provenance": {
-        "source": "Microsoft press release",
-        "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-special-dividend/",
-        "verification_source": "SEC EDGAR 8-K"
-      },
-      "impact": {
-        "price_multiplier": 1.0,
-        "share_multiplier": 1.0,
-        "cash_adjustment": 3.0
-      }
-    },
-    {
       "isin": "US30303M1027",
       "action_id": "US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL",
       "action_type": "SYMBOL_CHANGE",
@@ -237,30 +189,6 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
-    },
-    {
-      "isin": "US5949181045",
-      "action_id": "US5949181045-DIVIDEND-2004-11-15-3.0800",
-      "action_type": "DIVIDEND",
-      "amount": 3.08,
-      "currency": "USD",
-      "dates": {
-        "announcement": "2004-11-15",
-        "ex_date": "2004-11-15",
-        "record_date": null,
-        "effective_date": "2004-11-15"
-      },
-      "status": "COMPLETED",
-      "provenance": {
-        "source": "Yahoo Finance (yfinance)",
-        "source_url": "https://finance.yahoo.com/quote/MSFT/history",
-        "verification_source": null
-      },
-      "impact": {
-        "price_multiplier": 1.0,
-        "share_multiplier": 1.0,
-        "cash_adjustment": 3.08
       }
     },
     {
@@ -3379,30 +3307,6 @@
       }
     },
     {
-      "isin": "US0378331005",
-      "action_id": "US0378331005-DIVIDEND-2024-05-10-0.2500",
-      "action_type": "DIVIDEND",
-      "amount": 0.25,
-      "currency": "USD",
-      "dates": {
-        "announcement": "2024-05-10",
-        "ex_date": "2024-05-10",
-        "record_date": null,
-        "effective_date": "2024-05-10"
-      },
-      "status": "COMPLETED",
-      "provenance": {
-        "source": "Yahoo Finance (yfinance)",
-        "source_url": "https://finance.yahoo.com/quote/AAPL/history",
-        "verification_source": null
-      },
-      "impact": {
-        "price_multiplier": 1.0,
-        "share_multiplier": 1.0,
-        "cash_adjustment": 0.25
-      }
-    },
-    {
       "isin": "US5949181045",
       "action_id": "US5949181045-DIVIDEND-2024-05-15-0.7500",
       "action_type": "DIVIDEND",
@@ -5705,6 +5609,81 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US0378331005",
+      "action_id": "US0378331005-DIVIDEND-2024-05-16-0.2500",
+      "action_type": "DIVIDEND",
+      "amount": 0.25,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2024-05-02",
+        "ex_date": "2024-05-10",
+        "record_date": "2024-05-13",
+        "effective_date": "2024-05-16"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Apple Inc. press release",
+        "source_url": "https://www.apple.com/newsroom/2024/05/apple-reports-second-quarter-results/",
+        "verification_source": "SEC EDGAR 8-K",
+        "verification_url": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-DIVIDEND-2004-12-09-0.0800",
+      "action_type": "DIVIDEND",
+      "amount": 0.08,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2004-11-15",
+        "ex_date": "2004-11-15",
+        "record_date": "2004-11-17",
+        "effective_date": "2004-12-09"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Microsoft press release",
+        "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-quarterly-dividend-and-special-dividend/",
+        "verification_source": "SEC EDGAR 8-K",
+        "verification_url": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.08
+      }
+    },
+    {
+      "isin": "US5949181045",
+      "action_id": "US5949181045-SPECIAL_DIVIDEND-2004-12-02-3.0000",
+      "action_type": "SPECIAL_DIVIDEND",
+      "amount": 3.0,
+      "currency": "USD",
+      "dates": {
+        "announcement": "2004-11-15",
+        "ex_date": "2004-11-17",
+        "record_date": "2004-11-19",
+        "effective_date": "2004-12-02"
+      },
+      "status": "COMPLETED",
+      "provenance": {
+        "source": "Microsoft press release",
+        "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-quarterly-dividend-and-special-dividend/",
+        "verification_source": "SEC EDGAR 8-K",
+        "verification_url": null
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 3.0
       }
     }
   ]
