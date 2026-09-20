@@ -4,7 +4,7 @@
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Registry](https://img.shields.io/badge/registry-v1.0.0-orange.svg)](./CHANGELOG.md)
-[![Actions](https://img.shields.io/badge/actions-999-green.svg)](./actions.json)
+[![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
 [![Tests](https://img.shields.io/badge/tests-781-success.svg)](./tests/)
 
