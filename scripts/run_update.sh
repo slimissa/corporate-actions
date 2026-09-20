@@ -190,7 +190,7 @@ done
 # Cross-flag validation
 # ----------------------------------------------------------------------
 if [[ -n "$TAG_VERSION" && "$DO_COMMIT" != "true" ]]; then
-    error_exit "--tag requires --commit"
+    usage_error "--tag requires --commit"
 fi
 
 if [[ -n "$TAG_VERSION" && "$DRY_RUN" == "true" ]]; then

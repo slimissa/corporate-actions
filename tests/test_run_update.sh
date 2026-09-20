@@ -36,11 +36,8 @@ SAFE_FLAGS=(
 # ----------------------------------------------------------------------
 test_tag_without_commit() {
     echo "Test: --tag without --commit exits 2"
-    if "$SCRIPT" --tag v9.9.9-test "${SAFE_FLAGS[@]}" >/dev/null 2>&1; then
-        fail "--tag without --commit should have failed"
-        return
-    fi
-    local rc=$?
+    local rc=0
+    "$SCRIPT" --tag v9.9.9-test "${SAFE_FLAGS[@]}" >/dev/null 2>&1 || rc=$?
     if [[ $rc -eq 2 ]]; then
         pass "--tag without --commit exits 2"
     else
