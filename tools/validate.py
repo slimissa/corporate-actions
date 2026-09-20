@@ -581,9 +581,9 @@ def main():
     #   3. $LAS_DATA_HOME/identifiers.json (if LAS_DATA_HOME is set)
     #   4. Legacy relative default
     identifiers_path = (
-    args.identifiers
-    or os.environ.get(ENV_IDENTIFIERS)
-    or resolve_default_identifiers_path()
+        args.identifiers
+        or os.environ.get(ENV_IDENTIFIERS)
+        or resolve_default_identifiers_path()
     )
     iso4217_path = args.iso4217 or os.environ.get(ENV_ISO4217, DEFAULT_ISO4217_PATH)
     exch_cal_path = args.exchange_calendar or os.environ.get(ENV_EXCHANGE_CAL, DEFAULT_EXCHANGE_CALENDAR_PATH)
@@ -599,18 +599,6 @@ def main():
                 sys.exit(2)
         else:
             min_actions = DEFAULT_MIN_ACTIONS
-    try:
-        jsonschema.validate(
-            instance=actions_data,
-            schema=schema_data,
-            format_checker=_FORMAT_CHECKER,
-        )
-    except jsonschema.ValidationError as exc:
-        path = "/".join(str(p) for p in exc.absolute_path) or "<root>"
-        print(f"Error: actions.json does not validate against schema.json", file=sys.stderr)
-        print(f"  path:    {path}", file=sys.stderr)
-        print(f"  message: {exc.message}", file=sys.stderr)
-        sys.exit(1)
 
     # Load local files (actions and schema)
     try:
@@ -624,6 +612,23 @@ def main():
     except Exception as e:
         print(f"Error loading schema.json: {e}", file=sys.stderr)
         sys.exit(2)
+
+    # Full-document schema validation. Catches violations above the
+    # action-item level (unknown meta fields, wrong top-level types,
+    # stray top-level keys). The per-action loop below only validates
+    # the item sub-schema, so this check would otherwise be missing.
+    try:
+        jsonschema.validate(
+            instance=actions_data,
+            schema=schema_data,
+            format_checker=_FORMAT_CHECKER,
+        )
+    except jsonschema.ValidationError as exc:
+        path = "/".join(str(p) for p in exc.absolute_path) or "<root>"
+        print("Error: actions.json does not validate against schema.json", file=sys.stderr)
+        print(f"  path:    {path}", file=sys.stderr)
+        print(f"  message: {exc.message}", file=sys.stderr)
+        sys.exit(1)
 
     # Extract action sub-schema
     try:
@@ -693,7 +698,10 @@ def main():
             all_errors.extend([f"Action {action_id}: {e}" for e in id_errors])
 
         # 4. Cross-reference validation
-        cross_errors = validate_cross_reference(action, isin_set,currency_set, mic_set, strict_isin=args.strict_isin, isin_warnings=all_warnings,)
+        cross_errors = validate_cross_reference(
+            action, isin_set, currency_set, mic_set,
+            strict_isin=args.strict_isin, isin_warnings=all_warnings,
+        )
         if cross_errors:
             all_errors.extend([f"Action {action_id}: cross-reference: {e}" for e in cross_errors])
 
@@ -709,7 +717,10 @@ def main():
 
     # 7. Coverage check
     if total_actions < min_actions:
-        all_errors.append(f"Coverage: only {total_actions} actions found, minimum required is {min_actions}")
+        all_errors.append(
+            f"Coverage: only {total_actions} actions found, "
+            f"minimum required is {min_actions}"
+        )
 
     # Warnings
     if all_warnings:
@@ -738,7 +749,10 @@ def main():
             print(f"  - {err}")
         sys.exit(1)
     else:
-        valid_isin_count = sum(1 for a in actions if a.get("isin") and a.get("isin") in isin_set)
+        valid_isin_count = sum(
+            1 for a in actions
+            if a.get("isin") and a.get("isin") in isin_set
+        )
         missing_isin_count = len(all_warnings)
         print(f"\nOK: {total_actions} actions validated successfully.")
         print(f"Cross-reference: {valid_isin_count} ISINs validated, {missing_isin_count} missing (warnings)")
