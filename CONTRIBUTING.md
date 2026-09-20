@@ -118,7 +118,7 @@ source .venv/bin/activate
 
 # Install Python dependencies
 pip install --upgrade pip
-pip install pytest jsonschema yfinance requests
+pip install -r requirements-dev.txt
 
 # Point at real instrument data (recommended for local development)
 # Without this, the validator uses the synthetic fixture in tests/fixtures/,

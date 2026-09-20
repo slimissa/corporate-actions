@@ -30,6 +30,7 @@ import json
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
+from pydoc import doc
 
 import jsonschema
 import pytest
@@ -481,4 +482,8 @@ class TestFormatEnforcement:
         candidate = copy.deepcopy(actions)
         candidate["actions"][0]["dates"]["announcement"] = "2024-06-10"
         jsonschema.validate(candidate, schema, format_checker=format_checker)
-        
+
+    def test_full_document_validates():
+        doc = json.load(open(REPO_ROOT / 'actions.json'))
+        schema = json.load(open(REPO_ROOT / 'schema.json'))
+        jsonschema.validate(doc, schema, format_checker=jsonschema.FormatChecker())
