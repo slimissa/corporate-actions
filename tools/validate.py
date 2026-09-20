@@ -599,6 +599,18 @@ def main():
                 sys.exit(2)
         else:
             min_actions = DEFAULT_MIN_ACTIONS
+    try:
+        jsonschema.validate(
+            instance=actions_data,
+            schema=schema_data,
+            format_checker=_FORMAT_CHECKER,
+        )
+    except jsonschema.ValidationError as exc:
+        path = "/".join(str(p) for p in exc.absolute_path) or "<root>"
+        print(f"Error: actions.json does not validate against schema.json", file=sys.stderr)
+        print(f"  path:    {path}", file=sys.stderr)
+        print(f"  message: {exc.message}", file=sys.stderr)
+        sys.exit(1)
 
     # Load local files (actions and schema)
     try:
