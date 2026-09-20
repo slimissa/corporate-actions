@@ -51,6 +51,40 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # ----------------------------------------------------------------------
+# Helper functions
+#
+# Defined before any caller. The cross-flag validation block below uses
+# both log() and error_exit(); if these were declared later in the file,
+# Bash would exit 127 ("command not found") rather than 2.
+# ----------------------------------------------------------------------
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+error_exit() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+run_cmd() {
+    if $VERBOSE; then
+        "$@"
+        return $?
+    fi
+    local tmp rc
+    tmp="$(mktemp)"
+    "$@" > "$tmp" 2>&1 && rc=0 || rc=$?
+    if [[ $rc -eq 0 ]]; then
+        rm -f "$tmp"
+        return 0
+    fi
+    echo "--- command failed (exit $rc): $*" >&2
+    cat "$tmp" >&2
+    rm -f "$tmp"
+    return $rc
+}
+
+# ----------------------------------------------------------------------
 # Default paths
 # ----------------------------------------------------------------------
 # Default paths resolved in priority order:
@@ -165,36 +199,6 @@ if [[ -n "$TAG_VERSION" && "$DRY_RUN" == "true" ]]; then
 fi
 
 # ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-}
-
-error_exit() {
-    echo "ERROR: $*" >&2
-    exit 1
-}
-
-run_cmd() {
-    if $VERBOSE; then
-        "$@"
-        return $?
-    fi
-    local tmp rc
-    tmp="$(mktemp)"
-    "$@" > "$tmp" 2>&1 && rc=0 || rc=$?
-    if [[ $rc -eq 0 ]]; then
-        rm -f "$tmp"
-        return 0
-    fi
-    echo "--- command failed (exit $rc): $*" >&2
-    cat "$tmp" >&2
-    rm -f "$tmp"
-    return $rc
-}
-
-# ----------------------------------------------------------------------
 # Validate input files exist
 # ----------------------------------------------------------------------
 for f in "$IDENTIFIERS_PATH" "$ISO4217_PATH" "$EXCHANGE_CALENDAR_PATH" "$SCHEMA_PATH"; do
@@ -288,7 +292,7 @@ new_actions = [a for a in fetched_actions if dedup_key(a) not in existing_keys]
 if new_actions:
     current["actions"].extend(new_actions)
     current.setdefault("meta", {})["updated_at"] = (
-    datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     )
     with open(actions_path, "w") as f:
         json.dump(current, f, indent=2)
