@@ -76,10 +76,10 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip install jsonschema pytest
+          pip install requirements-dev.txt
 
       - name: Root tests
-        run: pytest tests/ -v
+        run: pytest tests/ -v -m "not network"
 
       - name: Python wrapper tests
         working-directory: wrappers/python
@@ -87,7 +87,9 @@ jobs:
       
       - name: Run shell tests
         run: bash tests/test_run_update.sh
-        
+
+      - name: Verify docs match fact sheet
+        run: python3 tools/check_doc_facts.py
   # ---------------------------------------------------------------------
   # JavaScript: wrapper tests.
   # ---------------------------------------------------------------------

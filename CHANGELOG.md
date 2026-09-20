@@ -54,7 +54,7 @@ tag. `BREAKING` annotations appear inline for major-version changes.
   `SYMBOL_CHANGE` and `DELISTING` only. Dividends and splits are no longer
   extracted from SEC text (Yahoo Finance is authoritative for both).
   
-### Fixed (Session 2)
+### Fixed
 
 - `derive_impacts.py` refuses to write when any action fails; ratio
   parser aligned with `validate_arithmetic`
@@ -71,7 +71,7 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 - Validator collapses repeated missing-ISIN warnings on the synthetic
   fixture
 
-### Added (Session 2)
+### Added
 
 - `tests/test_derive_impacts.py`, 45 tests
 - `tests/test_build.py`, 101 tests
@@ -80,20 +80,20 @@ tag. `BREAKING` annotations appear inline for major-version changes.
 - `tests/test_validator_integration.py`, 33 tests
 - `tests/test_action_id_format.py`, 76 tests
 
-### Added (Session 3.5)
+### Added
 
 - `tests/wrapper_contract.json` — the shared fixture that all four
   wrappers' contract tests read. Six actions, nine queries, eight
   invalid date field names. Every wrapper now asserts identical
   answers for `by_date_range` filter semantics.
 
-### Fixed (Session 3.5)
+### Fixed
 
 - Rust contract test path used `../../../tests/wrapper_contract.json`,
   which resolves from the crate root to the parent of the repository.
   Uses `CARGO_MANIFEST_DIR` so the path is independent of cwd.
 
-### Fixed (Session 4)
+### Fixed 
 
 - `run_update.sh`: `--tag` requires `--commit`; refuses to tag an empty
   commit; merge rejects non-numeric amounts with the offending
@@ -102,7 +102,7 @@ tag. `BREAKING` annotations appear inline for major-version changes.
   docstring; dead `< 400` status check removed
 - `scripts/README.md`: encoding corrected (mojibake reversed)
 
-### Added (Session 4)
+### Added 
 
 - `tests/test_run_update.sh`, six shell tests
 - `tests/test_notify_on_change.py`: four tests for corrupted state,
@@ -160,12 +160,13 @@ See [`docs/roadmap.md`](./docs/roadmap.md) for the full plan. Summary:
 ## [1.0.0] — 2026-09-13
 
 The first production release of the Corporate Actions Registry. 242
-actions, four language wrappers, 7-layer validation, three CI workflows,
-complete documentation.
+actions at tag time (240 after duplicate removal in Unreleased), four
+language wrappers, 7-layer validation, three CI workflows, complete
+documentation.
 
 ### Data
 
-- **241 actions** across 6 instruments
+- **240 actions** across 6 instruments
 - **4 action types populated**: SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE
 - **4 action types reserved**: REVERSE_SPLIT, SPINOFF, DELISTING, MERGER
 - **6 instruments covered**: AAPL, AMZN, GOOGL, META, MSFT, NVDA
@@ -176,7 +177,7 @@ complete documentation.
 
 #### Registry and schema
 
-- `actions.json` — canonical registry of 242 corporate actions
+- 242 corporate actions at tag time (240 after Phase 1 duplicate removal)
 - `schema.json` — JSON Schema (Draft 07) supporting 8 action types with
   per-type `oneOf` constraints
 - `meta` block with `version`, `generated_at`, `source`, `updated_at`,
@@ -198,9 +199,7 @@ complete documentation.
   library
 - `tools/fetch_sec_edgar_actions.py` — SEC EDGAR fetcher (currently
   broken; see Known Issues)
-- `tools/fetch_dividends_nasdaq.py` — Nasdaq dividend fetcher (currently
-  broken; scheduled for removal)
-- `tools/requirements.txt` — Python dependencies
+
 
 #### Wrappers
 
@@ -420,6 +419,7 @@ not tagged as releases. They are documented here for context.
 - [1.0.0] — https://github.com/slimissa/corporate-actions/releases/tag/v1.0.0
 - [Unreleased] — https://github.com/slimissa/corporate-actions/compare/v1.0.0...HEAD
 
+The v1.0.0 tag was force-pushed on 2026-09-14 as part of a history rewrite that removed licensed identifier data. Consumers who pinned the tag before that date must re-pin.
 ---
 
 ## See also

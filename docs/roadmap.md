@@ -34,12 +34,12 @@ As of v1.0.0, the Corporate Actions Registry has:
 
 | Metric | Value |
 |--------|-------|
-| Actions | 242 |
-| Instruments covered | ~10 US large caps |
+| Actions | 240 |
+| Instruments covered | 6 US large caps |
 | Action types populated | 4 of 8 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`) |
 | Languages | Python, JavaScript, Go, Rust |
-| Wrapper tests | 82 |
-| Root tests | 143 |
+| Wrapper tests | 93 (JS) + 70 (Rust) |
+| Root tests | 781 |
 | CI workflows | 3 (`validate`, `check-sources`, `update-actions`) |
 | Working fetchers | 2 (Yahoo Finance via `yfinance`; SEC EDGAR for SYMBOL_CHANGE/DELISTING) |
 | Broken fetchers | 0 |
@@ -102,11 +102,12 @@ change that will be included in the next release.
 
 **What shipped**:
 
-- 242 actions across 10 instruments
+- 240 actions across 6 instruments (242 at tag time)
 - Schema for 8 action types (4 populated)
 - 7-layer validator
 - Four language wrappers (Python, JS, Go, Rust) with 82 tests
-- 143 root tests
+- 781 root tests
+- 93 (JS) + 70 (Rust) wrapper tests and 781 root tests
 - 3 GitHub Actions workflows
 - Working Yahoo Finance fetcher
 - Cross-reference validation against 3 external registries
@@ -136,7 +137,6 @@ change that will be included in the next release.
 
 - [ ] All 8 action types populated (or explicitly deferred with reason)
 - [ ] Coverage expanded to at least 50 US instruments
-- [x] SEC EDGAR integration working (narrow scope: SYMBOL_CHANGE, DELISTING)
 - [ ] Cross-language consistency tests in CI
 - [ ] Wrappers published to their package registries
 - [ ] `--strict-isin` flipped to default
@@ -144,7 +144,7 @@ change that will be included in the next release.
 
 ### Items
 
-#### 1. Fix SEC EDGAR fetcher
+#### 1. Fix SEC EDGAR fetcher ✅ DONE (2026-09-20)
 
 **Priority**: High
 **Effort**: 1–2 weeks
@@ -637,12 +637,11 @@ design: financial data cannot ship with sloppy reviews.
 | Version | Date | Actions | Milestone |
 |---------|------|---------|-----------|
 | v1.0.0 | 2026-09-13 | 242 | Foundation |
+| v1.0.1 | 2026-09-20 | 240 | Data correctness |
 | v1.1.0 | Planned Q4 2026 | ~1,500 | US completeness |
 | v1.2.0 | Planned Q1 2027 | ~5,000 | International |
 | v2.0.0 | Planned mid 2027 | ~15,000 | Real-time |
 | v3.0.0 | Planned 2028+ | 50,000+ | Comprehensive |
-
-The v1.0.0 tag was force-pushed on 2026-09-14 as part of a history rewrite that removed licensed identifier data. Consumers who pinned the tag before that date must re-pin. See CHANGELOG.md.
 
 ---
 

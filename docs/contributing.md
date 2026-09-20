@@ -79,7 +79,7 @@ A doc that says "the validator checks dates" is unclear. A doc that says
 "`validate_temporal` enforces `announcement ≤ ex_date` for SPLIT" is
 falsifiable — a reader can check whether that is true.
 
-Whenever a claim can be made concrete, make it concrete. Prefer "242
+Whenever a claim can be made concrete, make it concrete. Prefer "240
 actions" over "many actions." Prefer "2024-06-10" over "June 2024." Prefer
 "exit code 1" over "fails."
 
@@ -116,7 +116,7 @@ at the change.
 
 ### Tense
 
-- **Present tense** for what exists. "The registry contains 242 actions."
+- **Present tense** for what exists. "The registry contains 240 actions."
 - **Future tense** only for roadmap items. "v1.1.0 will add MERGER."
 - **Past tense** for history. "The endpoint was retired in 2024."
 
@@ -384,7 +384,7 @@ lines without a marker.
 Loading Asset Identifiers registry...
   Loaded 10 ISINs
 ...
-OK: 242 actions validated successfully.
+OK: 240 actions validated successfully.
 ```
 
 ---

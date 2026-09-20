@@ -791,7 +791,7 @@ def main():
         )
         missing_isin_count = len(all_warnings)
         print(f"\nOK: {total_actions} actions validated successfully.")
-        print(f"Cross-reference: {valid_isin_count} ISINs validated, {missing_isin_count} missing (warnings)")
+        print(f"Cross-reference: {valid_isin_count} actions checked, {missing_isin_count} with unknown ISIN")
         print("All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage")
         sys.exit(0)
 

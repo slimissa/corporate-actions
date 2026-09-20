@@ -4,9 +4,9 @@
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Registry](https://img.shields.io/badge/registry-v1.0.0-orange.svg)](./CHANGELOG.md)
-[![Actions](https://img.shields.io/badge/actions-241-green.svg)](./actions.json)
+[![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
-[![Tests](https://img.shields.io/badge/tests-226-success.svg)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-781-success.svg)](./tests/)
 
 **A canonical, versioned, machine-readable registry of corporate actions.**
 One JSON file as the source of truth. Four language wrappers. Seven-layer
@@ -58,18 +58,17 @@ tool can depend on. It is language-agnostic by design.
 ## Current status
 
 **Version**: v1.0.0
-**Actions**: 241
+**Actions**: 240
 **Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
-**Total tests**: 225 (144 root + 82 wrapper)
-**CI**: All three workflows green
+**Total tests**: 781 (root, network deselected) + 93 (JavaScript wrapper) + 70 (Rust wrapper)**CI**: All three workflows green
 
 ### Coverage
 
 | Category | Count | Notes |
 |----------|-------|-------|
-| Actions | 241 | Splits and dividends dominate |
+| Actions | 240 | Splits and dividends dominate |
 | Instruments | 6 | AAPL, MSFT, GOOGL, AMZN, META, NVDA |
 | Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
 | Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
@@ -83,7 +82,6 @@ tool can depend on. It is language-agnostic by design.
 |-----------|--------|
 | Yahoo Finance fetcher | ✅ Working |
 | SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
-| Nasdaq dividends fetcher | ❌ Broken (times out) |
 | Validator | ✅ All 7 layers |
 | Python wrapper | ✅ 23 tests |
 | JavaScript wrapper | ✅ 16 tests |
@@ -303,10 +301,10 @@ Loading ISO 4217 registry...
 Loading Exchange Calendar registry...
   Loaded 74 exchange MICs
 
-Validating 241 actions...
+Validating 240 actions...
 
-OK: 241 actions validated successfully.
-Cross-reference: 242 ISINs validated, 0 missing (warnings)
+OK: 240 actions validated successfully.
+Cross-reference: 240 actions checked, 0 with unknown ISIN
 All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage
 ```
 
@@ -321,7 +319,6 @@ rules each layer enforces.
 |--------|--------|----------|
 | Yahoo Finance (via `yfinance`) | ✅ Working | US equity splits and dividends |
 | SEC EDGAR | ✅ Working (narrow scope) | Symbol changes and delistings since 2019 |
-| Nasdaq dividends API | ❌ Broken | Redundant with Yahoo; scheduled for removal |
 
 Every action in the registry has a `provenance.source_url` pointing at a
 primary source (SEC filing, exchange announcement, or company press release)
@@ -529,7 +526,7 @@ Ledger Foundation:
 | Registry | Purpose | Status |
 |----------|---------|--------|
 | [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.5.3 |
-| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.1.13 |
+| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.2.2 |
 | [Asset Identifiers](https://github.com/slimissa/asset-identifiers) | ISIN/CUSIP/FIGI | schema 1.2.1 |
 | **Corporate Actions** | **This registry** | **v1.0.0** |
 
