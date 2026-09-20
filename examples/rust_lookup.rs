@@ -32,6 +32,29 @@ use std::env;
 use std::path::PathBuf;
 use std::process;
 
+/// Take the next argument as a value, rejecting a flag-like value.
+///
+/// `--date-range 2024-01-01 --isin X` must be a usage error, not a
+/// silent misparse where `--isin` becomes the end date.
+fn take_value(
+    iter: &mut std::iter::Skip<std::env::Args>,
+    flag: &str,
+) -> String {
+    match iter.next() {
+        Some(v) if !v.starts_with("--") => v,
+        Some(v) => {
+            eprintln!(
+                "Error: {} requires a value, got {:?} (looks like a flag)",
+                flag, v
+            );
+            process::exit(2);
+        }
+        None => {
+            eprintln!("Error: {} requires a value", flag);
+            process::exit(2);
+        }
+    }
+}
 const USAGE: &str = "\
 Usage: rust_lookup [OPTIONS]
 
@@ -68,52 +91,37 @@ fn parse_args() -> Args {
     while let Some(arg) = iter.next() {
         match arg.as_str() {
             "--actions" => {
-                args.actions = iter.next().map(PathBuf::from);
-                if args.actions.is_none() {
-                    eprintln!("Error: --actions requires a path argument");
-                    process::exit(2);
-                }
+                args.actions = Some(PathBuf::from(take_value(&mut iter, "--actions")));
             }
             "--isin" => {
-                args.isin = iter.next();
-                if args.isin.is_none() {
-                    eprintln!("Error: --isin requires an argument");
-                    process::exit(2);
-                }
+                args.isin = Some(take_value(&mut iter, "--isin"));
             }
             "--action-id" => {
-                args.action_id = iter.next();
-                if args.action_id.is_none() {
-                    eprintln!("Error: --action-id requires an argument");
-                    process::exit(2);
-                }
+                args.action_id = Some(take_value(&mut iter, "--action-id"));
             }
             "--action-type" => {
-                args.action_type = iter.next();
-                if args.action_type.is_none() {
-                    eprintln!("Error: --action-type requires an argument");
-                    process::exit(2);
-                }
-            }
-            "--date-range" => {
-                let start = iter.next();
-                let end = iter.next();
-                match (start, end) {
-                    (Some(s), Some(e)) => args.date_range = Some((s, e)),
-                    _ => {
-                        eprintln!("Error: --date-range requires START and END arguments");
-                        process::exit(2);
-                    }
-                }
+                args.action_type = Some(take_value(&mut iter, "--action-type"));
             }
             "--date-field" => {
-                match iter.next() {
-                    Some(f) => args.date_field = f,
-                    None => {
-                        eprintln!("Error: --date-field requires an argument");
+                args.date_field = take_value(&mut iter, "--date-field");
+            }
+            "--date-range" => {
+                let start = take_value(&mut iter, "--date-range");
+                let end = match iter.next() {
+                    Some(v) if !v.starts_with("--") => v,
+                    Some(v) => {
+                        eprintln!(
+                            "Error: --date-range requires END, got {:?} (looks like a flag)",
+                            v
+                        );
                         process::exit(2);
                     }
-                }
+                    None => {
+                        eprintln!("Error: --date-range requires START and END");
+                        process::exit(2);
+                    }
+                };
+                args.date_range = Some((start, end));
             }
             "--summary" => args.summary = true,
             "--help" | "-h" => {
@@ -276,14 +284,19 @@ fn main() {
     }
 
     if let Some((start, end)) = &args.date_range {
-        let actions = registry.by_date_range(Some(start), Some(end), &args.date_field);
-        print_actions(
-            &actions,
-            &format!(
-                "Lookup by {} between {} and {}",
-                args.date_field, start, end
+        match registry.by_date_range(Some(start), Some(end), &args.date_field) {
+            Ok(actions) => print_actions(
+                &actions,
+                &format!(
+                    "Lookup by {} between {} and {}",
+                    args.date_field, start, end
+                ),
             ),
-        );
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                process::exit(2);
+            }
+        }
         return;
     }
 
@@ -303,7 +316,10 @@ fn main() {
 
     if !args.summary {
         println!();
-        println!("Use --isin, --action-id, --action-type, or --date-range for targeted queries.");
-        println!("Run with --help for full usage.");
+        println!("First 3 actions (for illustration):");
+        for a in registry.all_actions().iter().take(3) {
+            println!();
+            print_action(a);
+        }
     }
 }

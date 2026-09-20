@@ -29,14 +29,27 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
+/// Return the requested date from an action, or `None` if the action has
+/// no dates object or the requested field is absent.
+///
+/// Extracted from `by_date_range` because Rust closures cannot express
+/// the "output borrows from input" relationship that the elided lifetime
+/// on `Option<&str>` requires. A free function with explicit lifetimes
+/// can.
+fn date_field_value<'a>(action: &'a Action, date_field: &str) -> Option<&'a str> {
+    let dates = action.dates.as_ref()?;
+    match date_field {
+        "announcement" => dates.announcement.as_deref(),
+        "ex_date" => dates.ex_date.as_deref(),
+        "record_date" => dates.record_date.as_deref(),
+        "effective_date" => dates.effective_date.as_deref(),
+        _ => None,
+    }
+}
+
 /// The four valid values for the `date_field` parameter of
 /// [`Registry::by_date_range`].
-const VALID_DATE_FIELDS: &[&str] = &[
-    "announcement",
-    "ex_date",
-    "record_date",
-    "effective_date",
-];
+const VALID_DATE_FIELDS: &[&str] = &["announcement", "ex_date", "record_date", "effective_date"];
 
 /// Errors that can occur when loading or using the registry.
 ///
@@ -126,6 +139,7 @@ pub struct Meta {
 /// A `Registry` is immutable after construction. Every lookup returns a
 /// fresh `Vec` or a fresh `Action` clone, so a caller cannot corrupt the
 /// registry's internal state by mutating a returned value.
+#[derive(Debug)]
 pub struct Registry {
     meta: Meta,
     actions: Vec<Action>,
@@ -185,10 +199,7 @@ impl Registry {
             }
 
             let action: Action = serde_json::from_value(item.clone()).map_err(|e| {
-                RegistryError::InvalidStructure(format!(
-                    "invalid action at index {}: {}",
-                    idx, e
-                ))
+                RegistryError::InvalidStructure(format!("invalid action at index {}: {}", idx, e))
             })?;
 
             // Every action must identify itself in some way.
@@ -212,10 +223,7 @@ impl Registry {
                 index_isin.entry(isin.clone()).or_default().push(i);
             }
             if let Some(action_type) = &action.action_type {
-                index_type
-                    .entry(action_type.clone())
-                    .or_default()
-                    .push(i);
+                index_type.entry(action_type.clone()).or_default().push(i);
             }
             if let Some(id) = &action.action_id {
                 // Last wins. Duplicate action_id values are a data error
@@ -241,12 +249,7 @@ impl Registry {
     pub fn by_isin(&self, isin: &str) -> Vec<Action> {
         self.index_isin
             .get(isin)
-            .map(|indices| {
-                indices
-                    .iter()
-                    .map(|&i| self.actions[i].clone())
-                    .collect()
-            })
+            .map(|indices| indices.iter().map(|&i| self.actions[i].clone()).collect())
             .unwrap_or_default()
     }
 
@@ -266,12 +269,7 @@ impl Registry {
     pub fn by_action_type(&self, action_type: &str) -> Vec<Action> {
         self.index_type
             .get(action_type)
-            .map(|indices| {
-                indices
-                    .iter()
-                    .map(|&i| self.actions[i].clone())
-                    .collect()
-            })
+            .map(|indices| indices.iter().map(|&i| self.actions[i].clone()).collect())
             .unwrap_or_default()
     }
 
@@ -298,22 +296,11 @@ impl Registry {
             return Err(RegistryError::InvalidDateField(date_field.into()));
         }
 
-        let date_value = |a: &Action| -> Option<&str> {
-            let dates = a.dates.as_ref()?;
-            match date_field {
-                "announcement" => dates.announcement.as_deref(),
-                "ex_date" => dates.ex_date.as_deref(),
-                "record_date" => dates.record_date.as_deref(),
-                "effective_date" => dates.effective_date.as_deref(),
-                _ => None,
-            }
-        };
-
         let mut result: Vec<Action> = self
             .actions
             .iter()
             .filter(|a| {
-                let v = match date_value(a) {
+                let v = match date_field_value(a, date_field) {
                     Some(v) => v,
                     None => return false,
                 };
@@ -333,8 +320,8 @@ impl Registry {
             .collect();
 
         result.sort_by(|a, b| {
-            let av = date_value(a).unwrap_or("");
-            let bv = date_value(b).unwrap_or("");
+            let av = date_field_value(a, date_field).unwrap_or("");
+            let bv = date_field_value(b, date_field).unwrap_or("");
             av.cmp(bv).then_with(|| a.action_id.cmp(&b.action_id))
         });
 

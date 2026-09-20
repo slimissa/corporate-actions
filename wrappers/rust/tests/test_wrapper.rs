@@ -381,8 +381,10 @@ fn by_isin_is_case_sensitive() {
 #[test]
 fn by_isin_preserves_insertion_order() {
     let registry = Registry::from_value(sample_data()).unwrap();
-    let ids: Vec<&str> = registry
-        .by_isin("US0378331005")
+    // Bind the Vec so the &str references inside it stay alive for the
+    // duration of the assert.
+    let actions = registry.by_isin("US0378331005");
+    let ids: Vec<&str> = actions
         .iter()
         .filter_map(|a| a.action_id.as_deref())
         .collect();
@@ -449,10 +451,7 @@ fn by_action_id_returns_deep_copy_of_dates() {
     let again = registry
         .by_action_id("US67066G1040-SPLIT-2024-06-10-10-1")
         .unwrap();
-    assert_eq!(
-        again.dates.unwrap().ex_date.as_deref(),
-        Some("2024-06-10")
-    );
+    assert_eq!(again.dates.unwrap().ex_date.as_deref(), Some("2024-06-10"));
 }
 
 #[test]
@@ -467,10 +466,7 @@ fn by_action_id_returns_deep_copy_of_provenance() {
     let again = registry
         .by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
         .unwrap();
-    assert_eq!(
-        again.provenance.unwrap().source.as_deref(),
-        Some("Apple")
-    );
+    assert_eq!(again.provenance.unwrap().source.as_deref(), Some("Apple"));
 }
 
 #[test]
@@ -555,7 +551,10 @@ fn by_date_range_effective_date() {
         .by_date_range(Some("2020-01-01"), Some("2023-12-31"), "effective_date")
         .unwrap();
     assert_eq!(actions.len(), 2);
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert!(ids.contains(&"US0378331005-SPLIT-2020-08-31-4-1"));
     assert!(ids.contains(&"US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL"));
 }
@@ -609,7 +608,15 @@ fn by_date_range_invalid_field_error_names_value() {
 #[test]
 fn by_date_range_invalid_field_loops_over_candidates() {
     let registry = Registry::from_value(sample_data()).unwrap();
-    for bad in &["exdate", "ex-date", "effective", "Ex_Date", "EX_DATE", "", " ex_date"] {
+    for bad in &[
+        "exdate",
+        "ex-date",
+        "effective",
+        "Ex_Date",
+        "EX_DATE",
+        "",
+        " ex_date",
+    ] {
         let result = registry.by_date_range(None, None, bad);
         assert!(
             matches!(result, Err(RegistryError::InvalidDateField(_))),
@@ -625,7 +632,10 @@ fn by_date_range_start_bound_is_inclusive() {
     let actions = registry
         .by_date_range(Some("2024-05-16"), Some("2024-12-31"), "ex_date")
         .unwrap();
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert!(ids.contains(&"US0378331005-DIVIDEND-2024-05-16-0.2500"));
 }
 
@@ -635,7 +645,10 @@ fn by_date_range_end_bound_is_inclusive() {
     let actions = registry
         .by_date_range(Some("2020-01-01"), Some("2024-05-16"), "ex_date")
         .unwrap();
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert!(ids.contains(&"US0378331005-DIVIDEND-2024-05-16-0.2500"));
 }
 
@@ -686,7 +699,10 @@ fn by_date_range_both_open() {
 fn by_date_range_skips_missing_ex_date() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let actions = registry.by_date_range(None, None, "ex_date").unwrap();
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert!(!ids.contains(&"US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL"));
 }
 
@@ -694,7 +710,10 @@ fn by_date_range_skips_missing_ex_date() {
 fn by_date_range_skips_missing_record_date() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let actions = registry.by_date_range(None, None, "record_date").unwrap();
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert!(!ids.contains(&"US30303M1027-SYMBOL_CHANGE-2022-06-09-SYMBOL"));
 }
 
@@ -747,7 +766,10 @@ fn by_date_range_sorted_by_effective_date() {
 fn by_date_range_tiebreak_on_action_id() {
     let registry = Registry::from_value(tiebreak_data()).unwrap();
     let actions = registry.by_date_range(None, None, "ex_date").unwrap();
-    let ids: Vec<&str> = actions.iter().filter_map(|a| a.action_id.as_deref()).collect();
+    let ids: Vec<&str> = actions
+        .iter()
+        .filter_map(|a| a.action_id.as_deref())
+        .collect();
     assert_eq!(
         ids,
         vec![
