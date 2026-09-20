@@ -315,9 +315,7 @@ fn main() {
             print_action(a);
         }
         println!();
-        println!(
-            "Use --isin, --action-id, --action-type, or --date-range for targeted queries."
-        );
+        println!("Use --isin, --action-id, --action-type, or --date-range for targeted queries.");
         println!("Run with --help for full usage.");
     }
 }
