@@ -1009,3 +1009,28 @@ class TestMainIntegration:
         data = json.loads(out.read_text(encoding="utf-8"))
         dates = [a["dates"]["effective_date"] for a in data["actions"]]
         assert dates == sorted(dates)
+
+
+
+# ---------------------------------------------------------------------------
+# Cache policy
+# ---------------------------------------------------------------------------
+
+class TestCachePolicy:
+
+    def test_submissions_endpoint_is_not_cacheable(self):
+        from tools.fetch_sec_edgar_actions import SECClient
+        url = "https://data.sec.gov/submissions/CIK0000320193.json"
+        assert SECClient._is_cacheable(url) is False
+
+    def test_filing_document_is_cacheable(self):
+        from tools.fetch_sec_edgar_actions import SECClient
+        url = ("https://www.sec.gov/Archives/edgar/data/"
+               "320193/000032019324000001/aapl-20240101.htm")
+        assert SECClient._is_cacheable(url) is True
+
+    def test_filing_index_is_cacheable(self):
+        from tools.fetch_sec_edgar_actions import SECClient
+        url = ("https://www.sec.gov/Archives/edgar/data/"
+               "320193/000032019324000001/index.json")
+        assert SECClient._is_cacheable(url) is True
