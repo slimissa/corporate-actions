@@ -1,45 +1,58 @@
 {
   "action_count": 240,
   "instrument_count": 6,
-  "instruments": ["AAPL", "AMZN", "GOOGL", "META", "MSFT", "NVDA"],
+  "instruments": [
+    "US02079K1079",
+    "US0231351067",
+    "US0378331005",
+    "US30303M1027",
+    "US5949181045",
+    "US67066G1040"
+  ],
   "action_type_counts": {
     "SPLIT": 14,
+    "SYMBOL_CHANGE": 1,
     "DIVIDEND": 224,
-    "SPECIAL_DIVIDEND": 1,
-    "SYMBOL_CHANGE": 1
+    "SPECIAL_DIVIDEND": 1
   },
-  "populated_types": ["SPLIT", "DIVIDEND", "SPECIAL_DIVIDEND", "SYMBOL_CHANGE"],
-  "reserved_types": ["REVERSE_SPLIT", "SPINOFF", "DELISTING", "MERGER"],
+  "populated_types": [
+    "SPLIT",
+    "DIVIDEND",
+    "SPECIAL_DIVIDEND",
+    "SYMBOL_CHANGE"
+  ],
+  "reserved_types": [
+    "REVERSE_SPLIT",
+    "SPINOFF",
+    "DELISTING",
+    "MERGER"
+  ],
   "historical_depth_start": "2000",
-  "currencies": ["USD"],
-
-  "root_test_count": 860,
+  "currencies": [
+    "USD"
+  ],
+  "root_test_count": 882,
   "root_test_skipped": 1,
   "root_test_network_deselected": 5,
-  "root_test_collected_total": 838,
-
+  "root_test_collected_total": 887,
   "wrapper_test_counts": {
     "python": 106,
     "javascript": 93,
     "go": 67,
-    "rust": 84,
+    "rust": 83,
     "rust_doctests": 1
   },
-
   "sibling_versions": {
     "iso4217": "v1.5.3",
     "exchange_calendar": "v2.2.2",
     "asset_identifiers_schema": "1.2.1"
   },
-
   "min_actions_code": 100,
   "min_actions_docs": 100,
   "min_actions_roadmap_target": 200,
-
   "sec_edgar_status": "working",
   "sec_edgar_scope": "SYMBOL_CHANGE, DELISTING",
   "nasdaq_status": "removed",
-
   "format_date_enforcement": "layer-1",
   "state_file_timestamp_example": "2026-09-13T01:22:25Z",
   "webhook_timestamp_format": "isoformat-microsecond-offset"

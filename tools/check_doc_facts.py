@@ -109,6 +109,85 @@ CHECKS: list[tuple[str, str, str, str]] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Scan mode: find every number in a doc that isn't sourced from facts.json
+# ---------------------------------------------------------------------------
+
+SCAN_KEYWORDS = [
+    "actions", "instruments", "tests", "passed", "skipped", "deselected",
+    "collected", "wrapper", "schema", "version", "default", "min-actions",
+    "exchanges", "currencies", "action types", "doctest",
+]
+
+SCAN_DOCS = [
+    "README.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+] + [f"docs/{p.name}" for p in (REPO_ROOT / "docs").glob("*.md")]
+
+NUMBER_RE = re.compile(r"\b(\d+)\b")
+
+
+def _all_fact_numbers(node) -> set[int]:
+    """Collect every integer that appears anywhere in facts.json."""
+    out: set[int] = set()
+    def walk(n):
+        if isinstance(n, dict):
+            for v in n.values():
+                walk(v)
+        elif isinstance(n, list):
+            for v in n:
+                walk(v)
+        elif isinstance(n, int):
+            out.add(n)
+        elif isinstance(n, str):
+            for m in NUMBER_RE.finditer(n):
+                out.add(int(m.group(1)))
+    walk(node)
+    return out
+
+
+def scan_docs(facts: dict, quiet: bool) -> int:
+    """Report every number in a doc near a keyword that isn't in facts.json."""
+    known = _all_fact_numbers(facts)
+    problems = 0
+
+    for doc_rel in SCAN_DOCS:
+        doc_path = REPO_ROOT / doc_rel
+        if not doc_path.is_file():
+            continue
+        lines = doc_path.read_text(encoding="utf-8").splitlines()
+        for lineno, line in enumerate(lines, start=1):
+            # Skip code blocks and tables of contents
+            stripped = line.strip()
+            if stripped.startswith("```") or stripped.startswith("- ["):
+                continue
+            lower = line.lower()
+            for kw in SCAN_KEYWORDS:
+                if kw not in lower:
+                    continue
+                # Look for a number within 30 chars of the keyword
+                kw_pos = lower.find(kw)
+                window = lower[max(0, kw_pos - 30):kw_pos + len(kw) + 30]
+                for m in NUMBER_RE.finditer(window):
+                    n = int(m.group(1))
+                    # Tiny numbers are line numbers, years, list indices
+                    if n < 10:
+                        continue
+                    if n in known:
+                        continue
+                    problems += 1
+                    if not quiet:
+                        print(
+                            f"{doc_rel}:{lineno}: number {n} near {kw!r} "
+                            f"is not in facts.json: {stripped[:80]!r}"
+                        )
+    if problems and not quiet:
+        print()
+        print(f"{problems} number(s) not sourced from facts.json.")
+        print("Either add the fact to docs/facts.json or remove the claim.")
+    return 1 if problems else 0
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -283,6 +362,12 @@ def main() -> int:
         help="Print individual mismatches, but not the summary line.",
     )
     parser.add_argument(
+        "--scan",
+        action="store_true",
+        help="Scan docs for numbers near known keywords that "
+             "are not present in facts.json.",
+    )
+    parser.add_argument(
         "--skip-self-check",
         action="store_true",
         help="Do not verify that facts.json agrees with actions.json.",
@@ -296,6 +381,9 @@ def main() -> int:
 
     facts = load_facts()
 
+    if args.scan:
+        return scan_docs(facts, quiet=args.quiet)
+    
     if not args.skip_self_check:
         if not self_check(facts):
             return 2

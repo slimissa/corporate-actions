@@ -23,6 +23,7 @@ from datetime import date
 from pathlib import Path
 
 import pytest
+pytest.importorskip("yfinance", reason="requires yfinance")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = REPO_ROOT / "examples" / "backtest_adjustment.py"

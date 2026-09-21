@@ -1,0 +1,21 @@
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+exclude = [
+    ".venv",
+    "dist",
+    "wrappers/rust/target",
+]
+
+[tool.ruff.lint]
+# Only pyflakes: unused imports, undefined names, f-strings without placeholders.
+# Style rules (UP006, I001, SIM, PLW, FURB, BLE001) are deliberately off
+# for now. Turn them on incrementally, one rule at a time, in separate PRs.
+select = ["F"]
+ignore = [
+    "F401",  # unused import — enable after a cleanup pass
+]
+
+[tool.ruff.lint.per-file-ignores]
+# These are hand-written scripts with intentional patterns.
+"tests/*" = ["F811"]  # redefinition (from parametrize)
