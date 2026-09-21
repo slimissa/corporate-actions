@@ -38,7 +38,7 @@ const aaplActions = registry.byIsin('US0378331005');
 console.log(aaplActions); // array of action objects
 
 // Find a specific action by its unique ID
-const nvdaSplit = registry.byActionId('US67066G1040-SPLIT-2024-06-10-0001');
+const nvdaSplit = registry.byActionId('US67066G1040-SPLIT-2024-06-10-10-1');
 console.log(nvdaSplit.ratio); // "10:1"
 
 // Get all splits
@@ -77,7 +77,7 @@ const actions = registry.byIsin('US0378331005');
 Returns a single action object or `null` if not found.
 
 ```javascript
-const action = registry.byActionId('US0378331005-DIVIDEND-2024-05-16-0002');
+const action = registry.byActionId('US0378331005-DIVIDEND-2024-05-16-0.2500');
 ```
 
 ### `byActionType(actionType)`
@@ -141,7 +141,7 @@ Each action object follows the schema defined in `actions.json`. Example:
 ```javascript
 {
   isin: 'US0378331005',
-  action_id: 'US0378331005-DIVIDEND-2024-05-16-0002',
+  action_id: 'US0378331005-DIVIDEND-2024-05-16-0.2500',
   action_type: 'DIVIDEND',
   amount: 0.25,
   currency: 'USD',

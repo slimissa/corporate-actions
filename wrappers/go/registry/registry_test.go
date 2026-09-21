@@ -825,13 +825,18 @@ func TestByDateRangeReturnsFreshSlice(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	first[0] = Action{}
+	if first[0].Dates == nil || first[0].Dates.ExDate == nil {
+		t.Fatal("first action has no Dates.ExDate")
+	}
+	newDate := "1900-01-01"
+	first[0].Dates.ExDate = &newDate
+
 	second, err := r.ByDateRange("", "", "ex_date")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if second[0].ActionID == nil {
-		t.Error("registry state corrupted by mutating the returned slice")
+	if second[0].Dates.ExDate != nil && *second[0].Dates.ExDate == "1900-01-01" {
+		t.Fatal("ByDateRange result aliases internal state")
 	}
 }
 

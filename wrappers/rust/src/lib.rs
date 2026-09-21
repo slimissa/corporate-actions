@@ -292,32 +292,35 @@ impl Registry {
         end_date: Option<&str>,
         date_field: &str,
     ) -> Result<Vec<Action>, RegistryError> {
-        if !VALID_DATE_FIELDS.contains(&date_field) {
-            return Err(RegistryError::InvalidDateField(date_field.into()));
-        }
+            if !VALID_DATE_FIELDS.contains(&date_field) {
+                return Err(RegistryError::InvalidDateField(date_field.into()));
+            }
 
-        let mut result: Vec<Action> = self
-            .actions
-            .iter()
-            .filter(|a| {
-                let v = match date_field_value(a, date_field) {
-                    Some(v) => v,
-                    None => return false,
-                };
-                if let Some(s) = start_date {
-                    if v < s {
-                        return false;
+            let start = start_date.filter(|s| !s.is_empty());
+            let end = end_date.filter(|s| !s.is_empty());
+
+            let mut result: Vec<Action> = self
+                .actions
+                .iter()
+                .filter(|a| {
+                    let v = match date_field_value(a, date_field) {
+                        Some(v) => v,
+                        None => return false,
+                    };
+                    if let Some(s) = start {
+                        if v < s {
+                            return false;
+                        }
                     }
-                }
-                if let Some(e) = end_date {
-                    if v > e {
-                        return false;
+                    if let Some(e) = end {
+                        if v > e {
+                            return false;
+                        }
                     }
-                }
-                true
-            })
-            .cloned()
-            .collect();
+                    true
+                })
+                .cloned()
+                .collect();
 
         result.sort_by(|a, b| {
             let av = date_field_value(a, date_field).unwrap_or("");

@@ -931,14 +931,12 @@ if (fs.existsSync(contractFixturePath)) {
   });
 
 } else {
-
-  // Placeholder so the file reports a skipped suite rather than silently
-  // omitting it. Node's test runner supports `it.skip` but not a
-  // module-level skipif; an explicit skip here keeps the intent visible.
   describe('ContractFixture', () => {
-    it('is deferred until tests/wrapper_contract.json exists (Session 3.5)', (t) => {
-      t.skip('tests/wrapper_contract.json not yet added');
+    it('fixture must exist', () => {
+      assert.fail(
+        `tests/wrapper_contract.json not found at ${contractFixturePath}. ` +
+        `The wrapper contract tests cannot be skipped.`
+      );
     });
   });
-
 }

@@ -39,7 +39,7 @@ for action in aapl_actions:
     print(action.action_type, action.dates.ex_date)
 
 # Find a specific action by its unique ID
-nvda_split = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-0001")
+nvda_split = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-10-1")
 print(nvda_split.ratio)  # "10:1"
 
 # Get all splits in the registry
@@ -76,7 +76,7 @@ actions = registry.by_isin("US0378331005")
 Returns a single action by its unique `action_id`, or `None` if not found.
 
 ```python
-action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0002")
+action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
 ```
 
 ### `by_action_type(action_type: str) -> List[Action]`
@@ -123,7 +123,7 @@ The wrapper uses lightweight dataclasses. Each model has `from_dict()` and `to_d
 Example of accessing nested data:
 
 ```python
-action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0002")
+action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
 print(action.dates.ex_date)        # "2024-05-16"
 print(action.provenance.source)    # "Apple Inc."
 print(action.impact.cash_adjustment)  # 0.25
@@ -203,7 +203,7 @@ for action in aapl_actions:
     print(action.action_type, action.dates.ex_date)
 
 # Find a specific action by its unique ID
-nvda_split = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-0001")
+nvda_split = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-10-1")
 print(nvda_split.ratio)  # "10:1"
 
 # Get all splits in the registry
@@ -240,7 +240,7 @@ actions = registry.by_isin("US0378331005")
 Returns a single action by its unique `action_id`, or `None` if not found.
 
 ```python
-action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0002")
+action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
 ```
 
 ### `by_action_type(action_type: str) -> List[Action]`
@@ -287,7 +287,7 @@ The wrapper uses lightweight dataclasses. Each model has `from_dict()` and `to_d
 Example of accessing nested data:
 
 ```python
-action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0002")
+action = registry.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
 print(action.dates.ex_date)        # "2024-05-16"
 print(action.provenance.source)    # "Apple Inc."
 print(action.impact.cash_adjustment)  # 0.25

@@ -112,6 +112,19 @@ test_missing_schema() {
     fi
 }
 
+test_dry_run_does_not_mutate() {
+    echo "Test: --dry-run does not mutate actions.json"
+    local before after
+    before=$(sha256sum "$REPO_ROOT/actions.json" | cut -d' ' -f1)
+    "$SCRIPT" --dry-run --skip-tests --skip-build "${SAFE_FLAGS[@]}" >/dev/null 2>&1 || true
+    after=$(sha256sum "$REPO_ROOT/actions.json" | cut -d' ' -f1)
+    if [[ "$before" == "$after" ]]; then
+        pass "--dry-run left actions.json unchanged"
+    else
+        fail "--dry-run mutated actions.json"
+    fi
+}
+
 # ----------------------------------------------------------------------
 # Test 6: --help exits 0
 # ----------------------------------------------------------------------
@@ -135,6 +148,7 @@ test_tag_with_dry_run
 test_min_actions_zero
 test_unknown_flag
 test_missing_schema
+test_dry_run_does_not_mutate
 test_help
 
 echo "============================================="

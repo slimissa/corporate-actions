@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Find a specific action by its unique ID
-    if let Some(split) = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-0001") {
+    if let Some(split) = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-10-1") {
         println!("Split ratio: {:?}", split.ratio);
     }
 
@@ -87,7 +87,7 @@ Returns a single action by its unique `action_id`, or `None` if not found.
 ### `by_action_type(&self, action_type: &str) -> Vec<Action>`
 Returns all actions of a given type (e.g., `"SPLIT"`, `"DIVIDEND"`, `"SYMBOL_CHANGE"`).
 
-### `by_date_range(&self, start_date: Option<&str>, end_date: Option<&str>, date_field: &str) -> Vec<Action>`
+### `by_date_range(&self, start_date: Option<&str>, end_date: Option<&str>, date_field: &str) -> Result<Vec<Action>, RegistryError>`
 Filters actions by a date range on a specified date field.
 
 - `date_field` can be `"announcement"`, `"ex_date"`, `"record_date"`, or `"effective_date"`.

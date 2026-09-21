@@ -65,20 +65,15 @@ struct ContractFixture {
 /// A missing fixture causes the calling test to return early with a
 /// message on stderr. A malformed fixture is a panic: that is a bug in
 /// the fixture, not a reason to skip.
-fn load_fixture() -> Option<ContractFixture> {
+fn load_fixture() -> ContractFixture {
     let path = Path::new(FIXTURE_PATH);
     if !path.exists() {
-        eprintln!(
-            "skipping: contract fixture not found at {} (Session 3.5 adds it)",
-            FIXTURE_PATH
-        );
-        return None;
+        panic!("contract fixture required but missing: {}", FIXTURE_PATH);
     }
-    let content =
-        fs::read_to_string(path).unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
-    let fixture: ContractFixture = serde_json::from_str(&content)
-        .unwrap_or_else(|e| panic!("parse fixture {}: {}", FIXTURE_PATH, e));
-    Some(fixture)
+    let content = fs::read_to_string(path)
+        .unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
+    serde_json::from_str(&content)
+        .unwrap_or_else(|e| panic!("parse fixture {}: {}", FIXTURE_PATH, e))
 }
 
 /// Build a `Registry` from the fixture's actions.
@@ -109,10 +104,7 @@ fn action_ids(actions: &[Action]) -> Vec<String> {
 
 #[test]
 fn contract_fixture_shape_is_valid() {
-    let fixture = match load_fixture() {
-        Some(f) => f,
-        None => return,
-    };
+    let fixture = load_fixture();
 
     assert!(!fixture.actions.is_empty(), "fixture has no actions");
     assert!(!fixture.queries.is_empty(), "fixture has no queries");
@@ -133,10 +125,7 @@ fn contract_fixture_shape_is_valid() {
 
 #[test]
 fn contract_fixture_is_self_consistent() {
-    let fixture = match load_fixture() {
-        Some(f) => f,
-        None => return,
-    };
+    let fixture = load_fixture();
 
     let known: std::collections::HashSet<&str> = fixture
         .actions
@@ -169,10 +158,7 @@ fn contract_fixture_is_self_consistent() {
 
 #[test]
 fn contract_queries_match() {
-    let fixture = match load_fixture() {
-        Some(f) => f,
-        None => return,
-    };
+    let fixture = load_fixture();
     let registry = build_registry(&fixture);
 
     for (i, q) in fixture.queries.iter().enumerate() {
@@ -199,10 +185,7 @@ fn contract_queries_match() {
 
 #[test]
 fn contract_invalid_date_fields_rejected() {
-    let fixture = match load_fixture() {
-        Some(f) => f,
-        None => return,
-    };
+    let fixture = load_fixture();
     let registry = build_registry(&fixture);
 
     for bad in &fixture.invalid_date_fields {

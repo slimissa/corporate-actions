@@ -228,11 +228,11 @@ if ! $SKIP_FETCH; then
             LIMIT_FLAG="--cik-limit"
             ;;
         nasdaq)
-            error_exit "The Nasdaq fetcher was removed in v1.0.1.
+            usage_error "The Nasdaq fetcher was removed in v1.0.1.
   Use --fetch-source yahoo instead."
             ;;
         *)
-            error_exit "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec)"
+            usage_error "Unknown fetch source: $FETCH_SOURCE (valid: yahoo, sec)"
             ;;
     esac
 
@@ -243,8 +243,11 @@ if ! $SKIP_FETCH; then
     run_cmd python3 "${ARGS[@]}"
 
     if [[ -f "$FETCH_OUTPUT" ]]; then
-        log "Merging fetched actions into $ACTIONS_PATH (fuzzy dedup)..."
-        python3 - "$REPO_ROOT" "$ACTIONS_PATH" "$FETCH_OUTPUT" "$VERBOSE" <<'PY'
+        if $DRY_RUN; then
+            log "DRY RUN: would merge $FETCH_OUTPUT into $ACTIONS_PATH."
+        else
+            log "Merging fetched actions into $ACTIONS_PATH (fuzzy dedup)..."
+            python3 - "$REPO_ROOT" "$ACTIONS_PATH" "$FETCH_OUTPUT" "$VERBOSE" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -310,6 +313,9 @@ if new_actions:
 else:
     print("No new actions to merge.")
 PY
+        fi
+    fi
+
     else
         log "No fetched actions file produced; skipping merge."
     fi
@@ -318,8 +324,12 @@ fi
 # ----------------------------------------------------------------------
 # Derive impacts
 # ----------------------------------------------------------------------
-log "Deriving impact multipliers..."
-run_cmd python3 "$REPO_ROOT/tools/derive_impacts.py" --actions "$ACTIONS_PATH"
+if $DRY_RUN; then
+    log "DRY RUN: would derive impact multipliers (skipped)."
+else
+    log "Deriving impact multipliers..."
+    run_cmd python3 "$REPO_ROOT/tools/derive_impacts.py" --actions "$ACTIONS_PATH"
+fi
 
 # ----------------------------------------------------------------------
 # Validate actions.json
@@ -396,12 +406,19 @@ if $DO_COMMIT && ! $DRY_RUN; then
         git commit -m "Automated registry update"
         if [[ -n "$TAG_VERSION" ]]; then
             log "Tagging release $TAG_VERSION"
+            if git rev-parse "$TAG_VERSION" >/dev/null 2>&1; then
+                log "Deleting stale local tag $TAG_VERSION"
+                git tag -d "$TAG_VERSION"
+            fi
             git tag "$TAG_VERSION"
             git push origin "$TAG_VERSION"
         fi
     fi
 
     git push origin main
+    if $DO_COMMIT && $SKIP_TESTS; then
+        usage_error "--commit requires tests to run. Remove --skip-tests or drop --commit."
+    fi  
 elif $DO_COMMIT && $DRY_RUN; then
     log "DRY RUN: would commit and push changes (skipped)."
 fi

@@ -50,7 +50,7 @@ func main() {
     }
 
     // Find a specific action by its unique ID
-    nvdaSplit := r.ByActionID("US67066G1040-SPLIT-2024-06-10-0001")
+    nvdaSplit := r.ByActionID("US67066G1040-SPLIT-2024-06-10-10-1")
     if nvdaSplit != nil {
         fmt.Println("Split ratio:", *nvdaSplit.Ratio)
     }
@@ -93,7 +93,7 @@ Returns a pointer to a single action by its unique `action_id`, or `nil` if not 
 ### `ByActionType(actionType string) []Action`
 Returns all actions of a given type (e.g., `"SPLIT"`, `"DIVIDEND"`, `"SYMBOL_CHANGE"`).
 
-### `ByDateRange(startDate, endDate, dateField string) []Action`
+### `ByDateRange(startDate, endDate, dateField string) ([]Action, error)`
 Filters actions by a date range on a specified date field.
 
 - `dateField` can be `"announcement"`, `"ex_date"`, `"record_date"`, or `"effective_date"`.
@@ -134,7 +134,7 @@ All fields are pointers (`*string`, `*float64`) to allow omission when not prese
 Example of accessing nested data:
 
 ```go
-action := r.ByActionID("US0378331005-DIVIDEND-2024-05-16-0002")
+action := r.ByActionID("US0378331005-DIVIDEND-2024-05-16-0.2500")
 if action.Dates.ExDate != nil {
     fmt.Println("Ex date:", *action.Dates.ExDate)
 }

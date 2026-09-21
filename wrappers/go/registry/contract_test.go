@@ -66,13 +66,7 @@ func loadContractFixture(t *testing.T) contractFixture {
 	path := filepath.FromSlash(contractFixturePath)
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			t.Skipf(
-				"contract fixture not found at %s (Session 3.5 adds it)",
-				path,
-			)
-		}
-		t.Fatalf("reading contract fixture %s: %v", path, err)
+		t.Fatalf("contract fixture required but not readable: %s (%v)", path, err)
 	}
 	var fixture contractFixture
 	if err := json.Unmarshal(data, &fixture); err != nil {

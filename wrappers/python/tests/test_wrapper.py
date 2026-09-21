@@ -962,11 +962,11 @@ CONTRACT_FIXTURE = (
     Path(__file__).resolve().parents[3] / "tests" / "wrapper_contract.json"
 )
 
+if not CONTRACT_FIXTURE.exists():
+    raise RuntimeError(
+        f"contract fixture required but missing: {CONTRACT_FIXTURE}"
+    )
 
-@pytest.mark.skipif(
-    not CONTRACT_FIXTURE.exists(),
-    reason="tests/wrapper_contract.json not yet added (Session 3.5)",
-)
 class TestContractFixture:
     """Reads the shared fixture and asserts the same answers as the
     other three wrappers. See docs/wrapper_contract.md section 8.2."""

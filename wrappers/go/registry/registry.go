@@ -356,7 +356,7 @@ func (r *Registry) ByDateRange(startDate, endDate, dateField string) ([]Action, 
 		if endDate != "" && v > endDate {
 			continue
 		}
-		result = append(result, action)
+		result = append(result, deepCopyAction(action))
 	}
 
 	sort.Slice(result, func(i, j int) bool {

@@ -95,9 +95,16 @@ def save_state(state_path: str, new_hash: str) -> None:
         ),
     }
     tmp_path = state_path + ".tmp"
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=2)
-    os.replace(tmp_path, state_path)
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
+        os.replace(tmp_path, state_path)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
 
 def send_webhook_notification(
@@ -140,7 +147,12 @@ def send_webhook_notification(
         # body of the with-block only runs on a 2xx success.
         with urllib.request.urlopen(req, timeout=10) as _response:
             return True
-    except Exception as e:
+    except (
+        urllib.error.URLError,
+        urllib.error.HTTPError,
+        TimeoutError,
+        ValueError,
+    ) as e:
         print(f"Webhook delivery failed: {e}", file=sys.stderr)
         return False
 
