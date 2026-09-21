@@ -19,7 +19,7 @@ import pytest
 # Ensure repository root is on sys.path so we can import tools.validate
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from tools.validate import load_identifiers_registry, validate_cross_reference
+from tools.validate import load_exchange_calendar_registry, load_identifiers_registry, validate_cross_reference
 
 
 # Fixtures for common sets
@@ -134,3 +134,16 @@ class TestEmptySets:
         action = {"exchange": "XNAS"}
         errors = validate_cross_reference(action, isin_set, currency_set, set())
         assert any("Exchange MIC not found" in e for e in errors)
+
+    def test_fallback_list_with_leading_non_exchange_entry(self, tmp_path):
+        path = tmp_path / "calendar.json"
+        path.write_text(json.dumps({
+            "metadata": {"version": "1.0"},
+            "custom_key": [
+                {"comment": "not an exchange"},
+                {"mic": "XNAS"},
+                {"mic": "XNYS"},
+            ],
+        }))
+        mics = load_exchange_calendar_registry(str(path))
+        assert mics == {"XNAS", "XNYS"}

@@ -888,8 +888,10 @@
 
   Entries missing any of `ticker`, `exchange`, or `isin` are skipped.
   Ticker and exchange are uppercased on insert, so lookups are
-  case-insensitive. The pair `(ticker, exchange)` is unique across the
-  registry; a collision is a data error and the last one wins.
+  case-insensitive. The pair (ticker, exchange) must be unique across 
+  the registry. A collision — the same ticker on the same exchange
+   mapping to two different ISINs — raises ValueError. 
+   Identical duplicates are permitted.
 
   ### `load_ticker_isin_index(path=None)`
 
