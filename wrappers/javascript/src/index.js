@@ -99,7 +99,7 @@ class CorporateActionsRegistry {
    * @returns {Array<object>} List of action objects (possibly empty).
    */
   byIsin(isin) {
-    return [...(this._indexByIsin.get(isin) || [])];
+    return (this._indexByIsin.get(isin) || []).map(a => structuredClone(a));
   }
 
   /**
@@ -118,7 +118,7 @@ class CorporateActionsRegistry {
    * @returns {Array<object>} List of action objects (possibly empty).
    */
   byActionType(actionType) {
-      return [...(this._indexByType.get(actionType) || [])];
+    return (this._indexByType.get(actionType) || []).map(a => structuredClone(a));
   }
 
   /**
@@ -156,7 +156,7 @@ class CorporateActionsRegistry {
       const bid = b.action_id || '';
       return aid < bid ? -1 : aid > bid ? 1 : 0;
     });
-    return result;
+    return result.map(a => structuredClone(a));
   }
 
   /**

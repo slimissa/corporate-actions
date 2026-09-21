@@ -92,6 +92,70 @@ type Registry struct {
 	indexID   map[string]int
 }
 
+// deepCopyAction returns an Action whose pointer fields do not share
+// storage with the input. Mutating the returned Action, or writing
+// through any of its pointer fields, does not affect the original.
+func deepCopyAction(a Action) Action {
+    dst := a
+
+    if a.ISIN != nil {
+        s := *a.ISIN
+        dst.ISIN = &s
+    }
+    if a.ActionID != nil {
+        s := *a.ActionID
+        dst.ActionID = &s
+    }
+    if a.ActionType != nil {
+        s := *a.ActionType
+        dst.ActionType = &s
+    }
+    if a.Ratio != nil {
+        s := *a.Ratio
+        dst.Ratio = &s
+    }
+    if a.Amount != nil {
+        f := *a.Amount
+        dst.Amount = &f
+    }
+    if a.Currency != nil {
+        s := *a.Currency
+        dst.Currency = &s
+    }
+    if a.Status != nil {
+        s := *a.Status
+        dst.Status = &s
+    }
+
+    if a.Dates != nil {
+        d := *a.Dates
+        if a.Dates.Announcement != nil { s := *a.Dates.Announcement; d.Announcement = &s }
+        if a.Dates.ExDate != nil { s := *a.Dates.ExDate; d.ExDate = &s }
+        if a.Dates.RecordDate != nil { s := *a.Dates.RecordDate; d.RecordDate = &s }
+        if a.Dates.EffectiveDate != nil { s := *a.Dates.EffectiveDate; d.EffectiveDate = &s }
+        dst.Dates = &d
+    }
+
+    if a.Provenance != nil {
+        p := *a.Provenance
+        if a.Provenance.Source != nil { s := *a.Provenance.Source; p.Source = &s }
+        if a.Provenance.SourceURL != nil { s := *a.Provenance.SourceURL; p.SourceURL = &s }
+        if a.Provenance.VerificationSource != nil { s := *a.Provenance.VerificationSource; p.VerificationSource = &s }
+        if a.Provenance.VerificationURL != nil { s := *a.Provenance.VerificationURL; p.VerificationURL = &s }
+        dst.Provenance = &p
+    }
+
+    if a.Impact != nil {
+        i := *a.Impact
+        if a.Impact.PriceMultiplier != nil { f := *a.Impact.PriceMultiplier; i.PriceMultiplier = &f }
+        if a.Impact.ShareMultiplier != nil { f := *a.Impact.ShareMultiplier; i.ShareMultiplier = &f }
+        if a.Impact.CashAdjustment != nil { f := *a.Impact.CashAdjustment; i.CashAdjustment = &f }
+        dst.Impact = &i
+    }
+
+    return dst
+}
+
 // LoadRegistry loads the registry from a JSON file.
 //
 // A UTF-8 BOM at the start of the file is ignored. Any other leading

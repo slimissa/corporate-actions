@@ -331,6 +331,23 @@ class TestByIsin:
             "US0378331005-SPLIT-2020-08-31-4-1",
         ]
 
+    def test_by_isin_returns_deep_copy(self, registry):
+        a = registry.by_isin("US0378331005")
+        a[0].ratio = "999:1"
+        again = registry.by_isin("US0378331005")
+        assert again[0].ratio == "4:1"
+
+    def test_by_action_type_returns_deep_copy(self, registry):
+        a = registry.by_action_type("SPLIT")
+        a[0].ratio = "999:1"
+        again = registry.by_action_type("SPLIT")
+        assert again[0].ratio in ("4:1", "10:1")
+
+    def test_by_date_range_returns_deep_copy(self, registry):
+        a = registry.by_date_range(None, None, "ex_date")
+        a[0].dates.ex_date = "1900-01-01"
+        again = registry.by_date_range(None, None, "ex_date")
+        assert again[0].dates.ex_date != "1900-01-01"
 
 # ----------------------------------------------------------------------
 # by_action_id
