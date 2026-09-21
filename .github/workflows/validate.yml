@@ -65,6 +65,29 @@ jobs:
             --actions actions.json \
             --output-dir dist \
             --check
+      
+      - name: Reject list is valid JSON
+        run: |
+          python3 -c "
+          import json
+          d = json.load(open('_removed_actions.json'))
+          assert isinstance(d.get('removed'), list)
+          print(f\"{len(d['removed'])} reject entries\")
+          "
+
+      - name: Every reject-list entry is absent from actions.json
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          reject = json.load(open("_removed_actions.json"))["removed"]
+          ids = {a["action_id"] for a in json.load(open("actions.json"))["actions"]}
+          for r in reject:
+              oid = r.get("original_action_id")
+              if oid and oid in ids:
+                  print(f"FAIL: reject-list entry {oid!r} present in actions.json")
+                  sys.exit(1)
+          print(f"OK: {len(reject)} reject entries, none present in actions.json")
+          PY
 
   docs-facts:
     name: Docs match facts.json
@@ -100,7 +123,8 @@ jobs:
         with: { python-version: '3.12' }
       - run: pip install ruff
       - run: ruff check tests/ tools/ examples/ scripts/
-      
+    
+  
   # ---------------------------------------------------------------------
   # Python: root tests + wrapper tests.
   # ---------------------------------------------------------------------
@@ -127,6 +151,9 @@ jobs:
         working-directory: wrappers/python
         run: pytest tests/ -v
       
+      - name: Test merge_fetched
+        run: pytest tests/test_merge_fetched.py -v
+
       - name: Run shell tests
         run: bash tests/test_run_update.sh
 

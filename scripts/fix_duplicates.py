@@ -117,6 +117,7 @@ def main() -> int:
 
     doc = json.loads(ACTIONS_PATH.read_text(encoding="utf-8"))
     actions = doc.get("actions")
+    before = list(actions)
     if not isinstance(actions, list):
         print("Error: actions.json has no 'actions' list", file=sys.stderr)
         return 2
@@ -158,6 +159,49 @@ def main() -> int:
     )
 
     print(f"After:  {len(new_actions)} actions")
+
+    # Record the removals so the merge step cannot re-introduce them.
+    removed_path = REPO_ROOT / "_removed_actions.json"
+    try:
+        removed_doc = json.loads(removed_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        removed_doc = {"description": "Actions deliberately removed.",
+                       "version": "1.0.0", "removed": []}
+
+    existing_keys = {
+        (r["isin"], r["action_type"], r["ex_date"], round(r["amount"], 4))
+        for r in removed_doc.get("removed", [])
+    }
+
+    for aid in sorted(removed_present):
+        # Reconstruct the key from the entry we just removed.
+        old = next((a for a in before if a.get("action_id") == aid), None)
+        if not old:
+            continue
+        dates = old.get("dates") or {}
+        key = (
+            old.get("isin", ""),
+            old.get("action_type", ""),
+            dates.get("ex_date", ""),
+            round(float(old.get("amount") or 0.0), 4),
+        )
+        if key in existing_keys:
+            continue
+        removed_doc["removed"].append({
+            "isin": key[0],
+            "action_type": key[1],
+            "ex_date": key[2],
+            "amount": key[3],
+            "original_action_id": aid,
+            "reason": "removed by fix_duplicates.py",
+        })
+        existing_keys.add(key)
+
+    removed_path.write_text(
+        json.dumps(removed_doc, indent=2) + "\n", encoding="utf-8",
+    )
+    print(f"  Reject list: {len(removed_doc['removed'])} entries in {removed_path.name}")
+
     return 0
 
 

@@ -70,6 +70,25 @@ The pipeline refuses sources that cannot produce usable data. Passing
 hide the problem, and a partial registry that appears complete is worse
 than an explicit error.
 
+### Reject list
+
+`_removed_actions.json` records every action that has been deliberately
+removed from `actions.json`. The merge step (`tools/merge_fetched.py`)
+refuses to re-add any action matching a reject-list entry, matched by
+`(isin, action_type_family, ex_date, amount)`. The family collapses
+`DIVIDEND`+`SPECIAL_DIVIDEND` and `SPLIT`+`REVERSE_SPLIT`, so a removed
+dividend is not re-added under the other type.
+
+The file exists because the fuzzy-dedup key alone cannot distinguish a
+corrected entry from a re-fetched wrong one. The MSFT 2004 bundled
+dividend at `US5949181045-DIVIDEND-2004-11-15-3.0800` was removed by
+`scripts/fix_duplicates.py` but re-fetched by Yahoo on every run until
+the reject list was introduced.
+
+For manual removals, append to `_removed_actions.json` directly. The
+fields are: `isin`, `action_type`, `ex_date`, `amount`,
+`original_action_id`, `reason`.
+
 ---
 
 ## Current sources
