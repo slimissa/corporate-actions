@@ -153,12 +153,17 @@ def main() -> int:
     new_actions.extend(added_missing)
 
     doc["actions"] = new_actions
-    ACTIONS_PATH.write_text(
-        json.dumps(doc, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
+    doc.setdefault("meta", {})["updated_at"] = (
+        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     )
 
+    payload = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+    tmp = ACTIONS_PATH.with_suffix(ACTIONS_PATH.suffix + ".tmp")
+    tmp.write_text(payload, encoding="utf-8")
+    tmp.replace(ACTIONS_PATH)
+
     print(f"After:  {len(new_actions)} actions")
+    print(f"  meta.updated_at set to {doc['meta']['updated_at']}")
 
     # Record the removals so the merge step cannot re-introduce them.
     removed_path = REPO_ROOT / "_removed_actions.json"
