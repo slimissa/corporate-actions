@@ -404,11 +404,62 @@ class TestExtractNewSymbol:
         assert isinstance(COMMON_ENGLISH_WORDS, frozenset)
         assert len(COMMON_ENGLISH_WORDS) > 50
 
-    def test_blocklist_does_not_contain_real_tickers(self):
-        # Sanity check: the blocklist must not accidentally reject real
-        # tickers. If a ticker is ever added to it, this test fails.
-        for ticker in ("AAPL", "MSFT", "NVDA", "META", "GOOG", "AMZN"):
-            assert ticker not in COMMON_ENGLISH_WORDS
+# Real US-listed tickers that happen to also be English words. Each one
+# must extract cleanly when it appears in a strong-context sentence.
+REAL_TICKERS_IN_BLOCKLIST = [
+    "AN",  # AutoNation
+    "DO",  # Diamond Offshore
+    "GO",  # Grocery Outlet
+    "HE",  # Hawaiian Electric
+    "IT",  # Gartner
+    "ME",  # 23andMe
+    "ON",  # On Semiconductor
+    "SO",  # Southern Company
+    "UP",  # Wheels Up
+    "WE",  # WeWork
+]
+
+
+class TestBlocklistScoping:
+    """The blocklist applies to weak patterns only.
+
+    Strong patterns carry enough prose context that a common English
+    word in all-caps is almost certainly a ticker. Weak patterns are
+    short enough that a false positive is likely.
+    """
+
+    @pytest.mark.parametrize("ticker", REAL_TICKERS_IN_BLOCKLIST)
+    def test_strong_pattern_accepts_real_ticker(self, ticker):
+        text = (
+            f"The Company will begin trading under the symbol {ticker} "
+            f"on January 1, 2024."
+        )
+        assert extract_new_symbol(text) == ticker
+
+    @pytest.mark.parametrize("ticker", REAL_TICKERS_IN_BLOCKLIST)
+    def test_weak_pattern_rejects_real_ticker_in_ambiguous_context(self, ticker):
+        # A weak pattern with no strong context still refuses. This is
+        # the behavior the blocklist was designed for: "the new symbol
+        # is AN" is ambiguous in a way "will begin trading under the
+        # symbol AN" is not.
+        text = f"The new symbol is {ticker}."
+        assert extract_new_symbol(text) is None
+
+    def test_strong_context_wins_over_weak_blocklist(self):
+        # Strong pattern comes first in the scan. Even if a weak pattern
+        # later in the text would match a blocklisted word, the strong
+        # match is returned.
+        text = (
+            "The Company will begin trading under the symbol META on June 9. "
+            "The new symbol is US."
+        )
+        assert extract_new_symbol(text) == "META"
+
+    def test_blocklist_still_rejects_genuine_english_in_weak_context(self):
+        # A weak pattern that matches an English word that is not a
+        # ticker. "AS" is not a real US ticker.
+        text = "The new symbol is AS."
+        assert extract_new_symbol(text) is None
 
 
 # ---------------------------------------------------------------------------

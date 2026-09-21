@@ -96,7 +96,10 @@ MUTABLE_URL_PREFIXES = (
 # would make [A-Z] match lowercase too, and produce false positives on
 # ordinary English text such as "the new symbol is US".
 
-SYMBOL_CHANGE_TRIGGERS = [
+# Strong patterns: the surrounding prose is unambiguous. A symbol match
+# here is trusted without consulting the blocklist. Patterns 1 and 2 in
+# the original review correspond to these.
+STRONG_SYMBOL_TRIGGERS = [
     re.compile(
         r"(?i:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
         r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
@@ -105,6 +108,12 @@ SYMBOL_CHANGE_TRIGGERS = [
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
         r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
+]
+
+# Weak patterns: the prose is short enough that a common English word in
+# all-caps could be a false positive. Anything matched here is checked
+# against COMMON_ENGLISH_WORDS before being accepted.
+WEAK_SYMBOL_TRIGGERS = [
     re.compile(
         r"(?i:(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+)"
         r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
@@ -114,6 +123,9 @@ SYMBOL_CHANGE_TRIGGERS = [
         r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
 ]
+
+# Kept for callers that iterate all patterns. See is_symbol_change below.
+SYMBOL_CHANGE_TRIGGERS = STRONG_SYMBOL_TRIGGERS + WEAK_SYMBOL_TRIGGERS
 
 DELISTING_TRIGGERS = [
     re.compile(
@@ -253,11 +265,24 @@ def extract_effective_date(text: str) -> Optional[str]:
 def extract_new_symbol(text: str) -> Optional[str]:
     """Return the new ticker symbol, or None.
 
-    Rejects candidates in COMMON_ENGLISH_WORDS. The regex captures only
-    uppercase letters of length 1..6, and the `.isalpha()` check rejects
-    anything containing a digit or punctuation.
+    Strong patterns are trusted. Weak patterns are checked against
+    COMMON_ENGLISH_WORDS, because their prose context is short enough
+    that a common word like "AN" or "GO" could match.
+
+    The blocklist exists to filter weak matches only. Applying it to
+    strong matches would silently drop real symbol changes to tickers
+    like AN (AutoNation), GO (Grocery Outlet), or US (US Foods).
     """
-    for pat in SYMBOL_CHANGE_TRIGGERS:
+    # Strong patterns first — no blocklist.
+    for pat in STRONG_SYMBOL_TRIGGERS:
+        m = pat.search(text)
+        if m:
+            symbol = m.group(1)
+            if 1 <= len(symbol) <= 6 and symbol.isalpha():
+                return symbol
+
+    # Weak patterns — apply the blocklist.
+    for pat in WEAK_SYMBOL_TRIGGERS:
         m = pat.search(text)
         if m:
             symbol = m.group(1)
@@ -268,6 +293,7 @@ def extract_new_symbol(text: str) -> Optional[str]:
             if symbol in COMMON_ENGLISH_WORDS:
                 continue
             return symbol
+
     return None
 
 
