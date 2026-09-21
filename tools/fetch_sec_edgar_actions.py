@@ -20,8 +20,9 @@ Documents:
     https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/{name}
 
 The SEC requires a descriptive User-Agent and a maximum of 10 requests per
-second. This script uses a 0.15s delay (~6.6/sec) and caches filings under
-.cache_sec_edgar/.
+second. This script uses a 0.15s delay (~6.6/sec) and caches immutable
+filing documents under .cache_sec_edgar/. The mutable submissions endpoint
+is never cached, so a re-run always sees the current filing list.
 
 Known limitations
 -----------------
@@ -38,6 +39,12 @@ Usage:
         --output sec_actions.json \
         --cik-limit 5 \
         --verbose
+
+    # To ignore the on-disk cache for this run:
+    python tools/fetch_sec_edgar_actions.py \
+        --identifiers tests/fixtures/identifiers.json \
+        --output sec_actions.json \
+        --refresh
 
 Exit codes:
   0 - success, no instrument failed
@@ -74,7 +81,12 @@ REQUEST_DELAY = 0.15
 MAX_RETRIES = 3
 CACHE_DIR = os.environ.get("SEC_EDGAR_CACHE", ".cache_sec_edgar")
 DEFAULT_MIN_DATE = "2019-01-01"
-
+# URLs whose response can change between runs. Anything matching one of
+# these prefixes is fetched fresh on every request; everything else is
+# cached under CACHE_DIR.
+MUTABLE_URL_PREFIXES = (
+    "https://data.sec.gov/submissions/",
+)
 
 # ---------------------------------------------------------------------------
 # Regexes
@@ -283,13 +295,18 @@ class SECClient:
         })
         os.makedirs(CACHE_DIR, exist_ok=True)
 
+    @staticmethod
+    def _is_cacheable(url: str) -> bool:
+        return not any(url.startswith(p) for p in MUTABLE_URL_PREFIXES)
+
     def _cache_path(self, key: str) -> str:
         digest = hashlib.sha256(key.encode()).hexdigest()
         return os.path.join(CACHE_DIR, digest + ".cache")
 
     def _get(self, url: str) -> Optional[requests.Response]:
+        cacheable = self._is_cacheable(url)
         cache_path = self._cache_path(url)
-        if os.path.exists(cache_path):
+        if cacheable and os.path.exists(cache_path):
             with open(cache_path, "rb") as f:
                 content = f.read()
             resp = requests.Response()
@@ -308,8 +325,9 @@ class SECClient:
                 if resp.status_code == 404:
                     return None
                 resp.raise_for_status()
-                with open(cache_path, "wb") as f:
-                    f.write(resp.content)
+                if cacheable:
+                    with open(cache_path, "wb") as f:
+                        f.write(resp.content)
                 time.sleep(REQUEST_DELAY)
                 return resp
             except requests.exceptions.RequestException as e:
@@ -474,6 +492,11 @@ def main() -> int:
     parser.add_argument("--cik-limit", type=int, default=None)
     parser.add_argument("--min-date", default=DEFAULT_MIN_DATE)
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Delete the on-disk HTTP cache before fetching.",
+    )
     args = parser.parse_args()
 
     instruments = load_instruments(args.identifiers)
@@ -496,6 +519,12 @@ def main() -> int:
         "Scope: SYMBOL_CHANGE and DELISTING only. "
         "Dividends and splits come from the Yahoo fetcher."
     )
+
+    if args.refresh:
+        import shutil
+        if os.path.isdir(CACHE_DIR):
+            shutil.rmtree(CACHE_DIR)
+            print(f"Cleared cache: {CACHE_DIR}")
 
     client = SECClient()
     all_actions: List[Dict[str, Any]] = []
