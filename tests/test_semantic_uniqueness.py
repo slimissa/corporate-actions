@@ -409,6 +409,8 @@ class TestMalformedInput:
         del a["isin"]
         b = _a("A2")
         # A1 has no ISIN; it cannot be compared to anything.
+        # The function must skip it and return no errors.
+        assert validate_semantic_uniqueness([a, b]) == []
 
 
 
