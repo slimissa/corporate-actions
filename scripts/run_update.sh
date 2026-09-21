@@ -243,79 +243,22 @@ if ! $SKIP_FETCH; then
     run_cmd python3 "${ARGS[@]}"
 
     if [[ -f "$FETCH_OUTPUT" ]]; then
+        MERGE_SCRIPT="$REPO_ROOT/tools/merge_fetched.py"
+        REMOVED_PATH="$REPO_ROOT/_removed_actions.json"
+        MERGE_ARGS=(
+            "$MERGE_SCRIPT"
+            --actions "$ACTIONS_PATH"
+            --fetched "$FETCH_OUTPUT"
+            --removed "$REMOVED_PATH"
+        )
+        if $VERBOSE; then MERGE_ARGS+=(--verbose); fi
         if $DRY_RUN; then
+            MERGE_ARGS+=(--dry-run)
             log "DRY RUN: would merge $FETCH_OUTPUT into $ACTIONS_PATH."
         else
             log "Merging fetched actions into $ACTIONS_PATH (fuzzy dedup)..."
-            python3 - "$REPO_ROOT" "$ACTIONS_PATH" "$FETCH_OUTPUT" "$VERBOSE" <<'PY'
-import json
-import sys
-from datetime import datetime, timezone
-from pathlib import Path
-
-repo_root = Path(sys.argv[1])
-actions_path = repo_root / sys.argv[2]
-fetch_path = Path(sys.argv[3])
-verbose = sys.argv[4].lower() == "true"
-
-
-def dedup_key(action):
-    """Stable identity for an action across different ID schemes."""
-    dates = action.get("dates") or {}
-    ratio = action.get("ratio") or ""
-    amount = action.get("amount")
-    if amount is None:
-        amount_val = 0.0
-    else:
-        try:
-            amount_val = float(amount)
-        except (TypeError, ValueError):
-            # Refuse rather than silently dedup on a sentinel. A
-            # non-numeric amount is a data error and should surface
-            # loudly, not turn into a different key.
-            raise SystemExit(
-                f"Error: action {action.get('action_id', '?')} has "
-                f"non-numeric amount {amount!r}"
-            )
-    return (
-        action.get("isin", ""),
-        action.get("action_type", ""),
-        dates.get("ex_date", ""),
-        ratio,
-        round(amount_val, 4),
-    )
-
-
-with open(actions_path) as f:
-    current = json.load(f)
-with open(fetch_path) as f:
-    fetched = json.load(f)
-
-current_actions = current.get("actions", [])
-fetched_actions = fetched.get("actions", [])
-
-existing_keys = {dedup_key(a) for a in current_actions}
-new_actions = [a for a in fetched_actions if dedup_key(a) not in existing_keys]
-
-if new_actions:
-    current["actions"].extend(new_actions)
-    current.setdefault("meta", {})["updated_at"] = (
-        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    )
-    with open(actions_path, "w") as f:
-        json.dump(current, f, indent=2)
-    print(f"Added {len(new_actions)} new actions (total: {len(current['actions'])}).")
-    if verbose:
-        for a in new_actions[:5]:
-            print(f"  + {a.get('action_id')}")
-        if len(new_actions) > 5:
-            print(f"  ... and {len(new_actions) - 5} more")
-else:
-    print("No new actions to merge.")
-PY
         fi
-    fi
-
+        run_cmd python3 "${MERGE_ARGS[@]}"
     else
         log "No fetched actions file produced; skipping merge."
     fi

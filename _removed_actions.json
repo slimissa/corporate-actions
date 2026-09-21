@@ -1,0 +1,38 @@
+{
+  "description": "Actions deliberately removed from actions.json. The merge step refuses to re-add any action matching one of these entries. Match is by (isin, action_type_family, ex_date, amount), where action_type_family collapses DIVIDEND+SPECIAL_DIVIDEND and SPLIT+REVERSE_SPLIT.",
+  "version": "1.0.0",
+  "removed": [
+    {
+      "isin": "US0378331005",
+      "action_type": "DIVIDEND",
+      "ex_date": "2024-05-10",
+      "amount": 0.25,
+      "original_action_id": "US0378331005-DIVIDEND-2024-05-10-0.2500",
+      "reason": "wrong ex_date; corrected entry is US0378331005-DIVIDEND-2024-05-16-0.2500"
+    },
+    {
+      "isin": "US0378331005",
+      "action_type": "DIVIDEND",
+      "ex_date": "2024-05-23",
+      "amount": 0.25,
+      "original_action_id": "US0378331005-DIVIDEND-2024-05-23-0.2500",
+      "reason": "wrong ex_date; corrected entry is US0378331005-DIVIDEND-2024-05-16-0.2500"
+    },
+    {
+      "isin": "US5949181045",
+      "action_type": "DIVIDEND",
+      "ex_date": "2004-11-15",
+      "amount": 3.08,
+      "original_action_id": "US5949181045-DIVIDEND-2004-11-15-3.0800",
+      "reason": "Yahoo bundles 0.08 regular + 3.00 special into one row; corrected entries are 2004-12-09 0.08 and 2004-12-02 3.00"
+    },
+    {
+      "isin": "US5949181045",
+      "action_type": "SPECIAL_DIVIDEND",
+      "ex_date": "2004-12-03",
+      "amount": 3.00,
+      "original_action_id": "US5949181045-SPECIAL_DIVIDEND-2004-12-03-3.0000",
+      "reason": "wrong payment date; corrected entry is US5949181045-SPECIAL_DIVIDEND-2004-12-02-3.0000"
+    }
+  ]
+}
