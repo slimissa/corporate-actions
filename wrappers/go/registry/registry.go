@@ -128,13 +128,25 @@ func deepCopyAction(a Action) Action {
     }
 
     if a.Dates != nil {
-        d := *a.Dates
-        if a.Dates.Announcement != nil { s := *a.Dates.Announcement; d.Announcement = &s }
-        if a.Dates.ExDate != nil { s := *a.Dates.ExDate; d.ExDate = &s }
-        if a.Dates.RecordDate != nil { s := *a.Dates.RecordDate; d.RecordDate = &s }
-        if a.Dates.EffectiveDate != nil { s := *a.Dates.EffectiveDate; d.EffectiveDate = &s }
-        dst.Dates = &d
-    }
+    	d := *a.Dates
+    	if a.Dates.Announcement != nil {
+        	s := *a.Dates.Announcement
+        	d.Announcement = &s
+    	}
+    	if a.Dates.ExDate != nil {
+        	s := *a.Dates.ExDate
+        	d.ExDate = &s
+    	}
+    	if a.Dates.RecordDate != nil {
+        	s := *a.Dates.RecordDate
+        	d.RecordDate = &s
+    	}
+    	if a.Dates.EffectiveDate != nil {
+        	s := *a.Dates.EffectiveDate
+        	d.EffectiveDate = &s
+    	}
+    	dst.Dates = &d
+	}
 
     if a.Provenance != nil {
         p := *a.Provenance
@@ -255,7 +267,7 @@ func (r *Registry) ByISIN(isin string) []Action {
 	}
 	result := make([]Action, len(indices))
 	for i, idx := range indices {
-		result[i] = r.actions[idx]
+		result[i] = deepCopyAction(r.actions[idx])
 	}
 	return result
 }
@@ -266,29 +278,12 @@ func (r *Registry) ByISIN(isin string) []Action {
 // The returned pointer refers to a freshly-allocated copy; mutating the
 // pointed-to Action does not affect the registry.
 func (r *Registry) ByActionID(actionID string) *Action {
-	idx, ok := r.indexID[actionID]
-	if !ok {
-		return nil
-	}
-	src := r.actions[idx]
-	// Copy the top-level struct; this copies the pointers to the nested
-	// structs. Deep-copy those so a caller who mutates a nested field
-	// does not reach the registry's internal state. Matches the deep-copy
-	// contract in docs/wrapper_contract.md section 4.2.
-	dst := src
-	if src.Dates != nil {
-		d := *src.Dates
-		dst.Dates = &d
-	}
-	if src.Provenance != nil {
-		p := *src.Provenance
-		dst.Provenance = &p
-	}
-	if src.Impact != nil {
-		i := *src.Impact
-		dst.Impact = &i
-	}
-	return &dst
+    idx, ok := r.indexID[actionID]
+    if !ok {
+        return nil
+    }
+    copy := deepCopyAction(r.actions[idx])
+    return &copy
 }
 
 // ByActionType returns all actions of a given type (e.g., "SPLIT",
@@ -302,7 +297,7 @@ func (r *Registry) ByActionType(actionType string) []Action {
 	}
 	result := make([]Action, len(indices))
 	for i, idx := range indices {
-		result[i] = r.actions[idx]
+	    result[i] = deepCopyAction(r.actions[idx])
 	}
 	return result
 }
