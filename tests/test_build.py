@@ -882,3 +882,66 @@ class TestEndToEnd:
         path.write_bytes(b"\xef\xbb\xbf" + json.dumps(doc).encode("utf-8"))
         result = _run_build(path, tmp_path / "out")
         assert result.returncode == 0, result.stdout + result.stderr
+
+class TestCheckMode:
+    """Tests for build.py --check."""
+
+    def _run_check(self, actions_path, output_dir, cwd=None):
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "build.py"),
+             "--actions", str(actions_path),
+             "--output-dir", str(output_dir),
+             "--check"],
+            capture_output=True, text=True, cwd=str(cwd or REPO_ROOT),
+        )
+
+    def test_check_passes_when_artifacts_match(self, tmp_path):
+        actions_path = _write_actions_file(tmp_path, _sample_document())
+        out_dir = tmp_path / "out"
+        # Build first, then check.
+        _run_build(actions_path, out_dir)
+        result = self._run_check(actions_path, out_dir)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "OK: all artifacts match" in result.stdout
+
+    def test_check_fails_when_artifact_is_stale(self, tmp_path):
+        actions_path = _write_actions_file(tmp_path, _sample_document())
+        out_dir = tmp_path / "out"
+        _run_build(actions_path, out_dir)
+        # Corrupt one artifact.
+        (out_dir / "actions.dist.json").write_text("{}\n", encoding="utf-8")
+        result = self._run_check(actions_path, out_dir)
+        assert result.returncode == 1
+        assert "stale" in result.stderr
+        assert "actions.dist.json" in result.stderr
+
+    def test_check_fails_when_artifact_is_missing(self, tmp_path):
+        actions_path = _write_actions_file(tmp_path, _sample_document())
+        out_dir = tmp_path / "out"
+        _run_build(actions_path, out_dir)
+        (out_dir / "actions.csv").unlink()
+        result = self._run_check(actions_path, out_dir)
+        assert result.returncode == 1
+        assert "missing" in result.stderr
+        assert "actions.csv" in result.stderr
+
+
+class TestTwoPhaseCommit:
+    """A render failure must leave no partial artifacts on disk."""
+
+    def test_flatten_failure_leaves_no_artifacts(self, tmp_path):
+        bad = _split_action()
+        bad["listings"] = [{"exchange": "XNAS"}]  # list -> render_csv raises
+        actions_path = _write_actions_file(
+            tmp_path, {"actions": [bad]},
+        )
+        out_dir = tmp_path / "out"
+        result = _run_build(actions_path, out_dir)
+        assert result.returncode == 2
+        # No file was written, not even the ones that would have
+        # rendered successfully first.
+        for name in ("actions.dist.json", "actions.min.json",
+                     "actions.csv", "actions.sql"):
+            assert not (out_dir / name).exists(), (
+                f"{name} was written despite render failure"
+            )
