@@ -123,7 +123,7 @@ class CorporateActionsRegistry:
             return None
         # Return a copy so a caller cannot mutate the registry's internal
         # state by editing the returned object.
-        return [copy.deepcopy(a) for a in self._index_by_type.get(action_type, [])]
+        return copy.deepcopy(action)
     
     def by_action_type(self, action_type: str) -> List[Action]:
         """
@@ -135,8 +135,8 @@ class CorporateActionsRegistry:
         Returns:
             List of Action objects, possibly empty.
         """
-        return list(self._index_by_type.get(action_type, []))
-
+        return [copy.deepcopy(a) for a in self._index_by_type.get(action_type, [])]
+    
     _VALID_DATE_FIELDS = ("announcement", "ex_date", "record_date", "effective_date")
 
     def by_date_range(self, start_date=None, end_date=None, date_field="ex_date"):

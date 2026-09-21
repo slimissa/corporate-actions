@@ -333,9 +333,9 @@ class TestByIsin:
 
     def test_by_isin_returns_deep_copy(self, registry):
         a = registry.by_isin("US0378331005")
-        a[0].ratio = "999:1"
+        a[0].amount = 999.99
         again = registry.by_isin("US0378331005")
-        assert again[0].ratio == "4:1"
+        assert again[0].amount == 0.25
 
     def test_by_action_type_returns_deep_copy(self, registry):
         a = registry.by_action_type("SPLIT")
