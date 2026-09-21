@@ -967,23 +967,25 @@ if not CONTRACT_FIXTURE.exists():
         f"contract fixture required but missing: {CONTRACT_FIXTURE}"
     )
 
+@pytest.fixture(scope="module")
+def _contract_fixture():
+    return json.loads(CONTRACT_FIXTURE.read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="module")
+def _contract_registry(_contract_fixture):
+    return CorporateActionsRegistry(
+        actions_data={"meta": {}, "actions": _contract_fixture["actions"]},
+    )
+
+
 class TestContractFixture:
     """Reads the shared fixture and asserts the same answers as the
     other three wrappers. See docs/wrapper_contract.md section 8.2."""
 
-    @pytest.fixture(scope="class")
-    def fixture(self):
-        return json.loads(CONTRACT_FIXTURE.read_text(encoding="utf-8"))
-
-    @pytest.fixture(scope="class")
-    def registry(self, fixture):
-        return CorporateActionsRegistry(
-            actions_data={"meta": {}, "actions": fixture["actions"]},
-        )
-
-    def test_every_query_matches(self, fixture, registry):
-        for query in fixture["queries"]:
-            result = registry.by_date_range(
+    def test_every_query_matches(self, _contract_fixture, _contract_registry):
+        for query in _contract_fixture["queries"]:
+            result = _contract_registry.by_date_range(
                 query.get("start"),
                 query.get("end"),
                 query["date_field"],
@@ -993,10 +995,10 @@ class TestContractFixture:
                 f"query {query!r} returned {ids}"
             )
 
-    def test_every_invalid_field_raises(self, fixture, registry):
-        for bad in fixture["invalid_date_fields"]:
+    def test_every_invalid_field_raises(self, _contract_fixture, _contract_registry):
+        for bad in _contract_fixture["invalid_date_fields"]:
             with pytest.raises(ValueError, match="invalid date_field"):
-                registry.by_date_range(None, None, bad)
+                _contract_registry.by_date_range(None, None, bad)
 
 class TestConstants:
     def test_default_date_field(self):
@@ -1030,12 +1032,20 @@ class TestMissingIdentifier:
         with pytest.raises(ValueError, match="neither 'isin' nor 'action_id'"):
             CorporateActionsRegistry(actions_data=data)
 
-
 class TestByTicker:
+    """Rules from docs/wrapper_contract.md section 4.8.
+
+    The synthetic fixture at tests/fixtures/identifiers.json maps
+    TESTA..TESTJ, not real tickers. Use TESTB/XNAS -> US0000000002,
+    which the fixture guarantees.
+    """
+
+    FIXTURE_TICKER = "TESTB"
+    FIXTURE_EXCHANGE = "XNAS"
+    FIXTURE_ISIN = "US0000000002"
 
     @pytest.fixture
-    def registry(self, tmp_path):
-        # Reset the module cache so each test gets a fresh index.
+    def registry_and_path(self):
         from corporate_actions_registry.registry import reset_ticker_cache
         reset_ticker_cache()
 
@@ -1044,31 +1054,75 @@ class TestByTicker:
         if not ids.is_file():
             pytest.skip("tests/fixtures/identifiers.json missing")
 
-        return CorporateActionsRegistry(
+        reg = CorporateActionsRegistry(
             actions_data={"meta": {}, "actions": [
-                {"isin": "US0378331005", "action_id": "X1",
-                 "action_type": "DIVIDEND"},
+                {"isin": self.FIXTURE_ISIN,
+                 "action_id": f"{self.FIXTURE_ISIN}-DIVIDEND-2024-01-01-0.25",
+                 "action_type": "DIVIDEND",
+                 "amount": 0.25,
+                 "dates": {"announcement": "2024-01-01",
+                           "ex_date": "2024-01-01",
+                           "effective_date": "2024-01-01"}},
             ]},
-        ), str(ids)
+        )
+        return reg, str(ids)
 
-    def test_resolves_ticker(self, registry):
-        reg, ids_path = registry
-        result = reg.by_ticker("AAPL", "XNAS", identifiers_path=ids_path)
+    def test_resolves_ticker(self, registry_and_path):
+        reg, ids_path = registry_and_path
+        result = reg.by_ticker(
+            self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE,
+            identifiers_path=ids_path,
+        )
         assert len(result) == 1
-        assert result[0].isin == "US0378331005"
+        assert result[0].isin == self.FIXTURE_ISIN
 
-    def test_case_insensitive(self, registry):
-        reg, ids_path = registry
-        assert reg.by_ticker("aapl", "xnas", identifiers_path=ids_path) == \
-               reg.by_ticker("AAPL", "XNAS", identifiers_path=ids_path)
+    def test_case_insensitive(self, registry_and_path):
+        reg, ids_path = registry_and_path
+        lower = reg.by_ticker(
+            self.FIXTURE_TICKER.lower(), self.FIXTURE_EXCHANGE.lower(),
+            identifiers_path=ids_path,
+        )
+        upper = reg.by_ticker(
+            self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE,
+            identifiers_path=ids_path,
+        )
+        assert [a.action_id for a in lower] == [a.action_id for a in upper]
 
-    def test_unknown_ticker_returns_empty(self, registry):
-        reg, ids_path = registry
-        assert reg.by_ticker("NOTREAL", "XNAS", identifiers_path=ids_path) == []
+    def test_unknown_ticker_returns_empty(self, registry_and_path):
+        reg, ids_path = registry_and_path
+        assert reg.by_ticker(
+            "NOTREAL", "XNAS", identifiers_path=ids_path,
+        ) == []
 
-    def test_missing_identifiers_raises(self, registry, monkeypatch):
-        reg, _ = registry
+    def test_unknown_exchange_returns_empty(self, registry_and_path):
+        reg, ids_path = registry_and_path
+        assert reg.by_ticker(
+            self.FIXTURE_TICKER, "NOTEXCH", identifiers_path=ids_path,
+        ) == []
+
+    def test_missing_identifiers_raises(self, registry_and_path, monkeypatch):
+        reg, _ = registry_and_path
         monkeypatch.delenv("CORP_ACTIONS_IDENTIFIERS_PATH", raising=False)
         monkeypatch.delenv("LAS_DATA_HOME", raising=False)
         with pytest.raises(RuntimeError, match="CORP_ACTIONS_IDENTIFIERS_PATH"):
-            reg.by_ticker("AAPL", "XNAS", identifiers_path="/nonexistent.json")
+            reg.by_ticker(
+                self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE,
+                identifiers_path="/nonexistent.json",
+            )
+
+    def test_env_var_resolves_path(self, registry_and_path, monkeypatch):
+        reg, ids_path = registry_and_path
+        from corporate_actions_registry.registry import reset_ticker_cache
+        reset_ticker_cache()
+        monkeypatch.setenv("CORP_ACTIONS_IDENTIFIERS_PATH", ids_path)
+        result = reg.by_ticker(self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE)
+        assert len(result) == 1
+
+    def test_no_env_and_no_path_raises(self, registry_and_path, monkeypatch):
+        reg, _ = registry_and_path
+        from corporate_actions_registry.registry import reset_ticker_cache
+        reset_ticker_cache()
+        monkeypatch.delenv("CORP_ACTIONS_IDENTIFIERS_PATH", raising=False)
+        monkeypatch.delenv("LAS_DATA_HOME", raising=False)
+        with pytest.raises(RuntimeError, match="neither CORP_ACTIONS_IDENTIFIERS_PATH"):
+            reg.by_ticker(self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE)
