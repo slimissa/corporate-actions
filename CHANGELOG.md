@@ -139,6 +139,52 @@ See [`docs/roadmap.md`](./docs/roadmap.md) for the full plan. Summary:
 
 ---
 
+## [1.1.0] — 21/9/2026
+
+### Added
+
+- **`by_ticker(ticker, exchange)`** on all four wrappers. Resolves a
+  ticker+exchange pair to an ISIN via the Asset Identifiers registry,
+  then returns the same list as `by_isin`. See `docs/wrapper_contract.md`
+  section 4.8.
+- **Exported constants** on all four wrappers: `DEFAULT_DATE_FIELD` and
+  `VALID_DATE_FIELDS`. See section 4.9.
+- **`RegistryError::MissingData`** (Rust) and **`ErrMissingData`** (Go)
+  for ticker-resolution failures.
+- Per-wrapper test-helper exports for resetting the ticker index cache:
+  `reset_ticker_cache` (Python), `_resetTickerCache` (JavaScript),
+  `ResetTickerIndexCache` (Go), `reset_cache` (Rust).
+
+### Changed
+
+- **Duplicate `action_id` is now a load-time error** in all four
+  wrappers. Previously the last-inserted entry silently won. See
+  section 5.5.
+- **An action with neither `isin` nor `action_id` is now a load-time
+  error** in all four wrappers. See section 5.6.
+- **`by_date_range` empty-string bounds** are now treated as "no bound"
+  uniformly across all four wrappers. Previously Python, JavaScript, and
+  Go behaved this way; Rust now does too.
+- **`docs/wrapper_contract.md`** revised to v2. Adds `by_ticker`,
+  duplicate-id policy, required-identifier policy, and exported
+  constants.
+
+### Fixed
+
+- **Go `ByDateRange` now deep-copies** its results. Previously a caller
+  could corrupt the registry's internal state by mutating a returned
+  `Dates` field.
+- **Contract-fixture absence is fatal** in all four wrappers. Previously
+  a missing `tests/wrapper_contract.json` caused a silent skip.
+- **Python `from yfinance import ticker`** removed. The wrapper is
+  dependency-free.
+- **JavaScript `byActionId` and `toJSON`** now use `structuredClone`,
+  matching `byIsin`, `byActionType`, and `byDateRange`.
+
+### Data
+
+- No changes to `actions.json`.
+
 ## [1.0.0] — 2026-09-13
 
 The first production release of the Corporate Actions Registry. 242

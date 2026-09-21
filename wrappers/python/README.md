@@ -42,6 +42,9 @@ for action in aapl_actions:
 nvda_split = registry.by_action_id("US67066G1040-SPLIT-2024-06-10-10-1")
 print(nvda_split.ratio)  # "10:1"
 
+# All actions for a ticker on an exchange
+aapl_on_nasdaq = registry.by_ticker("AAPL", "XNAS")
+
 # Get all splits in the registry
 all_splits = registry.by_action_type("SPLIT")
 ```

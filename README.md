@@ -3,7 +3,7 @@
 [![Validate](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml)
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
-[![Registry](https://img.shields.io/badge/registry-v1.0.0-orange.svg)](./CHANGELOG.md)
+[![Registry](https://img.shields.io/badge/registry-v1.1.0-orange.svg)](./CHANGELOG.md)
 [![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
 [![Tests](https://img.shields.io/badge/tests-890-success.svg)](./tests/)
@@ -57,7 +57,7 @@ tool can depend on. It is language-agnostic by design.
 
 ## Current status
 
-**Version**: v1.0.0
+**Version**: v1.1.0
 **Actions**: 240
 **Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
@@ -258,7 +258,7 @@ are reserved (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER`).
 | `SYMBOL_CHANGE` | ✅ Populated | Ticker change (ISIN unchanged) |
 | `SPINOFF` | Reserved | Subsidiary separation |
 | `DELISTING` | Reserved | Removal from exchange |
-| `MERGER` | Reserved | Acquisition (rejected by validator in v1.0.0) |
+| `MERGER` | Reserved | Acquisition (rejected by validator in v1.1.0) |
 
 See [`docs/action_types.md`](./docs/action_types.md) for the full semantics of
 each type, including date ordering rules, required fields, and impact
@@ -441,7 +441,7 @@ For specific contribution types:
 
 ## Known limitations
 
-The following are documented, deliberate limitations of v1.0.0. They are
+The following are documented, deliberate limitations of v1.1.0. They are
 tracked in [`docs/roadmap.md`](./docs/roadmap.md) for future versions.
 
 ### Data coverage
@@ -528,7 +528,14 @@ Ledger Foundation:
 | [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.5.3 |
 | [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.2.2 |
 | [Asset Identifiers](https://github.com/slimissa/asset-identifiers) | ISIN/CUSIP/FIGI | schema 1.2.1 |
-| **Corporate Actions** | **This registry** | **v1.0.0** |
+| **Corporate Actions** | **This registry** | **v1.1.0** |
+
+| Wrapper | Version |
+|---------|---------|
+| Python | v1.1.0 |
+| JavaScript | v1.1.0 |
+| Go | v1.1.0 |
+| Rust | v1.1.0 |
 
 The four registries cross-reference each other. Every corporate action's
 `isin` is validated against Asset Identifiers. Every dividend's `currency`

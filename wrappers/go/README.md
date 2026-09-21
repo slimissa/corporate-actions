@@ -16,7 +16,7 @@ This is the official Go wrapper for the **Corporate Actions Registry** (part of 
 Add this to your `go.mod`:
 
 ```go
-require github.com/slimissa/corporate-actions/wrappers/go v1.0.0
+require github.com/slimissa/corporate-actions/wrappers/go v1.1.0
 ```
 
 Or install from source:
@@ -89,6 +89,14 @@ Returns all actions for the given ISIN. Returns `nil` if none found.
 
 ### `ByActionID(actionID string) *Action`
 Returns a pointer to a single action by its unique `action_id`, or `nil` if not found.
+
+```
+// All actions for a ticker on an exchange
+aaplOnNasdaq, err := r.ByTicker("AAPL", "XNAS", "")
+if err != nil {
+    panic(err)
+}
+```
 
 ### `ByActionType(actionType string) []Action`
 Returns all actions of a given type (e.g., `"SPLIT"`, `"DIVIDEND"`, `"SYMBOL_CHANGE"`).

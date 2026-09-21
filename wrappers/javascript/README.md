@@ -85,6 +85,9 @@ Returns an array of all actions of a given type (`'SPLIT'`, `'DIVIDEND'`, `'SYMB
 
 ```javascript
 const dividends = registry.byActionType('DIVIDEND');
+
+// All actions for a ticker on an exchange
+const aaplOnNasdaq = registry.byTicker('AAPL', 'XNAS');
 ```
 
 ### `byDateRange(startDate, endDate, dateField)`

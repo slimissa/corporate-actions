@@ -17,7 +17,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-corporate-actions = "1.0.0"
+corporate-actions = "1.1.0" 
 ```
 
 Or from source:
@@ -83,6 +83,10 @@ Returns all actions for the given ISIN. Returns an empty vector if none.
 
 ### `by_action_id(&self, action_id: &str) -> Option<Action>`
 Returns a single action by its unique `action_id`, or `None` if not found.
+```
+// All actions for a ticker on an exchange
+let aapl_on_nasdaq = registry.by_ticker("AAPL", "XNAS", None)?;
+```
 
 ### `by_action_type(&self, action_type: &str) -> Vec<Action>`
 Returns all actions of a given type (e.g., `"SPLIT"`, `"DIVIDEND"`, `"SYMBOL_CHANGE"`).
@@ -133,6 +137,8 @@ The crate uses `thiserror` to define `RegistryError`:
 - `RegistryError::Io` – file I/O errors.
 - `RegistryError::Json` – JSON parsing errors.
 - `RegistryError::InvalidStructure` – missing or malformed registry keys.
+- `RegistryError::InvalidDateField`
+- `RegistryError::MissingData`
 
 All methods that load or parse return `Result<_, RegistryError>`.
 
