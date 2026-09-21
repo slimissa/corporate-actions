@@ -945,3 +945,10 @@ class TestTwoPhaseCommit:
             assert not (out_dir / name).exists(), (
                 f"{name} was written despite render failure"
             )
+
+    def test_no_fetcher_output_in_tree(self):
+        """The fetcher must not leave any output files in the repo."""
+        tracked = subprocess.check_output(["git", "ls-files"]).decode().splitlines()
+        forbidden = {"sec_actions.json", "fetched_actions.json", "yahoo_actions.json"}
+        hits = [f for f in tracked if Path(f).name in forbidden]
+        assert not hits, f"fetcher output tracked: {hits}"

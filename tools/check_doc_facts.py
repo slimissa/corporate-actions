@@ -57,30 +57,56 @@ ACTIONS_PATH = REPO_ROOT / "actions.json"
 CHECKS: list[tuple[str, str, str, str]] = [
 
     # --- README.md ---------------------------------------------------------
-    ("README.md", r"badge/actions-(\d+)-",           "action_count",     "int"),
-    ("README.md", r"\*\*Actions\*\*:\s*(\d+)",       "action_count",     "int"),
-    ("README.md", r"Validating\s+(\d+)\s+actions",   "action_count",     "int"),
-    ("README.md", r"OK:\s*(\d+)\s+actions validated","action_count",     "int"),
-    ("README.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|", "action_count",     "int"),
-    ("README.md", r"\*\*Instruments\*\*:\s*(\d+)",   "instrument_count", "int"),
-    ("README.md", r"badge/tests-(\d+)-",             "root_test_count",  "int"),
-    ("README.md", r"\*\*Total tests\*\*:\s*(\d+)",   "root_test_count",  "int"),
-    ("README.md", r"ISO 4217.*?v(\d+\.\d+\.\d+)", "sibling_versions.iso4217", "version"),
-    ("README.md", r"Exchange Calendar.*?v(\d+\.\d+\.\d+)", "sibling_versions.exchange_calendar", "version"),
-    ("docs/data_sources.md", r"ISO 4217.*?\n.*?v(\d+\.\d+\.\d+)", "sibling_versions.iso4217", "version"),
+    ("README.md", r"badge/actions-(\d+)-",            "action_count",     "int"),
+    ("README.md", r"\*\*Actions\*\*:\s*(\d+)",        "action_count",     "int"),
+    ("README.md", r"Validating\s+(\d+)\s+actions",    "action_count",     "int"),
+    ("README.md", r"OK:\s*(\d+)\s+actions validated", "action_count",     "int"),
+    ("README.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|",  "action_count",     "int"),
+    ("README.md", r"\*\*Instruments\*\*:\s*(\d+)",    "instrument_count", "int"),
+    ("README.md", r"badge/tests-(\d+)-",              "root_test_count",  "int"),
+    ("README.md", r"\*\*Total tests\*\*:\s*(\d+)",    "root_test_count",  "int"),
+    ("README.md", r"Python wrapper \| ✅ (\d+) tests",
+        "wrapper_test_counts.python", "int"),
+    ("README.md", r"JavaScript wrapper \| ✅ (\d+) tests",
+        "wrapper_test_counts.javascript", "int"),
+    ("README.md", r"Go wrapper \| ✅ (\d+) tests",
+        "wrapper_test_counts.go", "int"),
+    ("README.md", r"Rust wrapper \| ✅ (\d+) tests \+ \d+ doctest",
+        "wrapper_test_counts.rust", "int"),
+    ("README.md", r"\+ (\d+) \(Rust doctest\)",
+        "wrapper_test_counts.rust_doctests", "int"),
+    ("README.md", r"ISO 4217.*?v(\d+\.\d+\.\d+)",
+        "sibling_versions.iso4217", "version"),
+    ("README.md", r"Exchange Calendar.*?v(\d+\.\d+\.\d+)",
+        "sibling_versions.exchange_calendar", "version"),
+    ("README.md", r"Asset Identifiers.*?schema (\d+\.\d+\.\d+)",
+        "sibling_versions.asset_identifiers_schema", "version"),
 
     # --- CONTRIBUTING.md ---------------------------------------------------
     ("CONTRIBUTING.md", r"OK:\s*(\d+)\s+actions validated", "action_count", "int"),
     ("CONTRIBUTING.md", r"Validating\s+(\d+)\s+actions",    "action_count", "int"),
+    ("CONTRIBUTING.md", r"Tests:\s*`(\d+) passed",          "root_test_count", "int"),
+    ("CONTRIBUTING.md", r"CORP_ACTIONS_MIN_ACTIONS.*?\| `?(\d+)`? \|",
+        "min_actions_docs", "int"),
+
+    # --- docs/data_sources.md ----------------------------------------------
+    ("docs/data_sources.md", r"ISO 4217.*?\n.*?v(\d+\.\d+\.\d+)",
+        "sibling_versions.iso4217", "version"),
+    ("docs/data_sources.md", r"Exchange Calendar.*?\n.*?v(\d+\.\d+\.\d+)",
+        "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/roadmap.md ---------------------------------------------------
-    ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|", "action_count", "int"),
+    ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|",
+        "action_count", "int"),
 
     # --- docs/validation_layers.md -----------------------------------------
-    ("docs/validation_layers.md", r"OK:\s*(\d+)\s+actions validated", "action_count", "int"),
-    ("docs/validation_layers.md", r"Validating\s+(\d+)\s+actions",    "action_count", "int"),
+    ("docs/validation_layers.md", r"OK:\s*(\d+)\s+actions validated",
+        "action_count", "int"),
+    ("docs/validation_layers.md", r"Validating\s+(\d+)\s+actions",
+        "action_count", "int"),
+    ("docs/validation_layers.md", r"Default:\s*`?(\d+)`?",
+        "min_actions_docs", "int"),
 ]
-
 
 # ---------------------------------------------------------------------------
 # Helpers

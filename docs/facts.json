@@ -12,26 +12,35 @@
   "reserved_types": ["REVERSE_SPLIT", "SPINOFF", "DELISTING", "MERGER"],
   "historical_depth_start": "2000",
   "currencies": ["USD"],
-  "root_test_count": 781,
+
+  "root_test_count": 833,
   "root_test_skipped": 1,
   "root_test_network_deselected": 5,
+  "root_test_collected_total": 838,
+
   "wrapper_test_counts": {
-    "python": 0,
+    "python": 106,
     "javascript": 93,
-    "go": 0,
-    "rust": 70,
+    "go": 67,
+    "rust": 84,
     "rust_doctests": 1
   },
+
   "sibling_versions": {
     "iso4217": "v1.5.3",
     "exchange_calendar": "v2.2.2",
     "asset_identifiers_schema": "1.2.1"
   },
+
   "min_actions_code": 100,
   "min_actions_docs": 100,
   "min_actions_roadmap_target": 200,
+
   "sec_edgar_status": "working",
   "sec_edgar_scope": "SYMBOL_CHANGE, DELISTING",
   "nasdaq_status": "removed",
-  "state_file_timestamp_example": "2026-09-13T01:22:25Z"
+
+  "format_date_enforcement": "layer-1",
+  "state_file_timestamp_example": "2026-09-13T01:22:25Z",
+  "webhook_timestamp_format": "isoformat-microsecond-offset"
 }
