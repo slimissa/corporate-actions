@@ -998,3 +998,79 @@ fn invalid_structure_error_displays_message() {
         "invalid registry structure: missing 'actions' key"
     );
 }
+
+#[test]
+fn by_ticker_resolves() {
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures/identifiers.json");
+    if !path.exists() {
+        eprintln!("skipping: fixture missing");
+        return;
+    }
+    let doc = serde_json::json!({"actions": [
+        {"isin": "US0000000002", "action_id": "X", "action_type": "DIVIDEND"},
+    ]});
+    let r = Registry::from_value(doc).unwrap();
+    let got = r
+        .by_ticker("TESTB", "XNAS", Some(path.to_str().unwrap()))
+        .unwrap();
+    assert_eq!(got.len(), 1);
+    assert_eq!(got[0].isin.as_deref(), Some("US0000000002"));
+}
+
+#[test]
+fn by_ticker_case_insensitive() {
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures/identifiers.json");
+    if !path.exists() {
+        eprintln!("skipping: fixture missing");
+        return;
+    }
+    let r = Registry::from_value(serde_json::json!({"actions": []})).unwrap();
+    let a = r
+        .by_ticker("testb", "xnas", Some(path.to_str().unwrap()))
+        .unwrap();
+    let b = r
+        .by_ticker("TESTB", "XNAS", Some(path.to_str().unwrap()))
+        .unwrap();
+    assert_eq!(a.len(), b.len());
+}
+
+#[test]
+fn by_ticker_unknown_returns_empty() {
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures/identifiers.json");
+    if !path.exists() {
+        eprintln!("skipping: fixture missing");
+        return;
+    }
+    let r = Registry::from_value(serde_json::json!({"actions": []})).unwrap();
+    let got = r
+        .by_ticker("NOTREAL", "XNAS", Some(path.to_str().unwrap()))
+        .unwrap();
+    assert!(got.is_empty());
+}
+
+#[test]
+fn by_ticker_missing_file_returns_missing_data() {
+    let r = Registry::from_value(serde_json::json!({"actions": []})).unwrap();
+    let err = r
+        .by_ticker("TESTB", "XNAS", Some("/nonexistent/identifiers.json"))
+        .unwrap_err();
+    assert!(err.to_string().contains("missing identifier data"));
+}
+
+#[test]
+fn by_ticker_unknown_exchange_returns_empty() {
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures/identifiers.json");
+    if !path.exists() {
+        eprintln!("skipping: fixture missing");
+        return;
+    }
+    let r = Registry::from_value(serde_json::json!({"actions": []})).unwrap();
+    let got = r
+        .by_ticker("TESTB", "NOTEXCH", Some(path.to_str().unwrap()))
+        .unwrap();
+    assert!(got.is_empty());
+}

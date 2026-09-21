@@ -2,8 +2,8 @@
 //!
 //! This crate provides a typed, dependency-light interface to load and
 //! query the Corporate Actions Registry (`actions.json`). It builds
-//! in-memory indexes for fast lookups by ISIN, action ID, and action
-//! type, and supports date-range filtering.
+//! in-memory indexes for fast lookups by ISIN, action ID, action type,
+//! and ticker, and supports date-range filtering.
 //!
 //! The behaviour of every public method is specified by
 //! `docs/wrapper_contract.md`. When the code disagrees with that
@@ -24,32 +24,35 @@
 //! # }
 //! ```
 
+mod ticker_index;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-/// Return the requested date from an action, or `None` if the action has
-/// no dates object or the requested field is absent.
-///
-/// Extracted from `by_date_range` because Rust closures cannot express
-/// the "output borrows from input" relationship that the elided lifetime
-/// on `Option<&str>` requires. A free function with explicit lifetimes
-/// can.
-fn date_field_value<'a>(action: &'a Action, date_field: &str) -> Option<&'a str> {
-    let dates = action.dates.as_ref()?;
-    match date_field {
-        "announcement" => dates.announcement.as_deref(),
-        "ex_date" => dates.ex_date.as_deref(),
-        "record_date" => dates.record_date.as_deref(),
-        "effective_date" => dates.effective_date.as_deref(),
-        _ => None,
-    }
-}
+// ---------------------------------------------------------------------------
+// Exported constants (wrapper contract section 4.9)
+// ---------------------------------------------------------------------------
 
-/// The four valid values for the `date_field` parameter of
-/// [`Registry::by_date_range`].
-const VALID_DATE_FIELDS: &[&str] = &["announcement", "ex_date", "record_date", "effective_date"];
+/// The value the Python and JavaScript wrappers use when the
+/// `date_field` argument to `by_date_range` is omitted. Rust requires
+/// the argument; use this constant rather than hard-coding the string.
+pub const DEFAULT_DATE_FIELD: &str = "ex_date";
+
+/// The closed set of date field names accepted by
+/// [`Registry::by_date_range`]. Callers who want to enumerate the
+/// choices should read this slice rather than duplicating the list.
+pub const VALID_DATE_FIELDS: &[&str] = &[
+    "announcement",
+    "ex_date",
+    "record_date",
+    "effective_date",
+];
+
+// ---------------------------------------------------------------------------
+// Errors
+// ---------------------------------------------------------------------------
 
 /// Errors that can occur when loading or using the registry.
 ///
@@ -69,8 +72,8 @@ pub enum RegistryError {
 
     /// The document does not have the required structure: missing
     /// `actions` key, `actions` not an array, an entry in `actions`
-    /// that is not a JSON object, or an action missing both `isin`
-    /// and `action_id`.
+    /// that is not a JSON object, an action missing both `isin` and
+    /// `action_id`, or two actions sharing an `action_id`.
     #[error("invalid registry structure: {0}")]
     InvalidStructure(String),
 
@@ -79,7 +82,17 @@ pub enum RegistryError {
     /// `effective_date`. The contained string is the offending value.
     #[error("invalid date_field: {0}")]
     InvalidDateField(String),
+
+    /// The Asset Identifiers file required by [`Registry::by_ticker`]
+    /// could not be resolved or read. The contained string names the
+    /// environment variable that would fix it.
+    #[error("missing identifier data: {0}")]
+    MissingData(String),
 }
+
+// ---------------------------------------------------------------------------
+// Data types
+// ---------------------------------------------------------------------------
 
 /// Represents the dates of a corporate action. Every field is optional.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -134,6 +147,28 @@ pub struct Meta {
     pub notes: Option<String>,
 }
 
+/// Return the requested date from an action, or `None` if the action has
+/// no dates object or the requested field is absent.
+///
+/// Extracted from `by_date_range` because Rust closures cannot express
+/// the "output borrows from input" relationship that the elided lifetime
+/// on `Option<&str>` requires. A free function with explicit lifetimes
+/// can.
+fn date_field_value<'a>(action: &'a Action, date_field: &str) -> Option<&'a str> {
+    let dates = action.dates.as_ref()?;
+    match date_field {
+        "announcement" => dates.announcement.as_deref(),
+        "ex_date" => dates.ex_date.as_deref(),
+        "record_date" => dates.record_date.as_deref(),
+        "effective_date" => dates.effective_date.as_deref(),
+        _ => None,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Registry
+// ---------------------------------------------------------------------------
+
 /// The main registry container.
 ///
 /// A `Registry` is immutable after construction. Every lookup returns a
@@ -171,6 +206,11 @@ impl Registry {
     /// `meta` object is optional. Each entry in `actions` must itself be
     /// a JSON object; a string, number, boolean, null, or array entry is
     /// a structural error, reported with its index.
+    ///
+    /// Structural validation, before any index is built:
+    ///
+    ///   - Every entry must carry at least one of `isin` or `action_id`.
+    ///   - No two entries may share a non-empty `action_id`.
     pub fn from_value(data: serde_json::Value) -> Result<Self, RegistryError> {
         // Extract meta (optional).
         let meta: Meta = match data.get("meta") {
@@ -187,6 +227,8 @@ impl Registry {
             .ok_or_else(|| RegistryError::InvalidStructure("'actions' must be an array".into()))?;
 
         let mut actions = Vec::with_capacity(actions_array.len());
+        let mut seen_ids: HashMap<String, usize> = HashMap::new();
+
         for (idx, item) in actions_array.iter().enumerate() {
             // Reject anything that is not a JSON object before attempting
             // to deserialize into `Action`. This gives a clearer message
@@ -202,10 +244,25 @@ impl Registry {
                 RegistryError::InvalidStructure(format!("invalid action at index {}: {}", idx, e))
             })?;
 
-            // Every action must identify itself in some way.
-            if action.isin.is_none() && action.action_id.is_none() {
+            // Duplicate action_id check (wrapper contract section 5.5).
+            if let Some(id) = action.action_id.as_deref() {
+                if !id.is_empty() {
+                    if let Some(&prev) = seen_ids.get(id) {
+                        return Err(RegistryError::InvalidStructure(format!(
+                            "duplicate action_id at index {}: {} (first seen at index {})",
+                            idx, id, prev
+                        )));
+                    }
+                    seen_ids.insert(id.to_string(), idx);
+                }
+            }
+
+            // Missing-identifier check (wrapper contract section 5.6).
+            let has_isin = action.isin.as_deref().map_or(false, |s| !s.is_empty());
+            let has_id = action.action_id.as_deref().map_or(false, |s| !s.is_empty());
+            if !has_isin && !has_id {
                 return Err(RegistryError::InvalidStructure(format!(
-                    "action at index {} missing both 'isin' and 'action_id'",
+                    "action at index {} has neither 'isin' nor 'action_id'",
                     idx
                 )));
             }
@@ -226,9 +283,8 @@ impl Registry {
                 index_type.entry(action_type.clone()).or_default().push(i);
             }
             if let Some(id) = &action.action_id {
-                // Last wins. Duplicate action_id values are a data error
-                // caught by the validator's uniqueness layer; the loader
-                // does not check.
+                // The loader already rejected duplicates, so a plain
+                // insert is safe here.
                 index_id.insert(id.clone(), i);
             }
         }
@@ -276,14 +332,13 @@ impl Registry {
     /// Return actions whose `date_field` falls in the inclusive range
     /// `[start_date, end_date]`.
     ///
-    /// `date_field` must be one of `"announcement"`, `"ex_date"`,
-    /// `"record_date"`, or `"effective_date"`. Any other value returns
-    /// [`RegistryError::InvalidDateField`].
+    /// `date_field` must be one of [`VALID_DATE_FIELDS`]. Any other
+    /// value returns [`RegistryError::InvalidDateField`].
     ///
-    /// A `None` bound means "no bound on that side". Actions whose
-    /// `date_field` is absent (or whose `dates` object is `None`) are
-    /// silently skipped. Dates are compared as ISO-8601 strings, so
-    /// lexicographic comparison is chronological.
+    /// A `None` or empty-string bound means "no bound on that side".
+    /// Actions whose `date_field` is absent (or whose `dates` object is
+    /// `None`) are silently skipped. Dates are compared as ISO-8601
+    /// strings, so lexicographic comparison is chronological.
     ///
     /// The result is sorted by `(date_field, action_id)`, ascending.
     pub fn by_date_range(
@@ -292,35 +347,36 @@ impl Registry {
         end_date: Option<&str>,
         date_field: &str,
     ) -> Result<Vec<Action>, RegistryError> {
-            if !VALID_DATE_FIELDS.contains(&date_field) {
-                return Err(RegistryError::InvalidDateField(date_field.into()));
-            }
+        if !VALID_DATE_FIELDS.contains(&date_field) {
+            return Err(RegistryError::InvalidDateField(date_field.into()));
+        }
 
-            let start = start_date.filter(|s| !s.is_empty());
-            let end = end_date.filter(|s| !s.is_empty());
+        // Empty string is treated the same as None: "no bound on that side".
+        let start = start_date.filter(|s| !s.is_empty());
+        let end = end_date.filter(|s| !s.is_empty());
 
-            let mut result: Vec<Action> = self
-                .actions
-                .iter()
-                .filter(|a| {
-                    let v = match date_field_value(a, date_field) {
-                        Some(v) => v,
-                        None => return false,
-                    };
-                    if let Some(s) = start {
-                        if v < s {
-                            return false;
-                        }
+        let mut result: Vec<Action> = self
+            .actions
+            .iter()
+            .filter(|a| {
+                let v = match date_field_value(a, date_field) {
+                    Some(v) => v,
+                    None => return false,
+                };
+                if let Some(s) = start {
+                    if v < s {
+                        return false;
                     }
-                    if let Some(e) = end {
-                        if v > e {
-                            return false;
-                        }
+                }
+                if let Some(e) = end {
+                    if v > e {
+                        return false;
                     }
-                    true
-                })
-                .cloned()
-                .collect();
+                }
+                true
+            })
+            .cloned()
+            .collect();
 
         result.sort_by(|a, b| {
             let av = date_field_value(a, date_field).unwrap_or("");
@@ -329,6 +385,35 @@ impl Registry {
         });
 
         Ok(result)
+    }
+
+    /// Return all actions for a ticker on an exchange.
+    ///
+    /// Resolves `(ticker, exchange)` to an ISIN using the Asset
+    /// Identifiers registry, then returns the same list as
+    /// [`Self::by_isin`].
+    ///
+    /// Path resolution when `identifiers_path` is `None` or empty:
+    ///
+    ///   1. `$CORP_ACTIONS_IDENTIFIERS_PATH`
+    ///   2. `$LAS_DATA_HOME/identifiers.json`
+    ///
+    /// Ticker and exchange are uppercased before lookup. An unknown
+    /// `(ticker, exchange)` pair returns an empty vector, not an error.
+    /// A missing identifiers file returns
+    /// [`RegistryError::MissingData`].
+    ///
+    /// See `docs/wrapper_contract.md` section 4.8.
+    pub fn by_ticker(
+        &self,
+        ticker: &str,
+        exchange: &str,
+        identifiers_path: Option<&str>,
+    ) -> Result<Vec<Action>, RegistryError> {
+        match ticker_index::lookup(ticker, exchange, identifiers_path)? {
+            Some(isin) => Ok(self.by_isin(&isin)),
+            None => Ok(Vec::new()),
+        }
     }
 
     /// Return a sorted list of all unique action types present in the
@@ -379,17 +464,14 @@ impl Registry {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Tests (in-crate)
+// ---------------------------------------------------------------------------
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// A four-action fixture used across the internal tests.
-    ///
-    /// Actions:
-    ///   - NVDA 10:1 split on 2024-06-10
-    ///   - AAPL dividend on 2024-05-16
-    ///   - AAPL 4:1 split on 2020-08-31
-    ///   - META symbol change on 2022-06-09 (no ex_date)
     fn sample_data() -> serde_json::Value {
         serde_json::json!({
             "meta": {
@@ -508,9 +590,7 @@ mod tests {
         let range = reg
             .by_date_range(None, None, "ex_date")
             .expect("valid field");
-        // Three of the four have an ex_date; SYMBOL_CHANGE does not.
         assert_eq!(range.len(), 3);
-        // Sorted ascending by ex_date.
         let dates: Vec<&str> = range
             .iter()
             .filter_map(|a| a.dates.as_ref()?.ex_date.as_deref())
@@ -544,6 +624,14 @@ mod tests {
     }
 
     #[test]
+    fn by_date_range_empty_string_bound_means_no_bound() {
+        let reg = Registry::from_value(sample_data()).unwrap();
+        let with_empty = reg.by_date_range(Some(""), Some(""), "ex_date").unwrap();
+        let with_none = reg.by_date_range(None, None, "ex_date").unwrap();
+        assert_eq!(with_empty.len(), with_none.len());
+    }
+
+    #[test]
     fn by_date_range_skips_missing_field() {
         let reg = Registry::from_value(sample_data()).unwrap();
         let range = reg.by_date_range(None, None, "ex_date").unwrap();
@@ -570,10 +658,30 @@ mod tests {
     }
 
     #[test]
+    fn from_value_rejects_duplicate_action_id() {
+        let doc = serde_json::json!({"actions": [
+            {"isin": "X", "action_id": "A", "action_type": "SPLIT"},
+            {"isin": "Y", "action_id": "A", "action_type": "SPLIT"},
+        ]});
+        let err = Registry::from_value(doc).unwrap_err();
+        assert!(err.to_string().contains("duplicate action_id"));
+    }
+
+    #[test]
+    fn from_value_rejects_missing_identifier() {
+        let doc = serde_json::json!({"actions": [{"action_type": "SPLIT"}]});
+        let err = Registry::from_value(doc).unwrap_err();
+        assert!(err.to_string().contains("neither"));
+    }
+
+    #[test]
     fn load_from_file_strips_bom() {
         use std::io::Write;
         let dir = std::env::temp_dir();
-        let path = dir.join("tempus_bom_test_actions.json");
+        let path = dir.join(format!(
+            "tempus_bom_test_actions_{}.json",
+            std::process::id()
+        ));
         let mut f = fs::File::create(&path).unwrap();
         f.write_all(b"\xEF\xBB\xBF").unwrap();
         f.write_all(serde_json::to_string(&sample_data()).unwrap().as_bytes())
@@ -591,5 +699,18 @@ mod tests {
         assert_eq!(reg.count(), 0);
         assert!(reg.all_action_types().is_empty());
         assert!(reg.by_isin("US0378331005").is_empty());
+    }
+
+    #[test]
+    fn default_date_field_is_ex_date() {
+        assert_eq!(DEFAULT_DATE_FIELD, "ex_date");
+    }
+
+    #[test]
+    fn valid_date_fields_match_contract() {
+        assert!(VALID_DATE_FIELDS.contains(&"announcement"));
+        assert!(VALID_DATE_FIELDS.contains(&"ex_date"));
+        assert!(VALID_DATE_FIELDS.contains(&"record_date"));
+        assert!(VALID_DATE_FIELDS.contains(&"effective_date"));
     }
 }
