@@ -86,7 +86,7 @@ tool can depend on. It is language-agnostic by design.
 | Python wrapper | ✅ 117 tests |
 | JavaScript wrapper | ✅ 99 tests |
 | Go wrapper | ✅ 76 tests |
-| Rust wrapper | ✅ 83 tests| ✅ 83 tests + 1 doctest |
+| Rust wrapper | ✅ 96 tests + 1 doctest |
 | CI workflows | ✅ 3 green |
 
 See [Known limitations](#known-limitations) for the full list.
