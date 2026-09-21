@@ -165,7 +165,7 @@ scripts/run_update.sh --commit --tag v1.0.2
 | `--exchange-calendar PATH` | auto-resolved | Exchange Calendar `calendar.json` |
 | `--actions PATH` | `actions.json` | Registry file to update |
 | `--schema PATH` | `schema.json` | Schema file |
-| `--fetch-source SOURCE` | `yahoo` | Only `yahoo` works today; `sec` and `nasdaq` refuse |
+|--fetch-source SOURCE | yahoo | yahoo (US splits and dividends) and sec (SYMBOL_CHANGE, DELISTING) are supported. nasdaq was removed in v1.0.1.|
 | `--ticker-limit N` | *(all)* | Limit fetcher to first N tickers |
 | `--min-actions N` | `100` | Minimum action count for validation to pass |
 | `--skip-fetch` | `false` | Skip step 4 |

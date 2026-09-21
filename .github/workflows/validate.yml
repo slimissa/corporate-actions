@@ -58,7 +58,13 @@ jobs:
             --iso4217 tests/fixtures/iso4217.json \
             --exchange-calendar tests/fixtures/exchange_calendar.json \
             --min-actions 100
-
+      
+      - name: Verify build artifacts are current
+        run: |
+          python3 tools/build.py \
+            --actions actions.json \
+            --output-dir dist \
+            --check
   # ---------------------------------------------------------------------
   # Python: root tests + wrapper tests.
   # ---------------------------------------------------------------------

@@ -25,12 +25,14 @@ Run
     python3 -m pytest tests/test_schema_full.py -v
 """
 
+from ast import pattern
 import copy
 import json
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from pydoc import doc
+import re
 
 import jsonschema
 import pytest
@@ -482,3 +484,12 @@ class TestFormatEnforcement:
         candidate = copy.deepcopy(actions)
         candidate["actions"][0]["dates"]["announcement"] = "2024-06-10"
         jsonschema.validate(candidate, schema, format_checker=format_checker)
+
+def test_meta_timestamps_are_z_suffixed_second_precision(actions):
+    import re
+    pattern = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+    for key in ("generated_at", "updated_at"):
+        if key in actions["meta"]:
+            assert pattern.match(actions["meta"][key]), (
+                f"meta.{key}={actions['meta'][key]!r} is not Z-suffixed second precision"
+            )

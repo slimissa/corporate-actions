@@ -291,7 +291,7 @@ Non-ISO codes (crypto, commodities) are not accepted.
 |-----------|-------|
 | Purpose | Validate exchange MIC codes and provide trading-hours context |
 | Repository | `https://github.com/slimissa/exchange-calendar` |
-| Version used | v2.1.13 |
+| Version used | v2.2.2 |
 | Load | `load_exchange_calendar_registry()` in `tools/validate.py` |
 | Coverage | 74 exchanges across 6 continents |
 

@@ -149,7 +149,7 @@ pytest tests/ -v
 Expected:
 
 - Validator: `OK: 240 actions validated successfully.`
-- Tests: `781 passed, 1 skipped, 5 deselected`
+- Tests: `860 passed, 1 skipped, 5 deselected`
 
 The validator prints `Loaded N ISINs`. What N is depends on which
 identifiers file it read:
@@ -202,7 +202,7 @@ The validator and fetchers read these environment variables:
 | `CORP_ACTIONS_IDENTIFIERS_PATH` | Full path to `identifiers.json` | (unset) |
 | `CORP_ACTIONS_ISO4217_PATH` | Path to `iso4217.json` | `tests/fixtures/iso4217.json` |
 | `CORP_ACTIONS_EXCHANGE_CALENDAR_PATH` | Path to `calendar.json` | `tests/fixtures/exchange_calendar.json` |
-| `CORP_ACTIONS_MIN_ACTIONS` | Minimum action count for coverage | `1` |
+| `CORP_ACTIONS_MIN_ACTIONS` | Minimum action count for coverage | `100` |
 | `SEC_EDGAR_USER_AGENT` | User-Agent for SEC requests | Built-in default |
 
 Resolution priority for each: CLI argument > env var > default path.

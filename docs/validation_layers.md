@@ -221,7 +221,7 @@
   on ISO-formatted dates is equivalent to chronological comparison, so no
   date parsing is needed. This avoids timezone and calendar-system bugs.
 
-  The validator does not validate that dates are real (e.g. 2024-02-30). The schema declares format: date, but format: date is enforced by the module-level _FORMAT_CHECKER. If it is removed, tests/test_schema_full.py::TestFormatEnforcement fails.
+  Layer 1 enforces format: date via jsonschema's module-level _FORMAT_CHECKER in tools/validate.py. A malformed date like 2024-02-30 is rejected at the schema layer, not the temporal layer. tests/test_schema_full.py::TestFormatEnforcement pins this behaviour. If it is removed, tests/test_schema_full.py::TestFormatEnforcement fails.
 
   ### Example failures
 
@@ -580,8 +580,8 @@
 
   1. `--min-actions N` CLI argument
   2. `CORP_ACTIONS_MIN_ACTIONS` environment variable
-  3. Default: `1` (permissive)
-
+  3. Default: `100` (matches `DEFAULT_MIN_ACTIONS` in `tools/validate.py`)
+  
   For CI, the workflow sets `--min-actions 100` as a regression guard. The
   current registry has 240 actions; if a future change drops it below 100,
   CI fails.

@@ -426,7 +426,7 @@ def main() -> int:
         for path, expected in payloads.items():
             if not path.exists():
                 drift.append(f"missing:  {path}")
-            elif path.read_text(encoding="utf-8") != expected:
+            elif path.read_bytes() != expected.encode("utf-8"):
                 drift.append(f"stale:    {path}")
         if drift:
             print("Artifacts are out of date:", file=sys.stderr)
