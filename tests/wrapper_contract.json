@@ -1,4 +1,9 @@
 {
+  "tickers": [
+      { "ticker": "AAPL", "exchange": "XNAS", "isin": "US0378331005" },
+      { "ticker": "PRU", "exchange": "XNYS", "isin": "US7443201022" },
+      { "ticker": "PRU", "exchange": "XLON", "isin": "GB0007099541" }
+  ],
   "actions": [
     {
       "isin": "US0000000001",
@@ -190,6 +195,18 @@
       "start": "1900-01-01",
       "end": "1900-12-31",
       "expected_action_ids": []
+    },
+    {
+      "date_field": "ex_date",
+      "start": "",
+      "end": "",
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1",
+        "US0000000002-SPLIT-2024-01-01-3-1",
+        "US0000000006-SPLIT-2024-01-01-5-1",
+        "US0000000003-DIVIDEND-2024-02-01-0.2500",
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
     }
   ],
   "invalid_date_fields": [
