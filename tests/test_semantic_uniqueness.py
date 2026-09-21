@@ -480,14 +480,15 @@ class TestOrderIndependence:
 # Real registry
 # ---------------------------------------------------------------------------
 
+@pytest.fixture(scope="module")
+def real_actions():
+    path = REPO_ROOT / "actions.json"
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    return doc["actions"]
+
+
 class TestRealRegistry:
     """The committed actions.json must not trigger the layer."""
-
-    @pytest.fixture(scope="class")
-    def real_actions(self):
-        path = REPO_ROOT / "actions.json"
-        doc = json.loads(path.read_text(encoding="utf-8"))
-        return doc["actions"]
 
     def test_current_registry_has_no_duplicates(self, real_actions):
         errors = validate_semantic_uniqueness(real_actions)
