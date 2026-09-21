@@ -1133,3 +1133,133 @@ func reverseActionsInJSON(t *testing.T, doc string) []byte {
 	}
 	return out
 }
+
+func TestDefaultDateField(t *testing.T) {
+	if DefaultDateField != "ex_date" {
+		t.Fatalf("DefaultDateField = %q, want %q", DefaultDateField, "ex_date")
+	}
+}
+
+func TestValidDateFieldsMatchContract(t *testing.T) {
+	want := []string{"announcement", "ex_date", "record_date", "effective_date"}
+	if len(ValidDateFields) != len(want) {
+		t.Fatalf("len = %d, want %d", len(ValidDateFields), len(want))
+	}
+	for i, w := range want {
+		if ValidDateFields[i] != w {
+			t.Fatalf("ValidDateFields[%d] = %q, want %q", i, ValidDateFields[i], w)
+		}
+	}
+}
+
+func TestDuplicateActionIDRaises(t *testing.T) {
+	doc := []byte(`{"actions":[
+		{"isin":"X","action_id":"A","action_type":"SPLIT"},
+		{"isin":"Y","action_id":"A","action_type":"SPLIT"}
+	]}`)
+	_, err := FromJSON(doc)
+	if err == nil {
+		t.Fatal("expected error for duplicate action_id")
+	}
+	if !strings.Contains(err.Error(), "duplicate action_id") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestMissingIdentifierRaises(t *testing.T) {
+	doc := []byte(`{"actions":[{"action_type":"SPLIT"}]}`)
+	_, err := FromJSON(doc)
+	if err == nil {
+		t.Fatal("expected error for missing identifier")
+	}
+	if !strings.Contains(err.Error(), "neither") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestByTickerResolves(t *testing.T) {
+	ResetTickerIndexCache()
+	path := filepath.Join("..", "..", "..", "tests", "fixtures", "identifiers.json")
+	if _, err := os.Stat(path); err != nil {
+		t.Skip("fixture missing")
+	}
+	doc := []byte(`{"actions":[{"isin":"US0000000002","action_id":"X","action_type":"DIVIDEND"}]}`)
+	r, err := FromJSON(doc)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	got, err := r.ByTicker("TESTB", "XNAS", path)
+	if err != nil {
+		t.Fatalf("ByTicker: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("ByTicker returned %d actions, want 1", len(got))
+	}
+	if got[0].ISIN == nil || *got[0].ISIN != "US0000000002" {
+		t.Fatalf("ByTicker returned wrong ISIN: %v", got[0].ISIN)
+	}
+}
+
+func TestByTickerCaseInsensitive(t *testing.T) {
+	ResetTickerIndexCache()
+	path := filepath.Join("..", "..", "..", "tests", "fixtures", "identifiers.json")
+	if _, err := os.Stat(path); err != nil {
+		t.Skip("fixture missing")
+	}
+	r, _ := FromJSON([]byte(`{"actions":[]}`))
+	lower, err := r.ByTicker("testb", "xnas", path)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	upper, err := r.ByTicker("TESTB", "XNAS", path)
+	if err != nil {
+		t.Fatalf("upper: %v", err)
+	}
+	if len(lower) != len(upper) {
+		t.Fatalf("case handling diverges: %d vs %d", len(lower), len(upper))
+	}
+}
+
+func TestByTickerUnknownReturnsEmpty(t *testing.T) {
+	ResetTickerIndexCache()
+	path := filepath.Join("..", "..", "..", "tests", "fixtures", "identifiers.json")
+	if _, err := os.Stat(path); err != nil {
+		t.Skip("fixture missing")
+	}
+	r, _ := FromJSON([]byte(`{"actions":[]}`))
+	got, err := r.ByTicker("NOTREAL", "XNAS", path)
+	if err != nil {
+		t.Fatalf("ByTicker: %v", err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("expected empty, got %d", len(got))
+	}
+}
+
+func TestByTickerUnknownExchangeReturnsEmpty(t *testing.T) {
+	ResetTickerIndexCache()
+	path := filepath.Join("..", "..", "..", "tests", "fixtures", "identifiers.json")
+	if _, err := os.Stat(path); err != nil {
+		t.Skip("fixture missing")
+	}
+	r, _ := FromJSON([]byte(`{"actions":[]}`))
+	got, err := r.ByTicker("TESTB", "NOTEXCH", path)
+	if err != nil {
+		t.Fatalf("ByTicker: %v", err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("expected empty, got %d", len(got))
+	}
+}
+
+func TestByTickerMissingFileReturnsMissingData(t *testing.T) {
+	ResetTickerIndexCache()
+	r, _ := FromJSON([]byte(`{"actions":[]}`))
+	_, err := r.ByTicker("TESTB", "XNAS", "/nonexistent/identifiers.json")
+	if err == nil {
+		t.Fatal("expected error for missing identifiers file")
+	}
+	if !strings.Contains(err.Error(), "missing identifier data") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

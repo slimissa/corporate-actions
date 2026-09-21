@@ -1,7 +1,7 @@
 // Package registry provides a typed interface to the Corporate Actions Registry.
 //
 // It loads actions.json and builds in-memory indexes for fast lookups by
-// ISIN, action ID, and action type, along with date range filtering.
+// ISIN, action ID, action type, ticker, and date range.
 //
 // The behaviour of every method in this package is specified by
 // docs/wrapper_contract.md. When the code disagrees with that document,
@@ -17,18 +17,50 @@ import (
 	"sort"
 )
 
+// ---------------------------------------------------------------------------
+// Exported constants (wrapper contract section 4.9)
+// ---------------------------------------------------------------------------
+
+// DefaultDateField is the value the Python and JavaScript wrappers use
+// when the date-field argument to by_date_range is omitted. Go requires
+// the argument; use this constant rather than hard-coding the string.
+const DefaultDateField = "ex_date"
+
+// ValidDateFields is the closed set of date field names accepted by
+// ByDateRange. Callers who want to enumerate the choices should read
+// this slice rather than duplicating the list.
+var ValidDateFields = []string{
+	"announcement",
+	"ex_date",
+	"record_date",
+	"effective_date",
+}
+
+// ---------------------------------------------------------------------------
+// Sentinel errors
+// ---------------------------------------------------------------------------
+
 // ErrInvalidDateField is returned by ByDateRange when the requested date
 // field name is not one of the four valid values.
 var ErrInvalidDateField = errors.New("invalid date_field")
 
-// validDateFields is the closed set of date field names accepted by
-// ByDateRange. Kept as a map for O(1) lookup.
+// ErrMissingData is returned by ByTicker when the identifiers file
+// cannot be resolved or read.
+var ErrMissingData = errors.New("missing identifier data")
+
+// validDateFields is a private O(1) lookup table for the values in
+// ValidDateFields. Kept separate so that a caller who mutates the
+// exported slice does not silently change what the validator accepts.
 var validDateFields = map[string]bool{
 	"announcement":   true,
 	"ex_date":        true,
 	"record_date":    true,
 	"effective_date": true,
 }
+
+// ---------------------------------------------------------------------------
+// Data types
+// ---------------------------------------------------------------------------
 
 // Dates contains the announcement, ex, record, and effective dates of a
 // corporate action. All fields are optional.
@@ -92,81 +124,110 @@ type Registry struct {
 	indexID   map[string]int
 }
 
+// ---------------------------------------------------------------------------
+// Deep copy
+// ---------------------------------------------------------------------------
+
 // deepCopyAction returns an Action whose pointer fields do not share
 // storage with the input. Mutating the returned Action, or writing
 // through any of its pointer fields, does not affect the original.
 func deepCopyAction(a Action) Action {
-    dst := a
+	dst := a
 
-    if a.ISIN != nil {
-        s := *a.ISIN
-        dst.ISIN = &s
-    }
-    if a.ActionID != nil {
-        s := *a.ActionID
-        dst.ActionID = &s
-    }
-    if a.ActionType != nil {
-        s := *a.ActionType
-        dst.ActionType = &s
-    }
-    if a.Ratio != nil {
-        s := *a.Ratio
-        dst.Ratio = &s
-    }
-    if a.Amount != nil {
-        f := *a.Amount
-        dst.Amount = &f
-    }
-    if a.Currency != nil {
-        s := *a.Currency
-        dst.Currency = &s
-    }
-    if a.Status != nil {
-        s := *a.Status
-        dst.Status = &s
-    }
-
-    if a.Dates != nil {
-    	d := *a.Dates
-    	if a.Dates.Announcement != nil {
-        	s := *a.Dates.Announcement
-        	d.Announcement = &s
-    	}
-    	if a.Dates.ExDate != nil {
-        	s := *a.Dates.ExDate
-        	d.ExDate = &s
-    	}
-    	if a.Dates.RecordDate != nil {
-        	s := *a.Dates.RecordDate
-        	d.RecordDate = &s
-    	}
-    	if a.Dates.EffectiveDate != nil {
-        	s := *a.Dates.EffectiveDate
-        	d.EffectiveDate = &s
-    	}
-    	dst.Dates = &d
+	if a.ISIN != nil {
+		s := *a.ISIN
+		dst.ISIN = &s
+	}
+	if a.ActionID != nil {
+		s := *a.ActionID
+		dst.ActionID = &s
+	}
+	if a.ActionType != nil {
+		s := *a.ActionType
+		dst.ActionType = &s
+	}
+	if a.Ratio != nil {
+		s := *a.Ratio
+		dst.Ratio = &s
+	}
+	if a.Amount != nil {
+		f := *a.Amount
+		dst.Amount = &f
+	}
+	if a.Currency != nil {
+		s := *a.Currency
+		dst.Currency = &s
+	}
+	if a.Status != nil {
+		s := *a.Status
+		dst.Status = &s
 	}
 
-    if a.Provenance != nil {
-        p := *a.Provenance
-        if a.Provenance.Source != nil { s := *a.Provenance.Source; p.Source = &s }
-        if a.Provenance.SourceURL != nil { s := *a.Provenance.SourceURL; p.SourceURL = &s }
-        if a.Provenance.VerificationSource != nil { s := *a.Provenance.VerificationSource; p.VerificationSource = &s }
-        if a.Provenance.VerificationURL != nil { s := *a.Provenance.VerificationURL; p.VerificationURL = &s }
-        dst.Provenance = &p
-    }
+	if a.Dates != nil {
+		d := *a.Dates
+		if a.Dates.Announcement != nil {
+			s := *a.Dates.Announcement
+			d.Announcement = &s
+		}
+		if a.Dates.ExDate != nil {
+			s := *a.Dates.ExDate
+			d.ExDate = &s
+		}
+		if a.Dates.RecordDate != nil {
+			s := *a.Dates.RecordDate
+			d.RecordDate = &s
+		}
+		if a.Dates.EffectiveDate != nil {
+			s := *a.Dates.EffectiveDate
+			d.EffectiveDate = &s
+		}
+		dst.Dates = &d
+	}
 
-    if a.Impact != nil {
-        i := *a.Impact
-        if a.Impact.PriceMultiplier != nil { f := *a.Impact.PriceMultiplier; i.PriceMultiplier = &f }
-        if a.Impact.ShareMultiplier != nil { f := *a.Impact.ShareMultiplier; i.ShareMultiplier = &f }
-        if a.Impact.CashAdjustment != nil { f := *a.Impact.CashAdjustment; i.CashAdjustment = &f }
-        dst.Impact = &i
-    }
+	if a.Provenance != nil {
+		p := *a.Provenance
+		if a.Provenance.Source != nil {
+			s := *a.Provenance.Source
+			p.Source = &s
+		}
+		if a.Provenance.SourceURL != nil {
+			s := *a.Provenance.SourceURL
+			p.SourceURL = &s
+		}
+		if a.Provenance.VerificationSource != nil {
+			s := *a.Provenance.VerificationSource
+			p.VerificationSource = &s
+		}
+		if a.Provenance.VerificationURL != nil {
+			s := *a.Provenance.VerificationURL
+			p.VerificationURL = &s
+		}
+		dst.Provenance = &p
+	}
 
-    return dst
+	if a.Impact != nil {
+		i := *a.Impact
+		if a.Impact.PriceMultiplier != nil {
+			f := *a.Impact.PriceMultiplier
+			i.PriceMultiplier = &f
+		}
+		if a.Impact.ShareMultiplier != nil {
+			f := *a.Impact.ShareMultiplier
+			i.ShareMultiplier = &f
+		}
+		if a.Impact.CashAdjustment != nil {
+			f := *a.Impact.CashAdjustment
+			i.CashAdjustment = &f
+		}
+		dst.Impact = &i
+	}
+
+	return dst
 }
+
+// ---------------------------------------------------------------------------
+// Loading
+// ---------------------------------------------------------------------------
 
 // LoadRegistry loads the registry from a JSON file.
 //
@@ -186,6 +247,11 @@ func LoadRegistry(path string) (*Registry, error) {
 // object is optional. Each entry in "actions" must itself be a JSON
 // object; a string, number, boolean, null, or array entry is a
 // structural error, reported with its index.
+//
+// Structural validation, before any index is built:
+//
+//   - Every entry must carry at least one of isin or action_id.
+//   - No two entries may share a non-empty action_id.
 //
 // A UTF-8 BOM prefix is stripped before parsing.
 func FromJSON(data []byte) (*Registry, error) {
@@ -207,6 +273,8 @@ func FromJSON(data []byte) (*Registry, error) {
 	}
 
 	actions := make([]Action, len(*raw.Actions))
+	seenIDs := make(map[string]int, len(*raw.Actions))
+
 	for i, item := range *raw.Actions {
 		trimmed := bytes.TrimSpace(item)
 		if len(trimmed) == 0 || trimmed[0] != '{' {
@@ -219,6 +287,29 @@ func FromJSON(data []byte) (*Registry, error) {
 			return nil, fmt.Errorf(
 				"parsing registry JSON: action at index %d: %w",
 				i, err,
+			)
+		}
+
+		a := &actions[i]
+
+		// Duplicate action_id check (wrapper contract section 5.5).
+		if a.ActionID != nil && *a.ActionID != "" {
+			if prev, ok := seenIDs[*a.ActionID]; ok {
+				return nil, fmt.Errorf(
+					"parsing registry JSON: duplicate action_id at index %d: %s (first seen at index %d)",
+					i, *a.ActionID, prev,
+				)
+			}
+			seenIDs[*a.ActionID] = i
+		}
+
+		// Missing-identifier check (wrapper contract section 5.6).
+		hasISIN := a.ISIN != nil && *a.ISIN != ""
+		hasID := a.ActionID != nil && *a.ActionID != ""
+		if !hasISIN && !hasID {
+			return nil, fmt.Errorf(
+				"parsing registry JSON: action at index %d has neither 'isin' nor 'action_id'",
+				i,
 			)
 		}
 	}
@@ -244,15 +335,18 @@ func FromJSON(data []byte) (*Registry, error) {
 			r.indexType[*action.ActionType] = append(r.indexType[*action.ActionType], i)
 		}
 		if action.ActionID != nil {
-			// Last one wins. Duplicate action_id values are a data error
-			// caught by the validator's uniqueness layer; the loader does
-			// not check.
+			// The loader already rejected duplicates, so a plain
+			// assignment is safe here.
 			r.indexID[*action.ActionID] = i
 		}
 	}
 
 	return r, nil
 }
+
+// ---------------------------------------------------------------------------
+// Lookup methods
+// ---------------------------------------------------------------------------
 
 // ByISIN returns all actions for the given ISIN.
 //
@@ -278,12 +372,12 @@ func (r *Registry) ByISIN(isin string) []Action {
 // The returned pointer refers to a freshly-allocated copy; mutating the
 // pointed-to Action does not affect the registry.
 func (r *Registry) ByActionID(actionID string) *Action {
-    idx, ok := r.indexID[actionID]
-    if !ok {
-        return nil
-    }
-    copy := deepCopyAction(r.actions[idx])
-    return &copy
+	idx, ok := r.indexID[actionID]
+	if !ok {
+		return nil
+	}
+	copy := deepCopyAction(r.actions[idx])
+	return &copy
 }
 
 // ByActionType returns all actions of a given type (e.g., "SPLIT",
@@ -297,7 +391,7 @@ func (r *Registry) ByActionType(actionType string) []Action {
 	}
 	result := make([]Action, len(indices))
 	for i, idx := range indices {
-	    result[i] = deepCopyAction(r.actions[idx])
+		result[i] = deepCopyAction(r.actions[idx])
 	}
 	return result
 }
@@ -305,8 +399,8 @@ func (r *Registry) ByActionType(actionType string) []Action {
 // ByDateRange returns actions whose dateField falls in the inclusive
 // range [startDate, endDate].
 //
-// dateField must be one of "announcement", "ex_date", "record_date", or
-// "effective_date". Any other value returns ErrInvalidDateField.
+// dateField must be one of the values in ValidDateFields. Any other
+// value returns ErrInvalidDateField.
 //
 // An empty startDate or endDate means "no bound on that side". Actions
 // whose dateField is absent (or whose dates object is nil) are silently
@@ -377,6 +471,40 @@ func (r *Registry) ByDateRange(startDate, endDate, dateField string) ([]Action, 
 	return result, nil
 }
 
+// ByTicker returns all actions for a ticker on an exchange.
+//
+// Resolves (ticker, exchange) to an ISIN using the Asset Identifiers
+// registry, then returns the same list as ByISIN(isin).
+//
+// Path resolution when identifiersPath is empty:
+//
+//  1. $CORP_ACTIONS_IDENTIFIERS_PATH
+//  2. $LAS_DATA_HOME/identifiers.json
+//
+// Ticker and exchange are uppercased before lookup. An unknown
+// (ticker, exchange) pair returns an empty slice, not an error.
+//
+// Returns ErrMissingData (wrapped) when no identifiers file can be
+// resolved.
+//
+// See docs/wrapper_contract.md section 4.8.
+func (r *Registry) ByTicker(ticker, exchange, identifiersPath string) ([]Action, error) {
+	p, err := resolveIdentifiersPath(identifiersPath)
+	if err != nil {
+		return nil, err
+	}
+	index, err := loadTickerIndex(p)
+	if err != nil {
+		return nil, err
+	}
+	key := tickerKey(ticker, exchange)
+	isin, ok := index[key]
+	if !ok {
+		return []Action{}, nil
+	}
+	return r.ByISIN(isin), nil
+}
+
 // AllActionTypes returns a sorted list of all unique action types present
 // in the registry. Reserved types that are not present in the data do not
 // appear. The result is empty for an empty registry.
@@ -394,14 +522,20 @@ func (r *Registry) Count() int {
 	return len(r.actions)
 }
 
-// Meta returns a pointer to the registry metadata. The metadata is a
-// value type, so the pointer refers to a copy; mutating the fields of
-// the returned Meta through their own pointers still reaches the shared
-// strings, matching the behaviour of the Python and JavaScript wrappers.
+// Meta returns a pointer to the registry metadata.
+//
+// The returned pointer refers to a copy of the Meta struct. The pointer
+// fields inside it are shared with the registry's internal Meta, but Go
+// strings are immutable, so a caller cannot mutate the registry through
+// them.
 func (r *Registry) Meta() *Meta {
 	m := r.meta
 	return &m
 }
+
+// ---------------------------------------------------------------------------
+// Serialization
+// ---------------------------------------------------------------------------
 
 // ToJSON marshals the registry back to a JSON representation with
 // exactly two top-level keys: "meta" and "actions".
