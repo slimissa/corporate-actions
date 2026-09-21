@@ -294,12 +294,20 @@ def load_exchange_calendar_registry(path: str) -> Set[str]:
     if "exchanges" in data and isinstance(data["exchanges"], list):
         exchange_list = data["exchanges"]
     else:
-        # Fallback: first list of dicts with "mic" or "code"
+        # Fallback: first list of dicts where any element has
+        # "mic" or "code". The earlier `value[0]` check only looked
+        # at the first element, so a list whose first entry was
+        # metadata and whose second entry was a valid record was
+        # silently skipped.
         for value in data.values():
-            if isinstance(value, list) and value and isinstance(value[0], dict):
-                if "mic" in value[0] or "code" in value[0]:
-                    exchange_list = value
-                    break
+            if not isinstance(value, list) or not value:
+                continue
+            if not all(isinstance(item, dict) for item in value):
+                continue
+            if not any("mic" in item or "code" in item for item in value):
+                continue
+            exchange_list = value
+            break
 
     if not exchange_list:
         raise RegistryLoadError("No exchange list found in Exchange Calendar registry")
@@ -596,6 +604,67 @@ def validate_action_id_format(action: Dict[str, Any]) -> List[str]:
             )
     return errors
 
+def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
+    """Flag pairs of actions that describe the same underlying event.
+
+    Two actions are considered the same event when they share an ISIN
+    and an action_type family (DIVIDEND and SPECIAL_DIVIDEND collapse
+    to one family; SPLIT and REVERSE_SPLIT collapse to another), their
+    effective dates are within 5 days, and their amounts match.
+    """
+    from collections import defaultdict
+    from datetime import date as _date
+    from itertools import combinations
+
+    def family(t):
+        if t in ("DIVIDEND", "SPECIAL_DIVIDEND"):
+            return "DIVIDEND"
+        if t in ("SPLIT", "REVERSE_SPLIT"):
+            return "SPLIT"
+        return t
+
+    def parse_date(s):
+        if not s:
+            return None
+        try:
+            y, m, d = map(int, s.split("-"))
+            return _date(y, m, d)
+        except (ValueError, AttributeError):
+            return None
+
+    def amount(a):
+        try:
+            return round(float(a.get("amount") or 0.0), 4)
+        except (TypeError, ValueError):
+            return 0.0
+
+    by_key = defaultdict(list)
+    for a in actions:
+        isin = a.get("isin")
+        action_type = a.get("action_type")
+        if not isin or not action_type:
+            continue
+        by_key[(isin, family(action_type))].append(a)
+
+    errors = []
+    for key, group in by_key.items():
+        for a, b in combinations(group, 2):
+            da = (a.get("dates") or {}).get("effective_date")
+            db = (b.get("dates") or {}).get("effective_date")
+            pa, pb = parse_date(da), parse_date(db)
+            if not (pa and pb):
+                continue
+            if abs((pa - pb).days) > 5:
+                continue
+            if abs(amount(a) - amount(b)) < 0.01:
+                errors.append(
+                    f"Possible duplicate event: {a.get('action_id')} and "
+                    f"{b.get('action_id')} share isin={key[0]}, "
+                    f"type family={key[1]}, effective dates within 5 days, "
+                    f"and amount={amount(a)}"
+                )
+    return errors
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Validate Corporate Actions Registry")
@@ -750,6 +819,11 @@ def main():
     uniqueness_errors = validate_uniqueness(actions)
     if uniqueness_errors:
         all_errors.extend(uniqueness_errors)
+
+    # 6b. Semantic uniqueness (same underlying event under two IDs)
+    semantic_errors = validate_semantic_uniqueness(actions)
+    if semantic_errors:
+        all_errors.extend(semantic_errors)
 
     # 7. Coverage check
     if total_actions < min_actions:
