@@ -26,6 +26,9 @@
 
 mod ticker_index;
 
+// Re-export the test helper so external integration tests can reset the
+// per-path ticker index cache. See docs/wrapper_contract.md section 8.3.
+pub use ticker_index::reset_cache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

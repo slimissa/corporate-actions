@@ -1001,6 +1001,7 @@ fn invalid_structure_error_displays_message() {
 
 #[test]
 fn by_ticker_resolves() {
+    corporate_actions_registry::reset_cache();
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/fixtures/identifiers.json");
     if !path.exists() {
@@ -1020,6 +1021,7 @@ fn by_ticker_resolves() {
 
 #[test]
 fn by_ticker_case_insensitive() {
+    corporate_actions_registry::reset_cache();
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/fixtures/identifiers.json");
     if !path.exists() {
