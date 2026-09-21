@@ -149,7 +149,7 @@ pytest tests/ -v
 Expected:
 
 - Validator: `OK: 240 actions validated successfully.`
-- Tests: `860 passed, 1 skipped, 5 deselected`
+- Tests: `890 passed, 1 skipped, 5 deselected`
 
 The validator prints `Loaded N ISINs`. What N is depends on which
 identifiers file it read:
@@ -784,6 +784,26 @@ $LAS_DATA_HOME/identifiers.json by default, overridable via
 
 See [docs/validation_layers.md](./validation_layers.md#additional-utilities)
 for the full API and behavior.
+
+### 10.9 Removing an action
+
+If you remove an action from `actions.json`, add a matching entry to
+`_removed_actions.json`. Otherwise the next fetcher run will re-add it.
+
+`scripts/fix_duplicates.py` appends automatically. For manual removals:
+
+    {
+      "isin": "US...",
+      "action_type": "DIVIDEND",
+      "ex_date": "YYYY-MM-DD",
+      "amount": 0.0000,
+      "original_action_id": "...",
+      "reason": "why the action was removed"
+    }
+
+Matching uses the action-type family, so a removed `DIVIDEND` also
+blocks a re-fetched `SPECIAL_DIVIDEND` at the same `(isin, ex_date,
+amount)`.
 
 ## 11. Reporting bugs
 
