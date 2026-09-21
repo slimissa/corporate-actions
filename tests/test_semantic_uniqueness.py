@@ -335,16 +335,17 @@ class TestFamilyCollapse:
         ]
         assert validate_semantic_uniqueness(actions) == []
 
-    def test_symbol_change_is_its_own_family(self):
-        """SYMBOL_CHANGE does not collapse with anything else."""
+    def test_symbol_change_has_no_comparable_field(self):
+        """SYMBOL_CHANGE, DELISTING, and SPINOFF have no comparable
+        magnitude. Two such entries on the same ISIN and date cannot
+        be distinguished by this layer. Duplicates within those
+        families are caught by layer 5 (uniqueness on action_id),
+        which fires when two entries share an action_id."""
         actions = [
-            _a("A1", action_type="SYMBOL_CHANGE",
-               amount=None, include_amount=False),
-            _a("A2", action_type="SYMBOL_CHANGE",
-               amount=None, include_amount=False),
+            _a("A1", action_type="SYMBOL_CHANGE", include_amount=False),
+            _a("A2", action_type="SYMBOL_CHANGE", include_amount=False),
         ]
-        errors = validate_semantic_uniqueness(actions)
-        assert len(errors) == 1
+        assert validate_semantic_uniqueness(actions) == []
 
     def test_delisting_and_spinoff_are_separate_families(self):
         actions = [
@@ -408,3 +409,106 @@ class TestMalformedInput:
         del a["isin"]
         b = _a("A2")
         # A1 has no ISIN; it cannot be compared to anything.
+
+
+
+# ---------------------------------------------------------------------------
+# Multiple duplicates
+# ---------------------------------------------------------------------------
+
+class TestMultipleDuplicates:
+
+    def test_three_identical_actions_produce_three_errors(self):
+        """Three actions with the same ISIN, date, and amount produce
+        three pairwise errors: (1,2), (1,3), (2,3)."""
+        actions = [
+            _a("A1", amount=0.25),
+            _a("A2", amount=0.25),
+            _a("A3", amount=0.25),
+        ]
+        errors = validate_semantic_uniqueness(actions)
+        assert len(errors) == 3
+
+    def test_two_groups_of_two_produce_two_errors(self):
+        actions = [
+            _a("A1", isin="US0378331005", amount=0.25),
+            _a("A2", isin="US0378331005", amount=0.25),
+            _a("B1", isin="US5949181045", amount=0.75),
+            _a("B2", isin="US5949181045", amount=0.75),
+        ]
+        errors = validate_semantic_uniqueness(actions)
+        assert len(errors) == 2
+
+    def test_one_duplicate_among_unrelated_actions(self):
+        actions = [
+            _a("A1", isin="US0378331005", amount=0.25),
+            _a("A2", isin="US0378331005", amount=0.25),
+            _a("B1", isin="US5949181045", amount=0.75),
+            _a("C1", isin="US67066G1040", amount=0.10, effective="2024-09-01"),
+        ]
+        errors = validate_semantic_uniqueness(actions)
+        assert len(errors) == 1
+
+
+# ---------------------------------------------------------------------------
+# Order independence
+# ---------------------------------------------------------------------------
+
+class TestOrderIndependence:
+
+    def test_reverse_input_order_same_result(self):
+        actions = [_a("A1", amount=0.25), _a("A2", amount=0.25)]
+        forward = len(validate_semantic_uniqueness(actions))
+        backward = len(validate_semantic_uniqueness(list(reversed(actions))))
+        assert forward == backward == 1
+
+    def test_shuffled_input_same_result(self):
+        import random
+        actions = [
+            _a("A1", amount=0.25),
+            _a("A2", amount=0.25),
+            _a("B1", isin="US5949181045", amount=0.75),
+            _a("B2", isin="US5949181045", amount=0.75),
+        ]
+        baseline = len(validate_semantic_uniqueness(actions))
+        for _ in range(5):
+            random.shuffle(actions)
+            assert len(validate_semantic_uniqueness(actions)) == baseline
+
+
+# ---------------------------------------------------------------------------
+# Real registry
+# ---------------------------------------------------------------------------
+
+class TestRealRegistry:
+    """The committed actions.json must not trigger the layer."""
+
+    @pytest.fixture(scope="class")
+    def real_actions(self):
+        path = REPO_ROOT / "actions.json"
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        return doc["actions"]
+
+    def test_current_registry_has_no_duplicates(self, real_actions):
+        errors = validate_semantic_uniqueness(real_actions)
+        assert errors == [], (
+            f"{len(errors)} duplicate event(s) found in the committed "
+            f"registry:\n" + "\n".join(f"  - {e}" for e in errors[:10])
+        )
+
+    def test_registry_is_non_empty(self, real_actions):
+        assert len(real_actions) > 0
+
+    def test_registry_has_no_false_positive_from_real_pairs(self, real_actions):
+        # AAPL 2024-05-16 dividend is present once
+        aapl = [a for a in real_actions
+                if a["action_id"] == "US0378331005-DIVIDEND-2024-05-16-0.2500"]
+        assert len(aapl) == 1
+        # MSFT 2004-11 regular and special are two entries with
+        # different amounts
+        msft = [a for a in real_actions
+                if a["isin"] == "US5949181045"
+                and a["dates"].get("ex_date", "").startswith("2004-11")]
+        assert len(msft) == 2
+        amounts = sorted(a["amount"] for a in msft)
+        assert amounts == [0.08, 3.00]

@@ -632,11 +632,30 @@ def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
         except (ValueError, AttributeError):
             return None
 
-    def amount(a):
-        try:
-            return round(float(a.get("amount") or 0.0), 4)
-        except (TypeError, ValueError):
-            return 0.0
+    def comparable(a, fam):
+        """Return the value that identifies two same-family actions as
+        the same event.
+
+        Returns a float for DIVIDEND (compared with tolerance) or a
+        string for SPLIT (compared with equality). Returns None for
+        families with no comparable field (SYMBOL_CHANGE, DELISTING,
+        SPINOFF)."""
+        if fam == "DIVIDEND":
+            try:
+                return float(a.get("amount") or 0.0)
+            except (TypeError, ValueError):
+                return None
+        if fam == "SPLIT":
+            ratio = a.get("ratio")
+            if isinstance(ratio, str) and ratio:
+                return ratio
+            return None
+        return None
+
+    def is_match(va, vb):
+        if isinstance(va, float) and isinstance(vb, float):
+            return abs(va - vb) < 0.01
+        return va == vb
 
     by_key = defaultdict(list)
     for a in actions:
@@ -648,6 +667,12 @@ def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
 
     errors = []
     for key, group in by_key.items():
+        fam = key[1]
+        if fam not in ("DIVIDEND", "SPLIT"):
+            # SYMBOL_CHANGE, DELISTING, SPINOFF have no comparable
+            # magnitude. Duplicates within those families are caught
+            # by layer 5 (uniqueness on action_id), not here.
+            continue
         for a, b in combinations(group, 2):
             da = (a.get("dates") or {}).get("effective_date")
             db = (b.get("dates") or {}).get("effective_date")
@@ -656,13 +681,18 @@ def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
                 continue
             if abs((pa - pb).days) > 5:
                 continue
-            if abs(amount(a) - amount(b)) < 0.01:
-                errors.append(
-                    f"Possible duplicate event: {a.get('action_id')} and "
-                    f"{b.get('action_id')} share isin={key[0]}, "
-                    f"type family={key[1]}, effective dates within 5 days, "
-                    f"and amount={amount(a)}"
-                )
+            va = comparable(a, fam)
+            vb = comparable(b, fam)
+            if va is None or vb is None:
+                continue
+            if not is_match(va, vb):
+                continue
+            errors.append(
+                f"Possible duplicate event: {a.get('action_id')} and "
+                f"{b.get('action_id')} share isin={key[0]}, "
+                f"type family={key[1]}, effective dates within 5 days, "
+                f"and comparable value={va}"
+            )
     return errors
 
 def main():
