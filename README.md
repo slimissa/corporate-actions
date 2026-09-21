@@ -1,4 +1,3 @@
-```markdown
 # Corporate Actions Registry
 
 [![Validate](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml)
