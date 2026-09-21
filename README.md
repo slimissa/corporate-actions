@@ -62,7 +62,7 @@ tool can depend on. It is language-agnostic by design.
 **Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
-**Total tests**: 890 (root, network deselected) + 106 (Python) + 93 (JavaScript) + 67 (Go) + 83 (Rust) + 1 (Rust doctest)
+**Total tests**: 890 (root, network deselected) + 117 (Python) + 99 (JavaScript) + 76 (Go) + 83 (Rust) + 1 (Rust doctest)
 
 ### Coverage
 
@@ -83,9 +83,9 @@ tool can depend on. It is language-agnostic by design.
 | Yahoo Finance fetcher | ✅ Working |
 | SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
 | Validator | ✅ All 7 layers |
-| Python wrapper | ✅ 106 tests |
-| JavaScript wrapper | ✅ 93 tests |
-| Go wrapper | ✅ 67 tests |
+| Python wrapper | ✅ 117 tests |
+| JavaScript wrapper | ✅ 99 tests |
+| Go wrapper | ✅ 76 tests |
 | Rust wrapper | ✅ 83 tests| ✅ 83 tests + 1 doctest |
 | CI workflows | ✅ 3 green |
 
