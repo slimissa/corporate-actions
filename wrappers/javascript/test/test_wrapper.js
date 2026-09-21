@@ -940,3 +940,112 @@ if (fs.existsSync(contractFixturePath)) {
     });
   });
 }
+
+describe('byTicker', () => {
+    const idsPath = path.resolve(
+        __dirname, '..', '..', '..', 'tests', 'fixtures', 'identifiers.json'
+    );
+
+    const FIXTURE_TICKER = 'TESTB';
+    const FIXTURE_EXCHANGE = 'XNAS';
+    const FIXTURE_ISIN = 'US0000000002';
+
+    if (!fs.existsSync(idsPath)) {
+        it('fixture must exist', () => {
+            assert.fail(`tests/fixtures/identifiers.json not found at ${idsPath}`);
+        });
+    } else {
+        const { _resetTickerCache } = require('../src/index.js');
+
+        function makeRegistry() {
+            return new CorporateActionsRegistry({ actions: [
+                {
+                    isin: FIXTURE_ISIN,
+                    action_id: `${FIXTURE_ISIN}-DIVIDEND-2024-01-01-0.2500`,
+                    action_type: 'DIVIDEND',
+                    amount: 0.25,
+                    dates: {
+                        announcement: '2024-01-01',
+                        ex_date: '2024-01-01',
+                        effective_date: '2024-01-01',
+                    },
+                },
+            ]});
+        }
+
+        it('resolves a ticker', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            const result = r.byTicker(FIXTURE_TICKER, FIXTURE_EXCHANGE, idsPath);
+            assert.strictEqual(result.length, 1);
+            assert.strictEqual(result[0].isin, FIXTURE_ISIN);
+        });
+
+        it('is case-insensitive', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            const lower = r.byTicker(
+                FIXTURE_TICKER.toLowerCase(),
+                FIXTURE_EXCHANGE.toLowerCase(),
+                idsPath,
+            );
+            const upper = r.byTicker(FIXTURE_TICKER, FIXTURE_EXCHANGE, idsPath);
+            assert.deepStrictEqual(
+                lower.map((a) => a.action_id),
+                upper.map((a) => a.action_id),
+            );
+        });
+
+        it('returns [] for unknown ticker', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            assert.deepStrictEqual(r.byTicker('NOTREAL', 'XNAS', idsPath), []);
+        });
+
+        it('returns [] for unknown exchange', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            assert.deepStrictEqual(
+                r.byTicker(FIXTURE_TICKER, 'NOTEXCH', idsPath),
+                [],
+            );
+        });
+
+        it('throws when no path and no env var', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            const savedHome = process.env.LAS_DATA_HOME;
+            const savedPath = process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
+            delete process.env.LAS_DATA_HOME;
+            delete process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
+            try {
+                assert.throws(
+                    () => r.byTicker(FIXTURE_TICKER, FIXTURE_EXCHANGE),
+                    /CORP_ACTIONS_IDENTIFIERS_PATH/,
+                );
+            } finally {
+                if (savedHome !== undefined) process.env.LAS_DATA_HOME = savedHome;
+                if (savedPath !== undefined) {
+                    process.env.CORP_ACTIONS_IDENTIFIERS_PATH = savedPath;
+                }
+            }
+        });
+
+        it('resolves via env var', () => {
+            _resetTickerCache();
+            const r = makeRegistry();
+            const savedPath = process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
+            process.env.CORP_ACTIONS_IDENTIFIERS_PATH = idsPath;
+            try {
+                const result = r.byTicker(FIXTURE_TICKER, FIXTURE_EXCHANGE);
+                assert.strictEqual(result.length, 1);
+            } finally {
+                if (savedPath === undefined) {
+                    delete process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
+                } else {
+                    process.env.CORP_ACTIONS_IDENTIFIERS_PATH = savedPath;
+                }
+            }
+        });
+    }
+});
