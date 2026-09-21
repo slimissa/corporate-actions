@@ -6,7 +6,7 @@
 [![Registry](https://img.shields.io/badge/registry-v1.0.0-orange.svg)](./CHANGELOG.md)
 [![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
-[![Tests](https://img.shields.io/badge/tests-833-success.svg)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-860-success.svg)](./tests/)
 
 **A canonical, versioned, machine-readable registry of corporate actions.**
 One JSON file as the source of truth. Four language wrappers. Seven-layer
@@ -62,7 +62,7 @@ tool can depend on. It is language-agnostic by design.
 **Instruments**: 6 US large caps
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
-**Total tests**: 833 (root, network deselected) + 106 (Python) + 93 (JavaScript) + 67 (Go) + 84 (Rust) + 1 (Rust doctest)
+**Total tests**: 860 (root, network deselected) + 106 (Python) + 93 (JavaScript) + 67 (Go) + 84 (Rust) + 1 (Rust doctest)
 
 ### Coverage
 

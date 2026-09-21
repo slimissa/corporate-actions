@@ -13,7 +13,7 @@
   "historical_depth_start": "2000",
   "currencies": ["USD"],
 
-  "root_test_count": 833,
+  "root_test_count": 860,
   "root_test_skipped": 1,
   "root_test_network_deselected": 5,
   "root_test_collected_total": 838,
