@@ -998,4 +998,77 @@ class TestContractFixture:
             with pytest.raises(ValueError, match="invalid date_field"):
                 registry.by_date_range(None, None, bad)
 
-    
+class TestConstants:
+    def test_default_date_field(self):
+        from corporate_actions_registry import DEFAULT_DATE_FIELD
+        assert DEFAULT_DATE_FIELD == "ex_date"
+
+    def test_valid_date_fields(self):
+        from corporate_actions_registry import VALID_DATE_FIELDS
+        assert set(VALID_DATE_FIELDS) == {
+            "announcement", "ex_date", "record_date", "effective_date"
+        }
+
+
+class TestDuplicateActionId:
+
+    def test_duplicate_raises(self):
+        data = {"meta": {}, "actions": [
+            {"isin": "X", "action_id": "A", "action_type": "SPLIT"},
+            {"isin": "Y", "action_id": "A", "action_type": "SPLIT"},
+        ]}
+        with pytest.raises(ValueError, match="duplicate action_id"):
+            CorporateActionsRegistry(actions_data=data)
+
+
+class TestMissingIdentifier:
+
+    def test_no_identifier_raises(self):
+        data = {"meta": {}, "actions": [
+            {"action_type": "SPLIT"},
+        ]}
+        with pytest.raises(ValueError, match="neither 'isin' nor 'action_id'"):
+            CorporateActionsRegistry(actions_data=data)
+
+
+class TestByTicker:
+
+    @pytest.fixture
+    def registry(self, tmp_path):
+        # Reset the module cache so each test gets a fresh index.
+        from corporate_actions_registry.registry import reset_ticker_cache
+        reset_ticker_cache()
+
+        fixtures = Path(__file__).resolve().parents[3] / "tests" / "fixtures"
+        ids = fixtures / "identifiers.json"
+        if not ids.is_file():
+            pytest.skip("tests/fixtures/identifiers.json missing")
+
+        return CorporateActionsRegistry(
+            actions_data={"meta": {}, "actions": [
+                {"isin": "US0378331005", "action_id": "X1",
+                 "action_type": "DIVIDEND"},
+            ]},
+        ), str(ids)
+
+    def test_resolves_ticker(self, registry):
+        reg, ids_path = registry
+        result = reg.by_ticker("AAPL", "XNAS", identifiers_path=ids_path)
+        assert len(result) == 1
+        assert result[0].isin == "US0378331005"
+
+    def test_case_insensitive(self, registry):
+        reg, ids_path = registry
+        assert reg.by_ticker("aapl", "xnas", identifiers_path=ids_path) == \
+               reg.by_ticker("AAPL", "XNAS", identifiers_path=ids_path)
+
+    def test_unknown_ticker_returns_empty(self, registry):
+        reg, ids_path = registry
+        assert reg.by_ticker("NOTREAL", "XNAS", identifiers_path=ids_path) == []
+
+    def test_missing_identifiers_raises(self, registry, monkeypatch):
+        reg, _ = registry
+        monkeypatch.delenv("CORP_ACTIONS_IDENTIFIERS_PATH", raising=False)
+        monkeypatch.delenv("LAS_DATA_HOME", raising=False)
+        with pytest.raises(RuntimeError, match="CORP_ACTIONS_IDENTIFIERS_PATH"):
+            reg.by_ticker("AAPL", "XNAS", identifiers_path="/nonexistent.json")

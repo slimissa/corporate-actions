@@ -19,7 +19,11 @@ mirror the API style of the other QuantOS registry wrappers
 (iso4217-registry, exchange-calendar-registry, asset-identifiers-registry).
 """
 
-from .registry import CorporateActionsRegistry
+from .registry import (
+    CorporateActionsRegistry,
+    DEFAULT_DATE_FIELD,
+    VALID_DATE_FIELDS,
+)
 
 __version__ = "1.0.0"
-__all__ = ["CorporateActionsRegistry"]
+__all__ = ["CorporateActionsRegistry", "DEFAULT_DATE_FIELD", "VALID_DATE_FIELDS"]
