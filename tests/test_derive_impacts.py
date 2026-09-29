@@ -189,13 +189,13 @@ class TestIntegration:
         after = json.loads(path.read_text())
         assert "impact" not in after["actions"][0]
 
-    def test_missing_file_exits_2(self, tmp_path):
+    def test_missing_file_exits_3(self, tmp_path):
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / "tools" / "derive_impacts.py"),
-             "--actions", str(tmp_path / "nope.json")],
+            "--actions", str(tmp_path / "nope.json")],
             capture_output=True, text=True, cwd=str(REPO_ROOT),
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_idempotent_on_valid_file(self, tmp_path):
         actions = [{"action_id": "A", "action_type": "SPLIT", "ratio": "10:1"}]
@@ -210,7 +210,7 @@ class TestIntegration:
         assert result.returncode == 0
         assert path.read_text() == first
 
-    def test_check_mode_passes_on_current_file(tmp_path):
+    def test_check_mode_passes_on_current_file(self, tmp_path):
         path = tmp_path / "actions.json"
         path.write_text(json.dumps({
             "meta": {"version": "1.0.0"},
@@ -235,7 +235,7 @@ class TestIntegration:
         assert "OK: all impacts match" in result.stdout
 
 
-    def test_check_mode_detects_stale_impact(tmp_path):
+    def test_check_mode_detects_stale_impact(self, tmp_path):
         path = tmp_path / "actions.json"
         path.write_text(json.dumps({
             "meta": {"version": "1.0.0"},
