@@ -415,9 +415,10 @@ def main() -> int:
         help="Only process the first N tickers",
     )
     parser.add_argument(
-        "--min-date", default=DEFAULT_MIN_DATE,
-        help=f"Only include actions with date >= this "
-             f"(YYYY-MM-DD, default: {DEFAULT_MIN_DATE})",
+    "--min-date", default=DEFAULT_MIN_DATE,
+    help=f"Only include actions with date >= this (YYYY-MM-DD, "
+         f"default: {DEFAULT_MIN_DATE}; set to an earlier date to "
+         f"capture pre-2000 events from Yahoo)",
     )
     parser.add_argument(
         "--verbose", action="store_true",

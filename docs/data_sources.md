@@ -151,7 +151,14 @@ The output is then merged into `actions.json` with fuzzy dedup (see
 - **Rate limits.** Heavy usage can trigger HTTP 429. The `yfinance` library
   mitigates this with a proper browser session, but aggressive refresh
   schedules can still hit limits.
-
+- **Historical cutoff at 2000-01-01.** The default for
+  `--min-date` is `2000-01-01`. Yahoo returns events earlier than
+  this for some tickers, but the registry has historically started at
+  2000 to keep the fetch small and fast. To capture earlier events
+  for a specific ticker, pass `--min-date 1990-01-01`. The registry's
+  own boundary is documented as `historical_depth_start: "2000"` in
+  `docs/facts.json` and is checked by `check_doc_facts.py`.
+  
 ---
 
 ### SEC EDGAR (working, narrow scope)
