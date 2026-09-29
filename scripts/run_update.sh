@@ -339,16 +339,29 @@ fi
 if $DO_COMMIT && ! $DRY_RUN; then
     log "Committing changes..."
     cd "$REPO_ROOT"
+
+    # Resolve the current branch. Detached HEAD is a hard error: there
+    # is no branch to push to, and pushing "HEAD" would update whatever
+    # ref happens to match.
+    BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    if [[ "$BRANCH" == "HEAD" ]]; then
+        error_exit "Refusing to commit: HEAD is detached. Check out a branch first."
+    fi
+
     git add "$ACTIONS_PATH" 2>/dev/null || true
+
     if git diff --cached --quiet; then
         log "No changes to commit."
         if [[ -n "$TAG_VERSION" ]]; then
             error_exit "Refusing to tag $TAG_VERSION: no changes were committed."
         fi
+        # No commit means no push. Pushing here is the bug we are fixing.
     else
         git commit -m "Automated registry update"
+
         if [[ -n "$TAG_VERSION" ]]; then
             log "Tagging release $TAG_VERSION"
+            # Delete a stale local tag before creating the new one.
             if git rev-parse "$TAG_VERSION" >/dev/null 2>&1; then
                 log "Deleting stale local tag $TAG_VERSION"
                 git tag -d "$TAG_VERSION"
@@ -356,12 +369,10 @@ if $DO_COMMIT && ! $DRY_RUN; then
             git tag "$TAG_VERSION"
             git push origin "$TAG_VERSION"
         fi
-    fi
 
-    git push origin main
-    if $DO_COMMIT && $SKIP_TESTS; then
-        usage_error "--commit requires tests to run. Remove --skip-tests or drop --commit."
-    fi  
+        log "Pushing $BRANCH to origin..."
+        git push origin "$BRANCH"
+    fi
 elif $DO_COMMIT && $DRY_RUN; then
     log "DRY RUN: would commit and push changes (skipped)."
 fi
