@@ -148,6 +148,7 @@
           "impact": {
             "type": "object",
             "additionalProperties": false,
+            "required": ["price_multiplier", "share_multiplier", "cash_adjustment"],
             "properties": {
               "price_multiplier": {
                 "type": "number",

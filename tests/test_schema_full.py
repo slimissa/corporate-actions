@@ -493,3 +493,10 @@ def test_meta_timestamps_are_z_suffixed_second_precision(actions):
             assert pattern.match(actions["meta"][key]), (
                 f"meta.{key}={actions['meta'][key]!r} is not Z-suffixed second precision"
             )
+
+def test_impact_block_rejects_empty_object(self, schema, actions, format_checker):
+    import copy
+    bad = copy.deepcopy(actions)
+    bad["actions"][0]["impact"] = {}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(bad, schema, format_checker=format_checker)
