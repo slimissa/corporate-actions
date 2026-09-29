@@ -908,6 +908,19 @@ class TestMainIntegration:
         ])
         assert calls["tickers"] == ["AAPL", "MSFT"]
 
+    def test_ticker_offset_and_limit():
+        """Offset slices before limit applies."""
+        instruments = [(f"ISIN{i}", f"T{i}", "USD") for i in range(10)]
+
+        def apply(offset, limit):
+            s = instruments[offset:]
+            return s[:limit] if limit is not None else s
+
+        assert [t for _, t, _ in apply(3, 2)] == ["T3", "T4"]
+        assert [t for _, t, _ in apply(0, 3)] == ["T0", "T1", "T2"]
+        assert [t for _, t, _ in apply(8, None)] == ["T8", "T9"]
+        assert apply(10, 5) == []
+
     def test_bom_prefixed_input_loads(self, tmp_path, monkeypatch):
         path = _write_identifiers(
             tmp_path,

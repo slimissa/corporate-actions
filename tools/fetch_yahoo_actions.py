@@ -415,6 +415,11 @@ def main() -> int:
         help="Only process the first N tickers",
     )
     parser.add_argument(
+    "--ticker-offset", type=int, default=0,
+    help="Skip the first N tickers. Use with --ticker-limit for "
+         "parallel chunking across CI runners.",
+    )
+    parser.add_argument(
     "--min-date", default=DEFAULT_MIN_DATE,
     help=f"Only include actions with date >= this (YYYY-MM-DD, "
          f"default: {DEFAULT_MIN_DATE}; set to an earlier date to "
@@ -429,14 +434,16 @@ def main() -> int:
     min_date = validate_min_date(args.min_date)
     instruments = load_instruments(args.identifiers)
 
+    if args.ticker_offset < 0:
+        print("Error: --ticker-offset must be >= 0", file=sys.stderr)
+        return 2
+
+    instruments = instruments[args.ticker_offset:]
     if args.ticker_limit is not None:
         if args.ticker_limit <= 0:
-            print(
-                "Error: --ticker-limit must be a positive integer",
-                file=sys.stderr,
-            )
+            print("Error: --ticker-limit must be a positive integer", file=sys.stderr)
             return 2
-        instruments = instruments[: args.ticker_limit]
+        instruments = instruments[:args.ticker_limit]
 
     if not instruments:
         print(
