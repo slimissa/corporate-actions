@@ -6,7 +6,7 @@
 [![Registry](https://img.shields.io/badge/registry-v1.1.0-orange.svg)](./CHANGELOG.md)
 [![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
-[![Tests](https://img.shields.io/badge/tests-890-success.svg)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-974-success.svg)](./tests/)
 
 **A canonical, versioned, machine-readable registry of corporate actions.**
 One JSON file as the source of truth. Four language wrappers. Seven-layer
