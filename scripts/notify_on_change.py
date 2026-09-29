@@ -150,6 +150,7 @@ def send_webhook_notification(
     except (
         urllib.error.URLError,
         urllib.error.HTTPError,
+        ConnectionError,
         TimeoutError,
         ValueError,
     ) as e:
