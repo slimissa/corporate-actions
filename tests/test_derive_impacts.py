@@ -16,6 +16,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from unittest import result
 
 import pytest
 
@@ -208,3 +209,54 @@ class TestIntegration:
         )
         assert result.returncode == 0
         assert path.read_text() == first
+
+    def test_check_mode_passes_on_current_file(tmp_path):
+        path = tmp_path / "actions.json"
+        path.write_text(json.dumps({
+            "meta": {"version": "1.0.0"},
+            "actions": [{
+                "action_id": "X", "isin": "US1", "action_type": "SPLIT",
+                "ratio": "10:1",
+                "dates": {"announcement": "2024-01-01",
+                         "effective_date": "2024-01-01"},
+                "impact": {
+                    "price_multiplier": 0.1,
+                    "share_multiplier": 10.0,
+                    "cash_adjustment": 0.0,
+                },
+            }],
+        }, indent=2), encoding="utf-8")
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "derive_impacts.py"),
+             "--actions", str(path), "--check"],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "OK: all impacts match" in result.stdout
+
+
+    def test_check_mode_detects_stale_impact(tmp_path):
+        path = tmp_path / "actions.json"
+        path.write_text(json.dumps({
+            "meta": {"version": "1.0.0"},
+            "actions": [{
+                "action_id": "X", "isin": "US1", "action_type": "SPLIT",
+                "ratio": "10:1",
+                "dates": {"announcement": "2024-01-01",
+                          "effective_date": "2024-01-01"},
+                "impact": {
+                "price_multiplier": 0.999,
+                "share_multiplier": 10.0,
+                "cash_adjustment": 0.0,
+                },
+            }],
+        }, indent=2), encoding="utf-8")
+        before = path.read_text(encoding="utf-8")
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "derive_impacts.py"),
+            "--actions", str(path), "--check"],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 1
+        assert "Impacts are out of date" in result.stderr
+        assert path.read_text(encoding="utf-8") == before

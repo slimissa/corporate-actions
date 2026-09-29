@@ -165,6 +165,9 @@ def main() -> int:
                         help="Output file (defaults to overwrite input)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Show changes but do not write")
+    parser.add_argument("--check", action="store_true",
+                        help="Verify impacts in the file match the derived "
+                             "values. Exit 1 on drift. Does not write.")
     args = parser.parse_args()
 
     # Load.
@@ -173,10 +176,10 @@ def main() -> int:
             data = json.load(f)
     except FileNotFoundError:
         print(f"Error: File not found: {args.actions}", file=sys.stderr)
-        return 2
+        return 3
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON: {e}", file=sys.stderr)
-        return 2
+        return 1
 
     actions = data.get("actions")
     if not isinstance(actions, list):
@@ -196,13 +199,32 @@ def main() -> int:
 
     if failures:
         print(
-            f"\nError: {len(failures)} action(s) could not be processed. "
-            f"Refusing to write.",
+            f"\nError: {len(failures)} action(s) could not be processed.",
             file=sys.stderr,
         )
         for _, aid in failures:
             print(f"  - {aid}", file=sys.stderr)
         return 1
+
+    # --check: compare against what is on disk. Nothing is written.
+    if args.check:
+        drift: List[Tuple[str, Optional[dict], dict]] = []
+        for i, expected in computed.items():
+            actual = actions[i].get("impact")
+            if actual != expected:
+                drift.append((actions[i].get("action_id", f"<index {i}>"),
+                              actual, expected))
+        if drift:
+            print("Impacts are out of date:", file=sys.stderr)
+            for aid, actual, expected in drift[:10]:
+                print(f"  {aid}:", file=sys.stderr)
+                print(f"    on disk: {actual}", file=sys.stderr)
+                print(f"    derived: {expected}", file=sys.stderr)
+            if len(drift) > 10:
+                print(f"  ... and {len(drift) - 10} more", file=sys.stderr)
+            return 1
+        print("OK: all impacts match.")
+        return 0
 
     # Apply.
     for i, impact in computed.items():
@@ -218,7 +240,7 @@ def main() -> int:
         _write_atomic(output_path, json.dumps(data, indent=2) + "\n")
     except OSError as e:
         print(f"Error writing {output_path}: {e}", file=sys.stderr)
-        return 2
+        return 3
 
     print(f"Derived impact for {len(computed)} actions.")
     return 0
