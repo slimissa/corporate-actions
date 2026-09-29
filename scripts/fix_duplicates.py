@@ -166,7 +166,7 @@ def main() -> int:
     print(f"  meta.updated_at set to {doc['meta']['updated_at']}")
 
     # Record the removals so the merge step cannot re-introduce them.
-    removed_path = REPO_ROOT / "_removed_actions.json"
+    removed_path = ACTIONS_PATH.parent / "_removed_actions.json"
     try:
         removed_doc = json.loads(removed_path.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
