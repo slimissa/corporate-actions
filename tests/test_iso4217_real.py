@@ -180,16 +180,17 @@ class TestWithdrawnNotInActive:
 # Fixture is a subset of the real registry
 # ---------------------------------------------------------------------------
 
-class TestFixtureIsSubsetOfReal:
+@pytest.fixture(scope="module")
+def fixture_codes() -> set:
+    fixture = Path(__file__).resolve().parent / "fixtures" / "iso4217.json"
+    if not fixture.is_file():
+        pytest.skip("tests/fixtures/iso4217.json not present")
+    data = json.loads(fixture.read_text(encoding="utf-8"))
+    active = data.get("currencies", {}).get("active", [])
+    return {entry.get("code") for entry in active if entry.get("code")}
 
-    @pytest.fixture(scope="class")
-    def fixture_codes(self) -> set:
-        fixture = Path(__file__).resolve().parent / "fixtures" / "iso4217.json"
-        if not fixture.is_file():
-            pytest.skip("tests/fixtures/iso4217.json not present")
-        data = json.loads(fixture.read_text(encoding="utf-8"))
-        active = data.get("currencies", {}).get("active", [])
-        return {entry.get("code") for entry in active if entry.get("code")}
+
+class TestFixtureIsSubsetOfReal:
 
     def test_no_fixture_code_missing_from_real(
         self, fixture_codes: set, active_codes: set,
