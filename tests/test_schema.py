@@ -135,6 +135,7 @@ class TestActionSchemaValidation:
             "impact": {
                 "price_multiplier": 0.1,
                 "share_multiplier": 10.0,
+                "cash_adjustment": 0.0,
             },
         }
         schema_validate(action, action_schema)  # should not raise
