@@ -27,6 +27,8 @@ import os
 import sys
 from pathlib import Path
 
+from tests.test_wrapper import registry
+
 # Try to import the wrapper (installed) or add local path as fallback
 try:
     from corporate_actions_registry import CorporateActionsRegistry
@@ -218,14 +220,14 @@ def main() -> int:
         actions = registry.by_action_type(action_type)
         print(f"  {action_type}: {len(actions)}")
 
+    if args.summary:
+        return 0
+
     print()
     print("First 3 actions (for illustration):")
     for action in registry.actions[:3]:
         print()
         print_action(action)
-
-    if args.summary:
-        return 0
 
     print()
     print("Use --isin, --action-id, --action-type, or --date-range for targeted queries.")

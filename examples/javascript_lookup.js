@@ -223,17 +223,17 @@ function main() {
     console.log(`  ${t}: ${acts.length}`);
   }
 
+  if (!args.summary) {
+    console.log();
+    console.log('Use --isin, --action-id, --action-type, or --date-range for targeted queries.');
+    console.log('Run with --help for full usage.');
+  }
+
   console.log();
   console.log('First 3 actions (for illustration):');
   for (const a of registry.actions.slice(0, 3)) {
     console.log();
     printAction(a);
-  }
-
-  if (!args.summary) {
-    console.log();
-    console.log('Use --isin, --action-id, --action-type, or --date-range for targeted queries.');
-    console.log('Run with --help for full usage.');
   }
 }
 
