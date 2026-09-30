@@ -41,6 +41,30 @@ FILINGS = [
     ("neg_09_brk_earnings_8k",      "1067983",  "2025-01-01", "2025-04-30"),
 ]
 
+SYMBOL_CHANGE_PATTERNS = [
+    re.compile(
+        r"(?:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
+        r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
+        r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])",
+    ),
+]
+
+
+def _strip_html(html: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"&nbsp;?", " ", text)
+    text = re.sub(r"&amp;?", "&", text)
+    return re.sub(r"\s+", " ", text)
+
+
+def _contains_symbol_change(html: bytes) -> bool:
+    """True if the stripped text of an 8-K contains a symbol-change sentence."""
+    text = _strip_html(html.decode("utf-8", errors="replace"))
+    return any(p.search(text) for p in SYMBOL_CHANGE_PATTERNS)
 
 def fetch(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": UA})
@@ -54,11 +78,13 @@ def padded(cik: str) -> str:
 
 
 def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | None:
-    """Return (accession, primary_document) for the first 8-K in the range.
+    """Return (accession, primary_document) for the first 8-K in the range
+    whose primary document contains a symbol-change sentence.
 
-    Reads both the `recent` array and every archive file listed under
-    `filings.files[]`. The submissions endpoint returns only ~1000
-    recent filings; older ones live in archives.
+    Fetches each candidate's index and primary document. Slower than
+    date-only matching but correct when a range spans multiple 8-Ks
+    (earnings releases, dividend declarations, and the actual symbol
+    change).
     """
     url = f"https://data.sec.gov/submissions/CIK{padded(cik)}.json"
     data = json.loads(fetch(url))
@@ -85,7 +111,9 @@ def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | Non
         for key in merged:
             merged[key].extend(archive.get(key, []))
 
+    # Dedup by accession, collect all 8-Ks in range sorted oldest-first.
     seen: set[str] = set()
+    candidates: list[tuple[str, str, str]] = []  # (date, accession, doc)
     for form, acc, doc, date in zip(
         merged["form"],
         merged["accessionNumber"],
@@ -96,7 +124,32 @@ def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | Non
             continue
         seen.add(acc)
         if form == "8-K" and date_from <= date <= date_to:
+            candidates.append((date, acc, doc))
+
+    candidates.sort()  # oldest first
+    print(f"  {len(candidates)} candidate 8-K(s) in range")
+
+    for date, acc, _doc in candidates:
+        base = primary_url(cik, acc)
+        try:
+            doc = pick_document(base)
+        except Exception as e:
+            print(f"    {date} {acc}: index fetch failed: {e}")
+            continue
+        if not doc:
+            continue
+        doc_url = f"{base}/{doc}"
+        try:
+            body = fetch(doc_url)
+        except Exception as e:
+            print(f"    {date} {acc}: doc fetch failed: {e}")
+            continue
+        if _contains_symbol_change(body):
+            print(f"    {date} {acc}: MATCH")
             return acc, doc
+        print(f"    {date} {acc}: no symbol-change sentence")
+        time.sleep(0.2)  # SEC allows 10 req/s
+
     return None
 
 
