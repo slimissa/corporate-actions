@@ -228,10 +228,10 @@ class TestLoadInstruments:
         }), encoding="utf-8")
         assert load_instruments(str(path)) == [("US0378331005", "AAPL", "USD")]
 
-    def test_missing_file_exits_2(self, tmp_path):
+    def test_missing_file_exits_3(self, tmp_path):
         with pytest.raises(SystemExit) as exc_info:
             load_instruments(str(tmp_path / "nope.json"))
-        assert exc_info.value.code == 2
+        assert exc_info.value.code == 3
 
     def test_invalid_json_exits_2(self, tmp_path):
         path = tmp_path / "identifiers.json"

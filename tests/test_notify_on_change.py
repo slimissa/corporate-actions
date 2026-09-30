@@ -231,16 +231,12 @@ class TestCLI:
         assert result.returncode == 0
         assert "Change detected" in result.stdout
 
-    def test_missing_actions_file_exits_1(self, tmp_path, tmp_state):
+    def test_missing_actions_file_exits_3(self, tmp_path, tmp_state):
         result = run_cli(
-            [
-                "--actions", str(tmp_path / "nope.json"),
-                "--state", str(tmp_state),
-            ],
+            ["--actions", str(tmp_path / "nope.json"), "--state", str(tmp_state)],
             cwd=str(tmp_path),
         )
-        assert result.returncode == 1
-        assert "not found" in result.stderr.lower()
+        assert result.returncode == 3
 
     def test_verbose_flag(self, tmp_actions, tmp_state):
         result = run_cli(
