@@ -362,11 +362,11 @@ class TestExtractNewSymbol:
         assert extract_new_symbol(text) == "ABC"
 
     def test_new_symbol_will_be(self):
-        text = "The new symbol will be WXYZ."
+        text = "Item 5.03 The new symbol will be WXYZ."
         assert extract_new_symbol(text) == "WXYZ"
 
     def test_trading_symbol_will_change_to(self):
-        text = "The trading symbol will change to NIO."
+        text = "Item 5.03 The trading symbol will change to NIO."
         assert extract_new_symbol(text) == "NIO"
 
     def test_no_match_returns_none(self):
