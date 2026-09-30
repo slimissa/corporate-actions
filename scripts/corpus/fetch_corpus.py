@@ -112,14 +112,14 @@ def main() -> int:
         print(f"fetch {label}: CIK {cik} {df}..{dt}")
         found = find_filing(cik, df, dt)
         if not found:
-            print(f"  no 8-K found in range; widen the dates")
+            print("  no 8-K found in range; widen the dates")
             continue
 
         accession, _ = found
         base = primary_url(cik, accession)
         doc = pick_document(base)
         if not doc:
-            print(f"  no HTML document in index")
+            print("  no HTML document in index")
             continue
 
         doc_url = f"{base}/{doc}"
