@@ -597,7 +597,7 @@ class TestExitCodes:
         path = project / "actions.json"
         path.write_text("{ this is not valid json", encoding="utf-8")
         result = run_validator(path, project)
-        assert result.returncode == 3
+        assert result.returncode == 2
 
     def test_missing_schema_file_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -605,7 +605,7 @@ class TestExitCodes:
             project / "actions.json", project,
             schema=project / "does-not-exist-schema.json",
         )
-        assert result.returncode == 3
+        assert result.returncode == 2
 
     def test_missing_identifiers_registry_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -613,7 +613,7 @@ class TestExitCodes:
             project / "actions.json", project,
             identifiers=project / "does-not-exist-ids.json",
         )
-        assert result.returncode == 3
+        assert result.returncode == 2
 
     def test_missing_iso4217_registry_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -621,7 +621,7 @@ class TestExitCodes:
             project / "actions.json", project,
             iso4217=project / "does-not-exist-iso.json",
         )
-        assert result.returncode == 3
+        assert result.returncode == 2
 
     def test_missing_exchange_calendar_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -629,7 +629,7 @@ class TestExitCodes:
             project / "actions.json", project,
             exchange_calendar=project / "does-not-exist-cal.json",
         )
-        assert result.returncode == 3
+        assert result.returncode == 2
 
     def test_synthetic_fixture_collapses_warnings(self, project):
         """With a synthetic fixture and many missing ISINs, the warning

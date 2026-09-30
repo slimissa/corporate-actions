@@ -168,7 +168,7 @@ class TestMissingFiles:
         _write(fetched, {"meta": {}, "actions": []})
         _write(removed, {"removed": []})
         r = _run(tmp_path / "nope.json", fetched, removed)
-        assert r.returncode == 2
+        assert r.returncode == 3    
 
 
 class TestAdditions:

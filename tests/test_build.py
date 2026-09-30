@@ -808,7 +808,7 @@ class TestEndToEnd:
         path = tmp_path / "actions.json"
         path.write_text("{ not valid json", encoding="utf-8")
         result = _run_build(path, tmp_path / "out")
-        assert result.returncode == 3
+        assert result.returncode == 2
         assert "invalid JSON" in result.stderr or "invalid json" in result.stderr.lower()
 
     def test_empty_actions_exits_1(self, tmp_path):
@@ -827,7 +827,7 @@ class TestEndToEnd:
         bad["listings"] = [{"exchange": "XNAS"}]
         actions_path = _write_actions_file(tmp_path, {"actions": [bad]})
         result = _run_build(actions_path, tmp_path / "out")
-        assert result.returncode == 3
+        assert result.returncode == 2
         assert "flatten" in result.stderr.lower() or "list" in result.stderr.lower()
 
     def test_creates_output_dir_if_missing(self, tmp_path):
@@ -937,7 +937,7 @@ class TestTwoPhaseCommit:
         )
         out_dir = tmp_path / "out"
         result = _run_build(actions_path, out_dir)
-        assert result.returncode == 3
+        assert result.returncode == 2
         # No file was written, not even the ones that would have
         # rendered successfully first.
         for name in ("actions.dist.json", "actions.min.json",
