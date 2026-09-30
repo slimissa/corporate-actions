@@ -53,6 +53,22 @@ from tools.fetch_sec_edgar_actions import (
     parse_date,
 )
 
+# Symbol changes are filed under one of these 8-K items. The window
+# check uses this list to distinguish a real announcement from cover-page
+# boilerplate or a footnote that happens to mention the word "symbol".
+SYMBOL_CHANGE_ANCHORS = [
+    re.compile(r"Item\s*3\.01", re.IGNORECASE),  # Transfer of Listing
+    re.compile(r"Item\s*5\.03", re.IGNORECASE),  # Amendments to Articles
+    re.compile(r"Item\s*7\.01", re.IGNORECASE),  # Reg FD Disclosure
+    re.compile(r"Item\s*8\.01", re.IGNORECASE),  # Other Events
+]
+
+
+def has_filing_context(text: str, pos: int, window: int = 2000) -> bool:
+    """Return True if a symbol-change anchor is within `window` chars of `pos`."""
+    start = max(0, pos - window)
+    end = min(len(text), pos + window)
+    return any(a.search(text[start:end]) for a in SYMBOL_CHANGE_ANCHORS)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1132,3 +1148,34 @@ def test_corpus_diagnostic(capsys):
     print()
     print(f"True positives:  {tp}/{len(manifest['positive'])}")
     print(f"False positives: {fp}/{len(manifest['negative'])}")
+
+@pytest.mark.skipif(
+    not (CORPUS_DIR / "manifest.json").exists(),
+    reason="corpus not present",
+)
+def test_corpus_extraction_accuracy():
+    """Phase 2.1 exit gate."""
+    manifest = json.loads((CORPUS_DIR / "manifest.json").read_text())
+
+    missed = []
+    for entry in manifest["positive"]:
+        text = _strip_html((CORPUS_DIR / entry["file"]).read_text())
+        got = extract_new_symbol(text)
+        if got != entry["symbol"]:
+            missed.append((entry["file"], entry["symbol"], got))
+
+    false_positives = []
+    for entry in manifest["negative"]:
+        text = _strip_html((CORPUS_DIR / entry["file"]).read_text())
+        got = extract_new_symbol(text)
+        if got is not None:
+            false_positives.append((entry["file"], got))
+
+    assert not missed, (
+        f"missed {len(missed)} true positive(s):\n"
+        + "\n".join(f"  {f}: want {e!r}, got {g!r}" for f, e, g in missed)
+    )
+    assert not false_positives, (
+        f"{len(false_positives)} false positive(s):\n"
+        + "\n".join(f"  {f}: got {g!r}" for f, g in false_positives)
+    )
