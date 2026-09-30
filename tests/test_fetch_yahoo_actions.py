@@ -908,7 +908,7 @@ class TestMainIntegration:
         ])
         assert calls["tickers"] == ["AAPL", "MSFT"]
 
-    def test_ticker_offset_and_limit():
+    def test_ticker_offset_and_limit(self, tmp_path, monkeypatch):
         """Offset slices before limit applies."""
         instruments = [(f"ISIN{i}", f"T{i}", "USD") for i in range(10)]
 
