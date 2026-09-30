@@ -1111,7 +1111,7 @@ def test_corpus_diagnostic(capsys):
 
     tp = 0
     for entry in manifest["positive"]:
-        text = _strip_html_for_corpus((CORPUS_DIR / entry["file"]).read_text())
+        text = _strip_html((CORPUS_DIR / entry["file"]).read_text())
         got = extract_new_symbol(text)
         if got == entry["symbol"]:
             tp += 1
@@ -1121,7 +1121,7 @@ def test_corpus_diagnostic(capsys):
 
     fp = 0
     for entry in manifest["negative"]:
-        text = _strip_html_for_corpus((CORPUS_DIR / entry["file"]).read_text())
+        text = _strip_html((CORPUS_DIR / entry["file"]).read_text())
         got = extract_new_symbol(text)
         if got is None:
             print(f"[-] {entry['file']}: OK")
