@@ -424,9 +424,66 @@ class SECClient:
         return " ".join(texts) if texts else None
 
 
-# ---------------------------------------------------------------------------
-# Action builders
-# ---------------------------------------------------------------------------
+
+def fetch_all_filings(client: "SECClient", cik: str) -> Optional[Dict[str, Any]]:
+    """Return filings merged from the recent array and every archive file.
+
+    The submissions endpoint returns only the ~1000 most recent filings
+    in `filings.recent`. Older filings live in numbered archive files
+    listed under `filings.files[]`. This function reads both and dedups
+    by accessionNumber.
+
+    Returns a dict with the same shape as the submissions response (with
+    the merged lists under `filings.recent`). Returns None when
+    submissions cannot be fetched at all.
+    """
+    submissions = client.get_submissions(cik)
+    if not submissions:
+        return None
+
+    recent = submissions.get("filings", {}).get("recent", {})
+    merged: Dict[str, list] = {
+        "form": list(recent.get("form", [])),
+        "accessionNumber": list(recent.get("accessionNumber", [])),
+        "primaryDocument": list(recent.get("primaryDocument", [])),
+        "filingDate": list(recent.get("filingDate", [])),
+    }
+
+    archives = submissions.get("filings", {}).get("files", []) or []
+    for entry in archives:
+        name = entry.get("name") if isinstance(entry, dict) else None
+        if not name:
+            continue
+        url = f"https://data.sec.gov/submissions/{name}"
+        resp = client._get(url)
+        if resp is None:
+            print(
+                f"Warning: could not fetch archive {name} for CIK {cik}",
+                file=sys.stderr,
+            )
+            continue
+        try:
+            archive = resp.json()
+        except ValueError:
+            print(
+                f"Warning: archive {name} for CIK {cik} is not valid JSON",
+                file=sys.stderr,
+            )
+            continue
+        for key in merged:
+            merged[key].extend(archive.get(key, []))
+
+    seen: set = set()
+    dedup: Dict[str, list] = {k: [] for k in merged}
+    for i, acc in enumerate(merged["accessionNumber"]):
+        if acc in seen:
+            continue
+        seen.add(acc)
+        for k in merged:
+            dedup[k].append(merged[k][i])
+
+    return {"filings": {"recent": dedup}}
+
 
 def _filing_url(cik: str, accession: str, primary_doc: str) -> str:
     cik_no_zeros = cik.lstrip("0") or "0"
@@ -579,7 +636,7 @@ def main() -> int:
         if args.verbose:
             print(f"[{idx}/{len(instruments)}] {ticker} (CIK {cik})")
 
-        submissions = client.get_submissions(cik)
+        submissions = fetch_all_filings(client, cik)
         if not submissions:
             errors.append(f"{ticker}: could not fetch submissions")
             continue

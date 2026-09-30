@@ -133,7 +133,111 @@ def patch_client(monkeypatch):
         return fake
     return _install
 
+class TestArchiveLoading:
 
+    def test_merges_recent_and_archive(self, monkeypatch):
+        """With filings.files[] present, archives are fetched and merged."""
+        recent = _fake_submissions(
+            forms=["8-K"],
+            accessions=["recent-1"],
+            docs=["a.htm"],
+            dates=["2024-06-01"],
+            files=[{"name": "CIK0000320193-submissions-001.json"}],
+        )
+
+        class FakeWithArchive(FakeSECClient):
+            def _get(self, url):
+                if "submissions-001" in url:
+                    class R:
+                        status_code = 200
+                        def json(self_inner):
+                            return {
+                                "form": ["8-K"],
+                                "accessionNumber": ["archive-1"],
+                                "primaryDocument": ["b.htm"],
+                                "filingDate": ["2019-01-01"],
+                            }
+                    return R()
+                return super()._get(url)
+
+        fake = FakeWithArchive(submissions={"0000320193": recent})
+        monkeypatch.setattr(mod, "SECClient", lambda *a, **kw: fake)
+
+        result = mod.fetch_all_filings(fake, "0000320193")
+        accessions = result["filings"]["recent"]["accessionNumber"]
+        assert "recent-1" in accessions
+        assert "archive-1" in accessions
+
+    def test_no_archives_returns_recent_only(self, monkeypatch):
+        """A company with no archive files returns only recent."""
+        recent = _fake_submissions(
+            forms=["8-K"],
+            accessions=["only-1"],
+            docs=["a.htm"],
+            dates=["2024-06-01"],
+        )
+        fake = FakeSECClient(submissions={"0000320193": recent})
+        monkeypatch.setattr(mod, "SECClient", lambda *a, **kw: fake)
+
+        result = mod.fetch_all_filings(fake, "0000320193")
+        assert result["filings"]["recent"]["accessionNumber"] == ["only-1"]
+
+    def test_dedups_by_accession(self, monkeypatch):
+        """The same accession in recent and archive appears once."""
+        recent = _fake_submissions(
+            forms=["8-K"],
+            accessions=["dup-1"],
+            docs=["a.htm"],
+            dates=["2024-06-01"],
+            files=[{"name": "CIK0000320193-submissions-001.json"}],
+        )
+
+        class FakeWithArchive(FakeSECClient):
+            def _get(self, url):
+                if "submissions-001" in url:
+                    class R:
+                        status_code = 200
+                        def json(self_inner):
+                            return {
+                                "form": ["8-K"],
+                                "accessionNumber": ["dup-1"],
+                                "primaryDocument": ["a.htm"],
+                                "filingDate": ["2024-06-01"],
+                            }
+                    return R()
+                return super()._get(url)
+
+        fake = FakeWithArchive(submissions={"0000320193": recent})
+        monkeypatch.setattr(mod, "SECClient", lambda *a, **kw: fake)
+
+        result = mod.fetch_all_filings(fake, "0000320193")
+        accessions = result["filings"]["recent"]["accessionNumber"]
+        assert accessions.count("dup-1") == 1
+
+    def test_archive_fetch_failure_does_not_abort(self, monkeypatch, capsys):
+        """A failed archive fetch is a warning, not a crash."""
+        recent = _fake_submissions(
+            forms=["8-K"],
+            accessions=["recent-1"],
+            docs=["a.htm"],
+            dates=["2024-06-01"],
+            files=[{"name": "CIK0000320193-submissions-999.json"}],
+        )
+
+        class FakeWithBrokenArchive(FakeSECClient):
+            def _get(self, url):
+                if "submissions-999" in url:
+                    return None
+                return super()._get(url)
+
+        fake = FakeWithBrokenArchive(submissions={"0000320193": recent})
+        monkeypatch.setattr(mod, "SECClient", lambda *a, **kw: fake)
+
+        result = mod.fetch_all_filings(fake, "0000320193")
+        assert "recent-1" in result["filings"]["recent"]["accessionNumber"]
+        err = capsys.readouterr().err
+        assert "could not fetch archive" in err
+        
 # ---------------------------------------------------------------------------
 # load_instruments
 # ---------------------------------------------------------------------------
