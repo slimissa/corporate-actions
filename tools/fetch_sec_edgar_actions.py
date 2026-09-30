@@ -262,7 +262,6 @@ def extract_effective_date(text: str) -> Optional[str]:
                 return iso
     return None
 
-
 def extract_new_symbol(text: str) -> Optional[str]:
     """Return the new ticker symbol, or None.
 
@@ -274,24 +273,25 @@ def extract_new_symbol(text: str) -> Optional[str]:
     strong matches would silently drop real symbol changes to tickers
     like AN (AutoNation), GO (Grocery Outlet), or US (US Foods).
     """
-    # Strong patterns first — no blocklist.
     for pat in STRONG_SYMBOL_TRIGGERS:
-        m = pat.search(text)
-        if m:
+        for m in pat.finditer(text):
             symbol = m.group(1)
-            if 1 <= len(symbol) <= 6 and symbol.isalpha():
-                return symbol
+            if not (1 <= len(symbol) <= 6 and symbol.isalpha()):
+                continue
+            if not has_filing_context(text, m.start()):
+                continue
+            return symbol
 
-    # Weak patterns — apply the blocklist.
     for pat in WEAK_SYMBOL_TRIGGERS:
-        m = pat.search(text)
-        if m:
+        for m in pat.finditer(text):
             symbol = m.group(1)
             if not (1 <= len(symbol) <= 6):
                 continue
             if not symbol.isalpha():
                 continue
             if symbol in COMMON_ENGLISH_WORDS:
+                continue
+            if not has_filing_context(text, m.start()):
                 continue
             return symbol
 
