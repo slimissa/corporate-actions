@@ -3,14 +3,21 @@
   "positive": [
     {
       "file": "pos_01_meta_fb_to_meta_8k.html",
-      "symbol": "META",
-      "cik": "1326801"
+      "symbol": "META"
+    },
+    {
+      "file": "pos_03_antm_to_elv_8k.html",
+      "symbol": "ELV"
+    },
+    {
+      "file": "pos_04_fisv_to_fi_8k.html",
+      "symbol": "FI"
     }
   ],
   "negative": [
     {
       "file": "neg_01_aapl_earnings_8k.html",
-      "reason": "quarterly earnings; ticker on cover"
+      "reason": "quarterly earnings"
     },
     {
       "file": "neg_02_msft_dividend_8k.html",
@@ -18,7 +25,7 @@
     },
     {
       "file": "neg_03_nvda_split_8k.html",
-      "reason": "split announcement; 'symbol' in header"
+      "reason": "split announcement"
     },
     {
       "file": "neg_04_jpm_earnings_8k.html",
@@ -39,6 +46,10 @@
     {
       "file": "neg_09_brk_earnings_8k.html",
       "reason": "quarterly earnings; multiple classes"
+    },
+    {
+      "file": "neg_10_fisv_notes_8k.html",
+      "reason": "note issuance; 'Trading Symbol(s)' on cover"
     }
   ]
 }

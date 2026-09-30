@@ -56,8 +56,11 @@ SYMBOL_CHANGE_PATTERNS = [
 
 def _strip_html(html: str) -> str:
     text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"&nbsp;?", " ", text)
-    text = re.sub(r"&amp;?", "&", text)
+    text = re.sub(r"&nbsp;", " ", text)
+    text = re.sub(r"&amp;", "&", text)
+    text = re.sub(r"&#8220;|&#8221;|&#8243;", '"', text)  # curly quotes
+    text = re.sub(r"&#8216;|&#8217;", "'", text)          # curly apostrophes
+    text = re.sub(r"&#\d+;", " ", text)                    # any other entity
     return re.sub(r"\s+", " ", text)
 
 
