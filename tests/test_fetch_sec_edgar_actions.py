@@ -27,6 +27,7 @@ Run
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -1086,3 +1087,45 @@ class TestCachePolicy:
         url = ("https://www.sec.gov/Archives/edgar/data/"
                "320193/000032019324000001/index.json")
         assert SECClient._is_cacheable(url) is True
+
+CORPUS_DIR = Path(__file__).resolve().parent / "corpus" / "sec_symbol_change"
+
+
+def _strip_html_for_corpus(html: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"&nbsp;?", " ", text)
+    text = re.sub(r"&amp;?", "&", text)
+    return re.sub(r"\s+", " ", text)
+
+
+@pytest.mark.skipif(
+    not (CORPUS_DIR / "manifest.json").exists(),
+    reason="corpus not present",
+)
+def test_corpus_diagnostic(capsys):
+    """Report TP/FP against the corpus. Diagnostic only."""
+    manifest = json.loads((CORPUS_DIR / "manifest.json").read_text())
+
+    tp = 0
+    for entry in manifest["positive"]:
+        text = _strip_html_for_corpus((CORPUS_DIR / entry["file"]).read_text())
+        got = extract_new_symbol(text)
+        if got == entry["symbol"]:
+            tp += 1
+            print(f"[+] {entry['file']}: TP ({got})")
+        else:
+            print(f"[+] {entry['file']}: MISS (want {entry['symbol']!r}, got {got!r})")
+
+    fp = 0
+    for entry in manifest["negative"]:
+        text = _strip_html_for_corpus((CORPUS_DIR / entry["file"]).read_text())
+        got = extract_new_symbol(text)
+        if got is None:
+            print(f"[-] {entry['file']}: OK")
+        else:
+            fp += 1
+            print(f"[-] {entry['file']}: FP (got {got!r})")
+
+    print()
+    print(f"True positives:  {tp}/{len(manifest['positive'])}")
+    print(f"False positives: {fp}/{len(manifest['negative'])}")
