@@ -567,23 +567,6 @@ def build_delisting(
 # Main
 # ---------------------------------------------------------------------------
 
-def _warn_about_archive_files(ticker: str, submissions: Dict[str, Any]) -> None:
-    """Emit a stderr warning when a company has older filings in archives.
-
-    The `data.sec.gov` submissions endpoint returns only ~1,000 recent
-    filings in `filings.recent`. Older filings live in numbered archive
-    files listed in `filings.files[]`. This script reads only `recent`.
-    """
-    files = submissions.get("filings", {}).get("files")
-    if not files:
-        return
-    print(
-        f"Warning: {ticker} has {len(files)} archive file(s) with older "
-        f"filings; only the recent ~1000 filings are scanned.",
-        file=sys.stderr,
-    )
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Fetch SYMBOL_CHANGE and DELISTING actions from SEC EDGAR."
@@ -641,8 +624,6 @@ def main() -> int:
             errors.append(f"{ticker}: could not fetch submissions")
             continue
         processed += 1
-
-        _warn_about_archive_files(ticker, submissions)
 
         recent = submissions.get("filings", {}).get("recent", {})
         forms = recent.get("form", [])

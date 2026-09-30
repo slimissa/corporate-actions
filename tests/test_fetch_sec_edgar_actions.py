@@ -17,7 +17,6 @@ Coverage targets
 - is_symbol_change, is_delisting: trigger detection.
 - _filing_url: CIK and accession normalisation.
 - build_symbol_change, build_delisting: action shape and ID format.
-- _warn_about_archive_files: warning emission.
 - main: exit codes 0, 1, 2, 3; both-actions-from-one-filing; min-date
   and cik-limit filtering; BOM tolerance; output file structure.
 
@@ -41,7 +40,6 @@ import tools.fetch_sec_edgar_actions as mod
 from tools.fetch_sec_edgar_actions import (
     COMMON_ENGLISH_WORDS,
     _filing_url,
-    _warn_about_archive_files,
     build_delisting,
     build_symbol_change,
     extract_effective_date,
@@ -787,40 +785,6 @@ class TestBuildDelisting:
         assert self._build()["status"] == "COMPLETED"
 
 
-# ---------------------------------------------------------------------------
-# _warn_about_archive_files
-# ---------------------------------------------------------------------------
-
-class TestWarnAboutArchiveFiles:
-
-    def test_no_warning_when_files_absent(self, capsys):
-        _warn_about_archive_files("AAPL", {"filings": {}})
-        assert capsys.readouterr().err == ""
-
-    def test_no_warning_when_files_empty(self, capsys):
-        _warn_about_archive_files("AAPL", {"filings": {"files": []}})
-        assert capsys.readouterr().err == ""
-
-    def test_no_warning_when_files_none(self, capsys):
-        _warn_about_archive_files("AAPL", {"filings": {"files": None}})
-        assert capsys.readouterr().err == ""
-
-    def test_warning_when_files_non_empty(self, capsys):
-        _warn_about_archive_files("AAPL", {"filings": {"files": [1]}})
-        err = capsys.readouterr().err
-        assert "AAPL" in err
-        assert "1 archive file" in err
-        assert "recent ~1000" in err
-
-    def test_warning_includes_file_count(self, capsys):
-        _warn_about_archive_files("NVDA", {"filings": {"files": [1, 2, 3]}})
-        err = capsys.readouterr().err
-        assert "NVDA" in err
-        assert "3 archive file" in err
-
-    def test_no_warning_when_submissions_empty(self, capsys):
-        _warn_about_archive_files("AAPL", {})
-        assert capsys.readouterr().err == ""
 
 
 # ---------------------------------------------------------------------------
@@ -973,24 +937,6 @@ class TestMainIntegration:
         types = sorted(a["action_type"] for a in data["actions"])
         assert types == ["DELISTING", "SYMBOL_CHANGE"]
 
-    def test_archive_warning_emitted(self, tmp_path, monkeypatch, patch_client, capsys):
-        path = _write_identifiers(tmp_path, [
-            {"isin": "US0378331005", "ticker": "AAPL", "cik": "320193"},
-        ])
-        fake = FakeSECClient(submissions={
-            "0000320193": _fake_submissions(
-                forms=[], accessions=[], docs=[], dates=[],
-                files=["CIK0000320193-submissions-001.json"],
-            ),
-        })
-        patch_client(fake)
-        _run_main(monkeypatch, [
-            "--identifiers", str(path),
-            "--output", str(tmp_path / "out.json"),
-        ])
-        err = capsys.readouterr().err
-        assert "AAPL" in err
-        assert "archive file" in err
 
     def test_min_date_filters_old_filings(self, tmp_path, monkeypatch, patch_client):
         path = _write_identifiers(tmp_path, [
