@@ -414,7 +414,7 @@ class TestExtractNewSymbol:
         assert extract_new_symbol(text) == "META"
 
     def test_quoted_symbol_matched(self):
-        text = 'The trading symbol will change to "GOOG".'
+        text = 'Item 5.03 The trading symbol will change to "GOOG".'
         assert extract_new_symbol(text) == "GOOG"
 
     def test_blocklist_is_frozenset_and_non_empty(self):

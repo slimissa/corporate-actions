@@ -214,10 +214,10 @@ def load_instruments(path: str) -> List[Tuple[str, str, str]]:
             data = json.load(f)
     except FileNotFoundError:
         print(f"Error: file not found: {path}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(3)
     except json.JSONDecodeError as e:
         print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
-        sys.exit(3)
+        sys.exit(2)
 
     instruments = data.get("instruments") or data.get("identifiers") or []
     result: List[Tuple[str, str, str]] = []
