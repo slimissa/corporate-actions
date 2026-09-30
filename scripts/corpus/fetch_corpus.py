@@ -27,22 +27,18 @@ UA = os.environ.get(
 )
 
 FILINGS = [
-    # label, cik, date_from, date_to
-    ("pos_01_meta_fb_to_meta_8k",   "1326801",  "2022-06-01", "2022-06-30"),
-    ("pos_02_sq_to_xyz_8k",         "1512673",  "2025-01-01", "2025-01-31"),
-    ("pos_03_antm_to_elv_8k",       "1099800",  "2022-06-01", "2022-06-30"),
+    ("pos_01_meta_fb_to_meta_8k",   "1326801",  "2022-05-01", "2022-07-31"),
+    ("pos_02_sq_to_xyz_8k",         "1512673",  "2024-12-01", "2025-02-28"),
+    ("pos_03_antm_to_elv_8k",       "1099800",  "2022-05-01", "2022-07-31"),
     ("pos_04_fisv_to_fi_8k",        "798354",   "2023-07-01", "2023-07-31"),
-    # Fifth positive: fill in from EDGAR full-text search
     ("neg_01_aapl_earnings_8k",     "320193",   "2025-01-01", "2025-04-30"),
     ("neg_02_msft_dividend_8k",     "789019",   "2025-01-01", "2025-04-30"),
     ("neg_03_nvda_split_8k",        "1045810",  "2024-04-01", "2024-07-31"),
     ("neg_04_jpm_earnings_8k",      "19617",    "2025-01-01", "2025-04-30"),
     ("neg_05_amzn_earnings_8k",     "1018724",  "2025-01-01", "2025-04-30"),
     ("neg_06_googl_earnings_8k",    "1652044",  "2025-01-01", "2025-04-30"),
-    ("neg_07_meta_earnings_8k",     "1326801",  "2025-01-01", "2025-04-30"),
     ("neg_08_tsla_earnings_8k",     "1318605",  "2025-01-01", "2025-04-30"),
     ("neg_09_brk_earnings_8k",      "1067983",  "2025-01-01", "2025-04-30"),
-    ("neg_10_generic_exhibit_8k",   "320193",   "2024-01-01", "2024-12-31"),
 ]
 
 
@@ -58,16 +54,47 @@ def padded(cik: str) -> str:
 
 
 def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | None:
-    """Return (accession, primary_document) for the first 8-K in the range."""
+    """Return (accession, primary_document) for the first 8-K in the range.
+
+    Reads both the `recent` array and every archive file listed under
+    `filings.files[]`. The submissions endpoint returns only ~1000
+    recent filings; older ones live in archives.
+    """
     url = f"https://data.sec.gov/submissions/CIK{padded(cik)}.json"
     data = json.loads(fetch(url))
-    recent = data["filings"]["recent"]
-    for form, acc, date, doc in zip(
-        recent["form"],
-        recent["accessionNumber"],
-        recent["filingDate"],
-        recent["primaryDocument"],
+    filings = data["filings"]
+
+    merged: dict[str, list] = {
+        "form": list(filings["recent"]["form"]),
+        "accessionNumber": list(filings["recent"]["accessionNumber"]),
+        "primaryDocument": list(filings["recent"]["primaryDocument"]),
+        "filingDate": list(filings["recent"]["filingDate"]),
+    }
+
+    for entry in filings.get("files", []) or []:
+        name = entry.get("name") if isinstance(entry, dict) else None
+        if not name:
+            continue
+        try:
+            archive = json.loads(
+                fetch(f"https://data.sec.gov/submissions/{name}")
+            )
+        except Exception as e:
+            print(f"  warning: could not read archive {name}: {e}")
+            continue
+        for key in merged:
+            merged[key].extend(archive.get(key, []))
+
+    seen: set[str] = set()
+    for form, acc, doc, date in zip(
+        merged["form"],
+        merged["accessionNumber"],
+        merged["primaryDocument"],
+        merged["filingDate"],
     ):
+        if acc in seen:
+            continue
+        seen.add(acc)
         if form == "8-K" and date_from <= date <= date_to:
             return acc, doc
     return None

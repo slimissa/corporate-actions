@@ -9,6 +9,30 @@
       "source_url": "https://www.sec.gov/Archives/edgar/data/798354/000079835423000012/fisv-20230726.htm",
       "fetched_at": "2026-09-30",
       "symbol": "<FILL IN>"
+    },
+    {
+      "file": "pos_01_meta_fb_to_meta_8k.html",
+      "cik": "0001326801",
+      "accession": "0001326801-22-000085",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000085/meta-20220724.htm",
+      "fetched_at": "2026-09-30",
+      "symbol": "<FILL IN>"
+    },
+    {
+      "file": "pos_02_sq_to_xyz_8k.html",
+      "cik": "0001512673",
+      "accession": "0001193125-25-030738",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1512673/000119312525030738/d834054d8k.htm",
+      "fetched_at": "2026-09-30",
+      "symbol": "<FILL IN>"
+    },
+    {
+      "file": "pos_03_antm_to_elv_8k.html",
+      "cik": "0001099800",
+      "accession": "0001099800-22-000016",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1099800/000109980022000016/ew-20220728.htm",
+      "fetched_at": "2026-09-30",
+      "symbol": "<FILL IN>"
     }
   ],
   "negative": [
@@ -81,6 +105,14 @@
       "cik": "0000320193",
       "accession": "0000320193-24-000120",
       "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000120/a8-kex991q4202409282024.htm",
+      "fetched_at": "2026-09-30",
+      "reason": "<FILL IN>"
+    },
+    {
+      "file": "neg_04_jpm_earnings_8k.html",
+      "cik": "0000019617",
+      "accession": "0001193125-25-089203",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/19617/000119312525089203/d913996d8k.htm",
       "fetched_at": "2026-09-30",
       "reason": "<FILL IN>"
     }
