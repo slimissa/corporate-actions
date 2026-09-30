@@ -591,13 +591,13 @@ class TestExitCodes:
 
     def test_missing_actions_file_exits_3(self, project):
         result = run_validator(project / "does-not-exist.json", project)
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_invalid_json_in_actions_exits_2(self, project):
         path = project / "actions.json"
         path.write_text("{ this is not valid json", encoding="utf-8")
         result = run_validator(path, project)
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_missing_schema_file_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -605,7 +605,7 @@ class TestExitCodes:
             project / "actions.json", project,
             schema=project / "does-not-exist-schema.json",
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_missing_identifiers_registry_exits_3(self, project):
         write_actions(project, [valid_split_action()])
