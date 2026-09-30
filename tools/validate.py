@@ -738,12 +738,18 @@ def main():
     # Load local files (actions and schema)
     try:
         actions_data = load_json_file(actions_path)
+    except FileNotFoundError as e:
+        print(f"Error loading actions.json: {e}", file=sys.stderr)
+        sys.exit(3)
     except Exception as e:
         print(f"Error loading actions.json: {e}", file=sys.stderr)
         sys.exit(2)
 
     try:
         schema_data = load_json_file(schema_path)
+    except FileNotFoundError as e:
+        print(f"Error loading schema.json: {e}", file=sys.stderr)
+        sys.exit(3)
     except Exception as e:
         print(f"Error loading schema.json: {e}", file=sys.stderr)
         sys.exit(2)

@@ -46,7 +46,7 @@ def load_actions(path: str) -> Dict[str, Any]:
             return json.load(f)
     except FileNotFoundError:
         print(f"Error: file not found: {path}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(3)
     except json.JSONDecodeError as e:
         print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
         sys.exit(2)

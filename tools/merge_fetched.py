@@ -132,7 +132,7 @@ def load_json(path: Path) -> dict:
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         print(f"Error: file not found: {path}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(3)
     except json.JSONDecodeError as e:
         print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
         sys.exit(2)
