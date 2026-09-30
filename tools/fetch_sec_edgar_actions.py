@@ -101,8 +101,9 @@ MUTABLE_URL_PREFIXES = (
 # the original review correspond to these.
 STRONG_SYMBOL_TRIGGERS = [
     re.compile(
-        r"(?i:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
-        r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    r"(?i:will\s+(?:begin\s+trading|trade)\s+[^.]{0,80}?"
+    r"\bunder\s+(?:the\s+)?(?:new\s+)?(?:ticker\s+)?symbol\s*['\"]?)"
+    r"([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
     re.compile(
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
