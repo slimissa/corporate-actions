@@ -605,7 +605,7 @@ class TestExitCodes:
             project / "actions.json", project,
             schema=project / "does-not-exist-schema.json",
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_missing_identifiers_registry_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -613,7 +613,7 @@ class TestExitCodes:
             project / "actions.json", project,
             identifiers=project / "does-not-exist-ids.json",
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_missing_iso4217_registry_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -621,7 +621,7 @@ class TestExitCodes:
             project / "actions.json", project,
             iso4217=project / "does-not-exist-iso.json",
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_missing_exchange_calendar_exits_3(self, project):
         write_actions(project, [valid_split_action()])
@@ -629,7 +629,7 @@ class TestExitCodes:
             project / "actions.json", project,
             exchange_calendar=project / "does-not-exist-cal.json",
         )
-        assert result.returncode == 2
+        assert result.returncode == 3
 
     def test_synthetic_fixture_collapses_warnings(self, project):
         """With a synthetic fixture and many missing ISINs, the warning

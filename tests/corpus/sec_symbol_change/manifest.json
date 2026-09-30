@@ -77,14 +77,6 @@
       "reason": "<FILL IN>"
     },
     {
-      "file": "neg_07_meta_earnings_8k.html",
-      "cik": "0001326801",
-      "accession": "0001326801-25-000050",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680125000050/meta-03312025xexhibit991.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
       "file": "neg_08_tsla_earnings_8k.html",
       "cik": "0001318605",
       "accession": "0001628280-25-018851",
@@ -97,14 +89,6 @@
       "cik": "0001067983",
       "accession": "0001193125-25-084458",
       "source_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525084458/d934563d8k.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
-      "file": "neg_10_generic_exhibit_8k.html",
-      "cik": "0000320193",
-      "accession": "0000320193-24-000120",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000120/a8-kex991q4202409282024.htm",
       "fetched_at": "2026-09-30",
       "reason": "<FILL IN>"
     },
