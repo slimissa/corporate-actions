@@ -589,7 +589,7 @@ class TestExitCodes:
         result = run_validator(project / "actions.json", project)
         assert result.returncode == 1
 
-    def test_missing_actions_file_exits_2(self, project):
+    def test_missing_actions_file_exits_3(self, project):
         result = run_validator(project / "does-not-exist.json", project)
         assert result.returncode == 2
 
@@ -599,7 +599,7 @@ class TestExitCodes:
         result = run_validator(path, project)
         assert result.returncode == 2
 
-    def test_missing_schema_file_exits_2(self, project):
+    def test_missing_schema_file_exits_3(self, project):
         write_actions(project, [valid_split_action()])
         result = run_validator(
             project / "actions.json", project,

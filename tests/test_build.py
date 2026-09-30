@@ -799,7 +799,7 @@ class TestEndToEnd:
                 f"{name} differs between two runs"
             )
 
-    def test_missing_actions_file_exits_2(self, tmp_path):
+    def test_missing_actions_file_exits_3(self, tmp_path):
         result = _run_build(tmp_path / "nope.json", tmp_path / "out")
         assert result.returncode == 2
         assert "not found" in result.stderr.lower()

@@ -162,7 +162,7 @@ class TestMissingFiles:
         assert r.returncode == 0
         assert len(json.loads(actions.read_text())["actions"]) == 1
 
-    def test_missing_actions_file_exits_2(self, tmp_path):
+    def test_missing_actions_file_exits_3(self, tmp_path):
         fetched = tmp_path / "fetched.json"
         removed = tmp_path / "reject.json"
         _write(fetched, {"meta": {}, "actions": []})
