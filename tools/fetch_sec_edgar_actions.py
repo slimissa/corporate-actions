@@ -217,7 +217,7 @@ def load_instruments(path: str) -> List[Tuple[str, str, str]]:
         sys.exit(2)
     except json.JSONDecodeError as e:
         print(f"Error: invalid JSON in {path}: {e}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(3)
 
     instruments = data.get("instruments") or data.get("identifiers") or []
     result: List[Tuple[str, str, str]] = []
@@ -262,23 +262,40 @@ def extract_effective_date(text: str) -> Optional[str]:
                 return iso
     return None
 
+# Anchors that indicate a symbol-change filing. The window check uses
+# this list to distinguish a real announcement from cover-page
+# boilerplate or a footnote that happens to mention the word "symbol".
+SYMBOL_CHANGE_ANCHORS = [
+    re.compile(r"Item\s*3\.01", re.IGNORECASE),  # Transfer of Listing
+    re.compile(r"Item\s*5\.03", re.IGNORECASE),  # Amendments to Articles
+    re.compile(r"Item\s*7\.01", re.IGNORECASE),  # Reg FD Disclosure
+    re.compile(r"Item\s*8\.01", re.IGNORECASE),  # Other Events
+]
+
+
+def has_filing_context(text: str, pos: int, window: int = 2000) -> bool:
+    """Return True if a symbol-change anchor is within `window` chars of `pos`."""
+    start = max(0, pos - window)
+    end = min(len(text), pos + window)
+    return any(a.search(text[start:end]) for a in SYMBOL_CHANGE_ANCHORS)
+
 def extract_new_symbol(text: str) -> Optional[str]:
     """Return the new ticker symbol, or None.
 
     Strong patterns are trusted. Weak patterns are checked against
-    COMMON_ENGLISH_WORDS, because their prose context is short enough
-    that a common word like "AN" or "GO" could match.
+    COMMON_ENGLISH_WORDS and require a filing anchor, because their
+    prose context is short enough that a common word like "AN" or "GO"
+    could match.
 
-    The blocklist exists to filter weak matches only. Applying it to
-    strong matches would silently drop real symbol changes to tickers
-    like AN (AutoNation), GO (Grocery Outlet), or US (US Foods).
+    The blocklist and the anchor check apply to weak matches only.
+    Applying them to strong matches would silently drop real symbol
+    changes to tickers like AN (AutoNation), GO (Grocery Outlet), or
+    US (US Foods).
     """
     for pat in STRONG_SYMBOL_TRIGGERS:
         for m in pat.finditer(text):
             symbol = m.group(1)
             if not (1 <= len(symbol) <= 6 and symbol.isalpha()):
-                continue
-            if not has_filing_context(text, m.start()):
                 continue
             return symbol
 

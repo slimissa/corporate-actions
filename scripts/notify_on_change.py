@@ -187,7 +187,7 @@ def main() -> None:
     # Validate actions file exists
     if not os.path.isfile(args.actions):
         print(f"Error: actions file not found: {args.actions}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(3)
 
     # Compute current hash
     try:

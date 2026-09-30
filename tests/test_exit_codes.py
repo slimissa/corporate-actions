@@ -30,7 +30,14 @@ def _run(tool: str, *args: str) -> int:
 def test_missing_file_exits_3(tool: str, missing_arg: list) -> None:
     assert _run(tool, *missing_arg) == 3
 
-
+@pytest.mark.parametrize("tool,args", [
+    ("tools/fetch_yahoo_actions.py",     ["--identifiers", "/nonexistent.json"]),
+    ("tools/fetch_sec_edgar_actions.py", ["--identifiers", "/nonexistent.json"]),
+    ("scripts/notify_on_change.py",      ["--actions", "/nonexistent.json"]),
+])
+def test_missing_file_exits_3_for_fetchers(tool: str, args: list) -> None:
+    assert _run(tool, *args) == 3
+    
 @pytest.mark.parametrize("tool", [
     "tools/validate.py",
     "tools/build.py",
