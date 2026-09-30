@@ -1,104 +1,44 @@
 {
   "version": "1.0.0",
-  "purpose": "Labeled corpus for SEC symbol-change extraction. See docs for the extraction rules.",
   "positive": [
     {
-      "file": "pos_04_fisv_to_fi_8k.html",
-      "cik": "0000798354",
-      "accession": "0000798354-23-000012",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/798354/000079835423000012/fisv-20230726.htm",
-      "fetched_at": "2026-09-30",
-      "symbol": "<FILL IN>"
-    },
-    {
       "file": "pos_01_meta_fb_to_meta_8k.html",
-      "cik": "0001326801",
-      "accession": "0001326801-22-000085",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000085/meta-20220724.htm",
-      "fetched_at": "2026-09-30",
-      "symbol": "<FILL IN>"
-    },
-    {
-      "file": "pos_02_sq_to_xyz_8k.html",
-      "cik": "0001512673",
-      "accession": "0001193125-25-030738",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1512673/000119312525030738/d834054d8k.htm",
-      "fetched_at": "2026-09-30",
-      "symbol": "<FILL IN>"
-    },
-    {
-      "file": "pos_03_antm_to_elv_8k.html",
-      "cik": "0001099800",
-      "accession": "0001099800-22-000016",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1099800/000109980022000016/ew-20220728.htm",
-      "fetched_at": "2026-09-30",
-      "symbol": "<FILL IN>"
+      "symbol": "META",
+      "cik": "1326801"
     }
   ],
   "negative": [
     {
       "file": "neg_01_aapl_earnings_8k.html",
-      "cik": "0000320193",
-      "accession": "0001140361-25-005876",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000114036125005876/ef20044022_8k.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
+      "reason": "quarterly earnings; ticker on cover"
     },
     {
       "file": "neg_02_msft_dividend_8k.html",
-      "cik": "0000789019",
-      "accession": "0000950170-25-061032",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025061032/msft-20250430.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
+      "reason": "dividend declaration"
     },
     {
       "file": "neg_03_nvda_split_8k.html",
-      "cik": "0001045810",
-      "accession": "0001045810-24-000206",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000206/nvda-20240626.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
-      "file": "neg_05_amzn_earnings_8k.html",
-      "cik": "0001018724",
-      "accession": "0001104659-25-033450",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000110465925033450/R1.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
-      "file": "neg_06_googl_earnings_8k.html",
-      "cik": "0001652044",
-      "accession": "0001652044-25-000040",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000040/goog-20250423.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
-      "file": "neg_08_tsla_earnings_8k.html",
-      "cik": "0001318605",
-      "accession": "0001628280-25-018851",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025018851/R1.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
-    },
-    {
-      "file": "neg_09_brk_earnings_8k.html",
-      "cik": "0001067983",
-      "accession": "0001193125-25-084458",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525084458/d934563d8k.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
+      "reason": "split announcement; 'symbol' in header"
     },
     {
       "file": "neg_04_jpm_earnings_8k.html",
-      "cik": "0000019617",
-      "accession": "0001193125-25-089203",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/19617/000119312525089203/d913996d8k.htm",
-      "fetched_at": "2026-09-30",
-      "reason": "<FILL IN>"
+      "reason": "quarterly earnings"
+    },
+    {
+      "file": "neg_05_amzn_earnings_8k.html",
+      "reason": "quarterly earnings"
+    },
+    {
+      "file": "neg_06_googl_earnings_8k.html",
+      "reason": "quarterly earnings; two classes"
+    },
+    {
+      "file": "neg_08_tsla_earnings_8k.html",
+      "reason": "quarterly earnings"
+    },
+    {
+      "file": "neg_09_brk_earnings_8k.html",
+      "reason": "quarterly earnings; multiple classes"
     }
   ]
 }
