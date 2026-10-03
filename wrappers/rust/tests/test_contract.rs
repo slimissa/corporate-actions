@@ -70,8 +70,8 @@ fn load_fixture() -> ContractFixture {
     if !path.exists() {
         panic!("contract fixture required but missing: {}", FIXTURE_PATH);
     }
-    let content = fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
+    let content =
+        fs::read_to_string(path).unwrap_or_else(|e| panic!("read fixture {}: {}", FIXTURE_PATH, e));
     serde_json::from_str(&content)
         .unwrap_or_else(|e| panic!("parse fixture {}: {}", FIXTURE_PATH, e))
 }

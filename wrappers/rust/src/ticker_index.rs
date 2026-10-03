@@ -116,9 +116,7 @@ fn load_index(path: &str) -> Result<Index, RegistryError> {
     // Fast path: cached hit. Clone the index so the lock is released
     // before returning.
     {
-        let c = cache()
-            .lock()
-            .expect("ticker cache mutex poisoned");
+        let c = cache().lock().expect("ticker cache mutex poisoned");
         if let Some(idx) = c.get(&key) {
             return Ok(idx.clone());
         }
@@ -134,27 +132,21 @@ fn load_index(path: &str) -> Result<Index, RegistryError> {
 
     let content = content.strip_prefix('\u{FEFF}').unwrap_or(&content);
 
-    let doc: IdentifierDocument = serde_json::from_str(content).map_err(|e| {
-        RegistryError::MissingData(format!("parsing {}: {}", key, e))
-    })?;
+    let doc: IdentifierDocument = serde_json::from_str(content)
+        .map_err(|e| RegistryError::MissingData(format!("parsing {}: {}", key, e)))?;
 
     let mut index: Index = HashMap::with_capacity(doc.instruments.len());
     for inst in doc.instruments {
         if let (Some(t), Some(x), Some(i)) = (inst.ticker, inst.exchange, inst.isin) {
             if !t.is_empty() && !x.is_empty() && !i.is_empty() {
-                index.insert(
-                    format!("{}|{}", t.to_uppercase(), x.to_uppercase()),
-                    i,
-                );
+                index.insert(format!("{}|{}", t.to_uppercase(), x.to_uppercase()), i);
             }
         }
     }
 
     // Store in cache.
     {
-        let mut c = cache()
-            .lock()
-            .expect("ticker cache mutex poisoned");
+        let mut c = cache().lock().expect("ticker cache mutex poisoned");
         c.insert(key, index.clone());
     }
 
