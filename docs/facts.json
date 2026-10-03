@@ -31,15 +31,15 @@
   "currencies": [
     "USD"
   ],
-  "root_test_count": 990,
+  "root_test_count": 996,
   "root_test_skipped": 1,
   "root_test_network_deselected": 5,
-  "root_test_collected_total": 995,
+  "root_test_collected_total": 1001,
   "wrapper_test_counts": {
-    "python": 117,
-    "javascript": 99,
-    "go": 76,
-    "rust": 96,
+    "python": 119,
+    "javascript": 101,
+    "go": 79,
+    "rust": 98,
     "rust_doctests": 1
   },
   "sibling_versions": {
