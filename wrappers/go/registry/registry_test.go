@@ -189,7 +189,6 @@ func actionIDs(actions []Action) []string {
 }
 
 func TestRedistributionRoundTrip(t *testing.T) {
-	redist := "secondary-source"
 	doc := []byte(`{"actions":[{
 		"isin":"US0000000001",
 		"action_id":"A",
@@ -203,13 +202,24 @@ func TestRedistributionRoundTrip(t *testing.T) {
 		t.Fatalf("load: %v", err)
 	}
 	a := r.ByActionID("A")
-	if a == nil || a.Redistribution == nil || *a.Redistribution != redist {
+	if a == nil || a.Redistribution == nil || *a.Redistribution != "secondary-source" {
 		t.Fatalf("redistribution not preserved: %+v", a)
 	}
 
-	out, _ := r.ToJSON()
-	if !bytes.Contains(out, []byte(`"redistribution":"secondary-source"`)) {
-		t.Fatalf("output missing redistribution: %s", out)
+	out, err := r.ToJSON()
+	if err != nil {
+		t.Fatalf("ToJSON: %v", err)
+	}
+	var parsed struct {
+		Actions []struct {
+			Redistribution string `json:"redistribution"`
+		} `json:"actions"`
+	}
+	if err := json.Unmarshal(out, &parsed); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if len(parsed.Actions) != 1 || parsed.Actions[0].Redistribution != "secondary-source" {
+		t.Fatalf("redistribution not serialized: %s", out)
 	}
 }
 
