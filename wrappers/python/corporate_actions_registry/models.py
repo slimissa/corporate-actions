@@ -91,6 +91,7 @@ class Action:
     ratio: Optional[str] = None
     amount: Optional[float] = None
     currency: Optional[str] = None
+    redistribution: Optional[str] = None
     dates: Dates = field(default_factory=Dates)
     status: Optional[str] = None
     provenance: Provenance = field(default_factory=Provenance)
