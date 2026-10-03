@@ -38,6 +38,9 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
+import pytest
+pytest.importorskip("yfinance", reason="requires yfinance")
+
 import tools.fetch_yahoo_actions as mod
 from tools.fetch_yahoo_actions import (
     MAX_RETRIES,

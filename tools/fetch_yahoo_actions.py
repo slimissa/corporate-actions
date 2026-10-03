@@ -61,12 +61,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 try:
     import yfinance as yf
+    _YFINANCE_AVAILABLE = True
 except ImportError:
-    print(
-        "Error: yfinance is required. Install with: pip install yfinance",
-        file=sys.stderr,
-    )
-    sys.exit(3)
+    yf = None
+    _YFINANCE_AVAILABLE = False
 
 
 # ----------------------------------------------------------------------
@@ -430,6 +428,12 @@ def main() -> int:
         help="Print per-ticker progress and retry messages",
     )
     args = parser.parse_args()
+    if not _YFINANCE_AVAILABLE:
+        print(
+            "Error: yfinance is required. Install with: pip install yfinance",
+            file=sys.stderr,
+        )
+        return 3
 
     min_date = validate_min_date(args.min_date)
     instruments = load_instruments(args.identifiers)
