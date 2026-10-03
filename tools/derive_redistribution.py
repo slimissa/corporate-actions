@@ -125,16 +125,20 @@ def load_actions(path: Path) -> Dict[str, Any]:
 
 def list_mappings() -> None:
     """Print the mapping rules, mirroring docs/redistribution.md."""
+    rows = [
+        ("None or empty", "restricted"),
+        ('"SEC EDGAR"', "public-domain"),
+        ('"Yahoo Finance*"', "secondary-source"),
+        ('contains "press release" (ci)', "facts-only"),
+        ('contains "exchange" + "announcement"', "facts-only"),
+        ("(anything else)", "restricted"),
+    ]
     print("Redistribution mapping rules, in priority order:")
     print()
-    print(f"  {'source pattern':<45}  {'category'}")
+    print(f"  {'source pattern':<45}  category")
     print(f"  {'-' * 45}  {'-' * 20}")
-    print(f"  {'None or empty':<45}  restricted")
-    print(f"  {'\"SEC EDGAR\"':<45}  public-domain")
-    print(f"  {'\"Yahoo Finance*\"':<45}  secondary-source")
-    print(f"  {'contains \"press release\" (ci)':<45}  facts-only")
-    print(f"  {'contains \"exchange\" + \"announcement\"':<45}  facts-only")
-    print(f"  {'(anything else)':<45}  restricted")
+    for pattern, category in rows:
+        print(f"  {pattern:<45}  {category}")
     print()
     print("See docs/redistribution.md for the full definitions.")
 

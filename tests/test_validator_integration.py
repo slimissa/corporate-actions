@@ -196,7 +196,6 @@ def valid_dividend_action(**overrides):
             "share_multiplier": 1.0,
             "cash_adjustment": 0.25,
         },
-        "redistribution": "secondary-source",   
     }
     action.update(overrides)
     return action

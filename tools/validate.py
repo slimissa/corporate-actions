@@ -705,7 +705,6 @@ def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
 
 def validate_redistribution(action: Dict[str, Any]) -> List[str]:
     """Require a redistribution value and match it to the source mapping."""
-    from tools.derive_redistribution import redistribution_for
     errors = []
     value = action.get("redistribution")
     if not value:
