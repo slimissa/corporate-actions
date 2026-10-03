@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from yfinance import data
 
 # Ensure the wrapper package can be imported when running tests directly.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -999,6 +1000,46 @@ class TestContractFixture:
         for bad in _contract_fixture["invalid_date_fields"]:
             with pytest.raises(ValueError, match="invalid date_field"):
                 _contract_registry.by_date_range(None, None, bad)
+
+    def test_redistribution_round_trips(self, tmp_path):
+        data = {
+            "meta": {},
+            "actions": [{
+                "isin": "US0000000001",
+                "action_id": "US0000000001-SPLIT-2024-01-01-2-1",
+                "action_type": "SPLIT",
+                "ratio": "2:1",
+                "redistribution": "secondary-source",
+                "dates": {
+                    "announcement": "2024-01-01",
+                    "effective_date": "2024-01-01",
+                },
+            }],
+        }
+        reg = CorporateActionsRegistry(actions_data=data)
+        action = reg.by_action_id("US0000000001-SPLIT-2024-01-01-2-1")
+        assert action.redistribution == "secondary-source"
+
+        out = tmp_path / "out.json"
+        reg.save(str(out))
+        reloaded = json.loads(out.read_text(encoding="utf-8"))
+        assert reloaded["actions"][0]["redistribution"] == "secondary-source"
+
+
+    def test_redistribution_absent_stays_absent(self, tmp_path):
+        """A wrapper must not invent the field."""
+        data = {"meta": {}, "actions": [{
+            "isin": "US0000000001",
+            "action_id": "US0000000001-SPLIT-2024-01-01-2-1",
+            "action_type": "SPLIT",
+            "ratio": "2:1",
+            "dates": {"announcement": "2024-01-01", "effective_date": "2024-01-01"},
+        }]}
+        reg = CorporateActionsRegistry(actions_data=data)
+        out = tmp_path / "out.json"
+        reg.save(str(out))
+        reloaded = json.loads(out.read_text(encoding="utf-8"))
+        assert "redistribution" not in reloaded["actions"][0]
 
 class TestConstants:
     def test_default_date_field(self):

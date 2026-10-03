@@ -20,6 +20,7 @@ class Dates:
     ex_date: Optional[str] = None
     record_date: Optional[str] = None
     effective_date: Optional[str] = None
+    redistribution: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Optional[Dict[str, Any]]) -> "Dates":
@@ -30,6 +31,7 @@ class Dates:
             ex_date=data.get("ex_date"),
             record_date=data.get("record_date"),
             effective_date=data.get("effective_date"),
+            redistribution=data.get("redistribution"),
         )
 
     def to_dict(self) -> Dict[str, Any]:
