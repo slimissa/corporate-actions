@@ -28,7 +28,8 @@
         "price_multiplier": 0.1,
         "share_multiplier": 10.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "facts-only"
     },
     {
       "isin": "US0378331005",
@@ -51,7 +52,8 @@
         "price_multiplier": 0.25,
         "share_multiplier": 4.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "facts-only"
     },
     {
       "isin": "US30303M1027",
@@ -71,7 +73,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "facts-only"
     },
     {
       "isin": "US0378331005",
@@ -94,7 +97,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -117,7 +121,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -141,7 +146,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -165,7 +171,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.16
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -189,7 +196,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -213,7 +221,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -236,7 +245,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -260,7 +270,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -284,7 +295,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -308,7 +320,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -332,7 +345,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.09
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -356,7 +370,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.09
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -380,7 +395,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.09
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -404,7 +420,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -428,7 +445,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -452,7 +470,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -476,7 +495,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -500,7 +520,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.11
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -524,7 +545,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.11
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -548,7 +570,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.11
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -572,7 +595,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.11
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -596,7 +620,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -620,7 +645,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -644,7 +670,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -668,7 +695,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -692,7 +720,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -716,7 +745,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -740,7 +770,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -764,7 +795,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -788,7 +820,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.16
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -812,7 +845,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.16
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -836,7 +870,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.16
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -860,7 +895,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.16
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -884,7 +920,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -908,7 +945,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -932,7 +970,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -956,7 +995,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.094643
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -980,7 +1020,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1004,7 +1045,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.094643
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1028,7 +1070,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1052,7 +1095,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.094643
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1076,7 +1120,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1100,7 +1145,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.108929
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1124,7 +1170,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1148,7 +1195,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.108929
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1172,7 +1220,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1196,7 +1245,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.108929
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1220,7 +1270,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.28
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1244,7 +1295,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.108929
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1268,7 +1320,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.28
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -1291,7 +1344,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1315,7 +1369,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1175
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1339,7 +1394,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.28
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1362,7 +1418,8 @@
         "price_multiplier": 0.14285714285714285,
         "share_multiplier": 7.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1386,7 +1443,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1175
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1410,7 +1468,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.28
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1434,7 +1493,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1175
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1458,7 +1518,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.31
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1482,7 +1543,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1175
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1506,7 +1568,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.31
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1530,7 +1593,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1554,7 +1618,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.31
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1578,7 +1643,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1602,7 +1668,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.31
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1626,7 +1693,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1650,7 +1718,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.36
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1674,7 +1743,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.13
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1698,7 +1768,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.36
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1722,7 +1793,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1425
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1746,7 +1818,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.36
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1770,7 +1843,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1425
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1794,7 +1868,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.36
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1818,7 +1893,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1425
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1842,7 +1918,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.39
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1866,7 +1943,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1425
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1890,7 +1968,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.39
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1914,7 +1993,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1575
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1938,7 +2018,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.39
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -1962,7 +2043,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1575
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -1986,7 +2068,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.39
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2010,7 +2093,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1575
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2034,7 +2118,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.42
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2058,7 +2143,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1575
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2082,7 +2168,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.42
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2106,7 +2193,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1825
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2130,7 +2218,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.42
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2154,7 +2243,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1825
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2178,7 +2268,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.42
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2202,7 +2293,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1825
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2226,7 +2318,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.46
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2250,7 +2343,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1825
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2274,7 +2368,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.46
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2298,7 +2393,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1925
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2322,7 +2418,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.46
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2346,7 +2443,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1925
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2370,7 +2468,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.46
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2394,7 +2493,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1925
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2418,7 +2518,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.51
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2442,7 +2543,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.1925
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2466,7 +2568,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.51
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2490,7 +2593,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.205
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2514,7 +2618,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.51
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2538,7 +2643,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.205
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2562,7 +2668,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.51
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2586,7 +2693,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.205
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2610,7 +2718,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.56
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2634,7 +2743,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.205
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2658,7 +2768,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.56
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2682,7 +2793,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2706,7 +2818,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.56
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2730,7 +2843,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2754,7 +2868,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.56
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2778,7 +2893,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2802,7 +2918,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.62
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2826,7 +2943,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2850,7 +2968,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.62
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2874,7 +2993,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2898,7 +3018,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.62
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0231351067",
@@ -2921,7 +3042,8 @@
         "price_multiplier": 0.05,
         "share_multiplier": 20.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -2944,7 +3066,8 @@
         "price_multiplier": 0.05,
         "share_multiplier": 20.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -2968,7 +3091,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -2992,7 +3116,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.62
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3016,7 +3141,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3040,7 +3166,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.68
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3064,7 +3191,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.23
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3088,7 +3216,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.68
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3112,7 +3241,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.24
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3136,7 +3266,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.68
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3160,7 +3291,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.24
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3184,7 +3316,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.68
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3208,7 +3341,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.24
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3232,7 +3366,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.75
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3256,7 +3391,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.24
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3280,7 +3416,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.75
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3304,7 +3441,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.5
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3328,7 +3466,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.75
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3352,7 +3491,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3376,7 +3516,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.5
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3400,7 +3541,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3424,7 +3566,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.75
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3448,7 +3591,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3472,7 +3616,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.5
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3496,7 +3641,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3520,7 +3666,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.83
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3544,7 +3691,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3568,7 +3716,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.5
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3592,7 +3741,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3616,7 +3766,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.83
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3640,7 +3791,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.2
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3664,7 +3816,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3688,7 +3841,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.26
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3712,7 +3866,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.83
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3736,7 +3891,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.21
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3760,7 +3916,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3784,7 +3941,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.26
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3808,7 +3966,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.83
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3832,7 +3991,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.21
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3856,7 +4016,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3880,7 +4041,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.26
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -3904,7 +4066,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.91
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -3928,7 +4091,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.21
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -3952,7 +4116,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -3976,7 +4141,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.26
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -4000,7 +4166,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.91
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -4024,7 +4191,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.21
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -4048,7 +4216,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -4072,7 +4241,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.27
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -4096,7 +4266,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.91
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -4120,7 +4291,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US30303M1027",
@@ -4144,7 +4316,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.525
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -4168,7 +4341,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.27
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US5949181045",
@@ -4192,7 +4366,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.91
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US02079K1079",
@@ -4216,7 +4391,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.22
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4237,7 +4413,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4258,7 +4435,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4279,7 +4457,8 @@
         "price_multiplier": 0.5,
         "share_multiplier": 2.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4300,7 +4479,8 @@
         "price_multiplier": 0.6666666666666666,
         "share_multiplier": 1.5,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4323,7 +4503,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.001875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4346,7 +4527,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.001875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4369,7 +4551,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.001875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4392,7 +4575,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.001875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4415,7 +4599,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4438,7 +4623,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4461,7 +4647,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4484,7 +4671,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4507,7 +4695,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4530,7 +4719,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002125
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4553,7 +4743,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00245
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4576,7 +4767,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00245
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4599,7 +4791,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4622,7 +4815,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4645,7 +4839,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4668,7 +4863,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.002875
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4691,7 +4887,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0035
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4714,7 +4911,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0035
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4737,7 +4935,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0035
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4760,7 +4959,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.0035
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4783,7 +4983,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00375
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4806,7 +5007,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00375
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4829,7 +5031,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00375
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4852,7 +5055,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.00375
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4875,7 +5079,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4898,7 +5103,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4921,7 +5127,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4944,7 +5151,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4967,7 +5175,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -4990,7 +5199,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5013,7 +5223,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5036,7 +5247,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5059,7 +5271,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5082,7 +5295,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5105,7 +5319,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5126,7 +5341,8 @@
         "price_multiplier": 0.25,
         "share_multiplier": 4.0,
         "cash_adjustment": 0.0
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5149,7 +5365,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5172,7 +5389,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5195,7 +5413,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5218,7 +5437,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5241,7 +5461,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5264,7 +5485,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5287,7 +5509,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5310,7 +5533,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5333,7 +5557,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5356,7 +5581,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5379,7 +5605,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.004
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5402,7 +5629,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5425,7 +5653,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5448,7 +5677,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5471,7 +5701,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5494,7 +5725,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5517,7 +5749,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5540,7 +5773,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5563,7 +5797,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.01
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5586,7 +5821,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US67066G1040",
@@ -5609,7 +5845,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "secondary-source"
     },
     {
       "isin": "US0378331005",
@@ -5634,7 +5871,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.25
-      }
+      },
+      "redistribution": "facts-only"
     },
     {
       "isin": "US5949181045",
@@ -5659,7 +5897,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 0.08
-      }
+      },
+      "redistribution": "facts-only"
     },
     {
       "isin": "US5949181045",
@@ -5684,7 +5923,8 @@
         "price_multiplier": 1.0,
         "share_multiplier": 1.0,
         "cash_adjustment": 3.0
-      }
+      },
+      "redistribution": "facts-only"
     }
   ]
 }
