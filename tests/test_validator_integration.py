@@ -143,6 +143,7 @@ def valid_split_action(**overrides):
         "action_id": "US67066G1040-SPLIT-2024-06-10-10-1",
         "action_type": "SPLIT",
         "ratio": "10:1",
+        "redistribution": "secondary-source", 
         "dates": {
             "announcement": "2024-05-22",
             "ex_date": "2024-06-10",
@@ -159,7 +160,6 @@ def valid_split_action(**overrides):
             "share_multiplier": 10.0,
             "cash_adjustment": 0.0,
         },
-        "redistribution": "secondary-source",
     }
     action.update(overrides)
     return action
@@ -179,6 +179,7 @@ def valid_dividend_action(**overrides):
         "action_type": "DIVIDEND",
         "amount": 0.25,
         "currency": "USD",
+        "redistribution": "secondary-source", 
         "dates": {
             "announcement": "2024-05-02",
             "ex_date": "2024-05-16",
