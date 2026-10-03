@@ -98,6 +98,7 @@ type Action struct {
 	Status     *string     `json:"status,omitempty"`
 	Provenance *Provenance `json:"provenance,omitempty"`
 	Impact     *Impact     `json:"impact,omitempty"`
+	Redistribution *string `json:"redistribution,omitempty"`
 }
 
 // Meta contains metadata about the registry file.
@@ -162,7 +163,10 @@ func deepCopyAction(a Action) Action {
 		s := *a.Status
 		dst.Status = &s
 	}
-
+	if a.Redistribution != nil {
+		s := *a.Redistribution
+		dst.Redistribution = &s
+	}
 	if a.Dates != nil {
 		d := *a.Dates
 		if a.Dates.Announcement != nil {

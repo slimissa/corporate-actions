@@ -187,6 +187,65 @@ func actionIDs(actions []Action) []string {
 	return ids
 }
 
+func TestRedistributionRoundTrip(t *testing.T) {
+	redist := "secondary-source"
+	doc := []byte(`{"actions":[{
+		"isin":"US0000000001",
+		"action_id":"A",
+		"action_type":"SPLIT",
+		"ratio":"2:1",
+		"redistribution":"secondary-source",
+		"dates":{"announcement":"2024-01-01","effective_date":"2024-01-01"}
+	}]}`)
+	r, err := FromJSON(doc)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	a := r.ByActionID("A")
+	if a == nil || a.Redistribution == nil || *a.Redistribution != redist {
+		t.Fatalf("redistribution not preserved: %+v", a)
+	}
+
+	out, _ := r.ToJSON()
+	if !bytes.Contains(out, []byte(`"redistribution":"secondary-source"`)) {
+		t.Fatalf("output missing redistribution: %s", out)
+	}
+}
+
+func TestAbsentRedistributionNotSerialized(t *testing.T) {
+	doc := []byte(`{"actions":[{
+		"isin":"US0000000001",
+		"action_id":"A",
+		"action_type":"SPLIT",
+		"ratio":"2:1",
+		"dates":{"announcement":"2024-01-01","effective_date":"2024-01-01"}
+	}]}`)
+	r, _ := FromJSON(doc)
+	out, _ := r.ToJSON()
+	if bytes.Contains(out, []byte(`"redistribution"`)) {
+		t.Fatalf("absent field must not serialize: %s", out)
+	}
+}
+
+func TestDeepCopyRedistribution(t *testing.T) {
+	doc := []byte(`{"actions":[{
+		"isin":"US0000000001",
+		"action_id":"A",
+		"action_type":"SPLIT",
+		"ratio":"2:1",
+		"redistribution":"secondary-source",
+		"dates":{"announcement":"2024-01-01","effective_date":"2024-01-01"}
+	}]}`)
+	r, _ := FromJSON(doc)
+	a := r.ByActionID("A")
+	mutated := "public-domain"
+	a.Redistribution = &mutated
+	again := r.ByActionID("A")
+	if *again.Redistribution != "secondary-source" {
+		t.Fatalf("deep copy did not isolate: %s", *again.Redistribution)
+	}
+}
+
 // ----------------------------------------------------------------------
 // LoadRegistry / FromJSON
 // ----------------------------------------------------------------------
