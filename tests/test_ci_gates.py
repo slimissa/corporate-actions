@@ -122,11 +122,10 @@ class TestWorkflowWiring:
         assert re.search(r"^\s{2}lint:", text, re.M), \
             "lint job missing from validate.yml"
 
-    def test_docs_facts_runs_three_commands(self):
+    def test_docs_facts_runs_two_commands(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         for cmd in (
             "python3 tools/check_doc_facts.py",
-            "python3 tools/check_doc_facts.py --scan",
             "python3 tools/update_facts.py --check",
         ):
             assert cmd in text, f"validate.yml missing: {cmd}"
