@@ -68,10 +68,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install jsonschema rfc3339-validator
+      - run: pip install jsonschema rfc3339-validator pytest    # ← add pytest
       - name: check_doc_facts
         run: python3 tools/check_doc_facts.py
-      # REMOVED: duplicate "--scan" step (ran the same command)
       - name: update_facts --check
         run: python3 tools/update_facts.py --check
 
