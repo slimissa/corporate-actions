@@ -78,6 +78,10 @@
             "pattern": "^\\d+:\\d+$",
             "description": "Split ratio (e.g., '10:1' for a 10-for-1 forward split, '1:10' for a reverse split)."
           },
+          "redistribution": {
+            "type": "string",
+            "enum": ["public-domain", "facts-only", "secondary-source", "restricted"]
+          },  
           "amount": {
             "type": "number",
             "minimum": 0,
