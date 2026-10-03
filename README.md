@@ -106,10 +106,10 @@ tool can depend on. It is language-agnostic by design.
 | Yahoo Finance fetcher | ✅ Working |
 | SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
 | Validator | ✅ All 7 layers |
-| Python wrapper | ✅ 117 tests |
-| JavaScript wrapper | ✅ 99 tests |
-| Go wrapper | ✅ 76 tests |
-| Rust wrapper | ✅ 96 tests + 1 doctest |
+| Python wrapper | ✅ 119 tests |
+| JavaScript wrapper | ✅ 101 tests |
+| Go wrapper | ✅ 79 tests |
+| Rust wrapper | ✅ 98 tests + 1 doctest |
 | Reject list | ✅ Enforced in merge step |
 | Doc-fact consistency | ✅ CI-gated |
 | Build artifact consistency | ✅ CI-gated |
@@ -488,10 +488,10 @@ corporate-actions/
 │   └── README.md
 │
 ├── wrappers/                    # Language bindings
-│   ├── python/                  # 117 tests
-│   ├── javascript/              # 99 tests
-│   ├── go/                      # 76 tests
-│   └── rust/                    # 96 tests + 1 doctest
+│   ├── python/                  # 119 tests
+│   ├── javascript/              # 101 tests
+│   ├── go/                      # 79 tests
+│   └── rust/                    # 98 tests + 1 doctest
 │
 ├── examples/                    # Usage examples
 ├── tests/                       # Root test suite
