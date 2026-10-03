@@ -36,7 +36,13 @@ import json
 import os
 import sys
 import re
+from pathlib import Path
 from typing import Dict, List, Set, Any, Optional, Tuple
+
+# Ensure the repo root is importable when this file is run as a script.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 try:
     import jsonschema
@@ -44,6 +50,8 @@ try:
 except ImportError:
     print("Error: jsonschema is required. Install with: pip install jsonschema", file=sys.stderr)
     sys.exit(2)
+
+from tools.derive_redistribution import redistribution_for
 
 CANONICAL_ACTION_ID_RE = re.compile(
     r"^"
@@ -695,6 +703,24 @@ def validate_semantic_uniqueness(actions: List[Dict[str, Any]]) -> List[str]:
             )
     return errors
 
+def validate_redistribution(action: Dict[str, Any]) -> List[str]:
+    """Require a redistribution value and match it to the source mapping."""
+    from tools.derive_redistribution import redistribution_for
+    errors = []
+    value = action.get("redistribution")
+    if not value:
+        return ["missing redistribution"]
+    if value == "restricted":
+        return ["redistribution is 'restricted' — add a mapping rule"]
+    source = (action.get("provenance") or {}).get("source")
+    expected = redistribution_for(source)
+    if value != expected:
+        errors.append(
+            f"redistribution {value!r} does not match source mapping "
+            f"(expected {expected!r} for source {source!r})"
+        )
+    return errors
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Validate Corporate Actions Registry")
@@ -850,6 +876,13 @@ def main():
         prov_errors = validate_provenance(action)
         if prov_errors:
             all_errors.extend([f"Action {action_id}: provenance: {e}" for e in prov_errors])
+
+        # 5b. Redistribution validation
+        redis_errors = validate_redistribution(action)
+        if redis_errors:
+            all_errors.extend(
+                [f"Action {action_id}: redistribution: {e}" for e in redis_errors]
+            )
 
     # 6. Uniqueness validation (across all actions)
     uniqueness_errors = validate_uniqueness(actions)

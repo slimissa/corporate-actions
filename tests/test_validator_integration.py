@@ -159,6 +159,7 @@ def valid_split_action(**overrides):
             "share_multiplier": 10.0,
             "cash_adjustment": 0.0,
         },
+        "redistribution": "secondary-source",
     }
     action.update(overrides)
     return action
@@ -194,6 +195,7 @@ def valid_dividend_action(**overrides):
             "share_multiplier": 1.0,
             "cash_adjustment": 0.25,
         },
+        "redistribution": "secondary-source",   
     }
     action.update(overrides)
     return action
@@ -533,6 +535,29 @@ class TestProvenance:
         assert result.returncode == 1
         assert "HTTP" in result.stdout or "ftp" in result.stdout
 
+    def test_missing_redistribution_is_rejected(self, project):
+        action = valid_split_action()
+        del action["redistribution"]
+        write_actions(project, [action])
+        result = run_validator(project / "actions.json", project)
+        assert result.returncode == 1
+        assert "redistribution" in result.stdout
+
+    def test_restricted_redistribution_is_rejected(self, project):
+        action = valid_split_action()
+        action["redistribution"] = "restricted"
+        write_actions(project, [action])
+        result = run_validator(project / "actions.json", project)
+        assert result.returncode == 1
+        assert "restricted" in result.stdout
+
+    def test_mismatched_redistribution_is_rejected(self, project):
+        action = valid_split_action()
+        action["redistribution"] = "public-domain"   # source is not SEC
+        write_actions(project, [action])
+        result = run_validator(project / "actions.json", project)
+        assert result.returncode == 1
+        assert "does not match" in result.stdout
 
 # ---------------------------------------------------------------------------
 # Coverage layer
