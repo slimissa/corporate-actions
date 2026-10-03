@@ -135,6 +135,8 @@ pub struct Action {
     pub status: Option<String>,
     pub provenance: Option<Provenance>,
     pub impact: Option<Impact>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub redistribution: Option<String>,
 }
 
 /// Metadata about the registry file.

@@ -1076,3 +1076,48 @@ fn by_ticker_unknown_exchange_returns_empty() {
         .unwrap();
     assert!(got.is_empty());
 }
+
+#[test]
+fn redistribution_round_trips() {
+    let doc = json!({
+        "actions": [{
+            "isin": "US0000000001",
+            "action_id": "A",
+            "action_type": "SPLIT",
+            "ratio": "2:1",
+            "redistribution": "secondary-source",
+            "dates": {
+                "announcement": "2024-01-01",
+                "effective_date": "2024-01-01"
+            }
+        }]
+    });
+    let reg = Registry::from_value(doc).unwrap();
+    let a = reg.by_action_id("A").unwrap();
+    assert_eq!(a.redistribution.as_deref(), Some("secondary-source"));
+
+    let json_out = reg.to_json();
+    let serialized = serde_json::to_string(&json_out).unwrap();
+    assert!(serialized.contains("\"redistribution\":\"secondary-source\""));
+}
+
+#[test]
+fn absent_redistribution_is_not_serialized_as_null() {
+    let doc = json!({
+        "actions": [{
+            "isin": "US0000000001",
+            "action_id": "A",
+            "action_type": "SPLIT",
+            "ratio": "2:1",
+            "dates": {
+                "announcement": "2024-01-01",
+                "effective_date": "2024-01-01"
+            }
+        }]
+    });
+    let reg = Registry::from_value(doc).unwrap();
+    let json_out = reg.to_json();
+    let serialized = serde_json::to_string(&json_out).unwrap();
+    assert!(!serialized.contains("\"redistribution\""),
+            "absent field must not serialize at all: {}", serialized);
+}
