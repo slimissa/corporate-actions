@@ -1049,3 +1049,33 @@ describe('byTicker', () => {
         });
     }
 });
+
+describe('redistribution', () => {
+  it('round-trips through toJSON', () => {
+    const data = { actions: [{
+      isin: 'US0000000001',
+      action_id: 'A',
+      action_type: 'SPLIT',
+      ratio: '2:1',
+      redistribution: 'secondary-source',
+      dates: { announcement: '2024-01-01', effective_date: '2024-01-01' },
+    }]};
+    const reg = new CorporateActionsRegistry(data);
+    assert.strictEqual(reg.byActionId('A').redistribution, 'secondary-source');
+    const out = reg.toJSON();
+    assert.strictEqual(out.actions[0].redistribution, 'secondary-source');
+  });
+
+  it('does not invent absent redistribution', () => {
+    const data = { actions: [{
+      isin: 'US0000000001',
+      action_id: 'A',
+      action_type: 'SPLIT',
+      ratio: '2:1',
+      dates: { announcement: '2024-01-01', effective_date: '2024-01-01' },
+    }]};
+    const reg = new CorporateActionsRegistry(data);
+    const out = reg.toJSON();
+    assert.ok(!('redistribution' in out.actions[0]));
+  });
+});
