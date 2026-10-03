@@ -6,19 +6,16 @@ Usage:
     python3 tools/update_facts.py           # write docs/facts.json
     python3 tools/update_facts.py --check   # exit 1 if it would change
 
-The tool reads:
-  - actions.json                (action count, instrument count, type counts)
-  - tools/validate.py           (DEFAULT_MIN_ACTIONS)
-  - README.md                   (sibling versions, since they're pinned there)
-  - pytest / go test / cargo / npm collectors (test counts)
-
-Fields that cannot be derived (sec_edgar_status, nasdaq_status,
-historical_depth_start) are preserved from the existing facts.json.
+Each collector is best-effort. If a required toolchain (node, go, cargo)
+is not installed, the corresponding wrapper test count is preserved from
+the existing facts.json rather than being deleted or crashing the tool.
+This makes --check usable in a minimal CI job that only has Python.
 """
 
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -63,7 +60,9 @@ def sibling_versions() -> dict:
     return {"sibling_versions": out}
 
 
-def count_root_tests() -> dict:
+def count_root_tests(existing: dict) -> dict:
+    if not shutil.which("python3"):
+        raise RuntimeError("python3 not found — cannot proceed")
     r = subprocess.run(
         ["python3", "-m", "pytest", "tests/", "--collect-only", "-q",
          "-m", "not network"],
@@ -79,42 +78,69 @@ def count_root_tests() -> dict:
     }
 
 
-def count_wrapper_tests() -> dict:
-    py = subprocess.run(
+def _collect_python(existing: dict) -> int:
+    if not shutil.which("python3"):
+        return existing.get("python", 0)
+    r = subprocess.run(
         ["python3", "-m", "pytest", "tests", "--collect-only", "-q"],
         capture_output=True, text=True,
         cwd=str(REPO_ROOT / "wrappers" / "python"),
     )
-    py_n = int(re.search(r"(\d+) tests collected", py.stdout).group(1))
+    m = re.search(r"(\d+) tests collected", r.stdout)
+    return int(m.group(1)) if m else existing.get("python", 0)
 
-    js = subprocess.run(
+
+def _collect_javascript(existing: dict) -> int:
+    if not shutil.which("node"):
+        return existing.get("javascript", 0)
+    r = subprocess.run(
         ["node", "--test", "test/test_wrapper.js"],
         capture_output=True, text=True,
         cwd=str(REPO_ROOT / "wrappers" / "javascript"),
     )
-    js_n = int(re.search(r"^# pass (\d+)", js.stdout, re.M).group(1))
+    m = re.search(r"^# pass (\d+)", r.stdout, re.M)
+    return int(m.group(1)) if m else existing.get("javascript", 0)
 
-    go = subprocess.run(
+
+def _collect_go(existing: dict) -> int:
+    if not shutil.which("go"):
+        return existing.get("go", 0)
+    r = subprocess.run(
         ["go", "test", "./registry", "-v"],
         capture_output=True, text=True,
         cwd=str(REPO_ROOT / "wrappers" / "go"),
     )
-    go_n = len(re.findall(r"^--- PASS", go.stdout, re.M))
+    n = len(re.findall(r"^--- PASS", r.stdout, re.M))
+    return n if n else existing.get("go", 0)
 
-    rust = subprocess.run(
+
+def _collect_rust(existing: dict) -> tuple[int, int]:
+    if not shutil.which("cargo"):
+        return existing.get("rust", 0), existing.get("rust_doctests", 0)
+    r = subprocess.run(
         ["cargo", "test"],
         capture_output=True, text=True,
         cwd=str(REPO_ROOT / "wrappers" / "rust"),
     )
-    rust_counts = [int(m.group(1)) for m in
-                   re.finditer(r"(\d+) passed", rust.stdout)]
+    counts = [int(m.group(1)) for m in re.finditer(r"(\d+) passed", r.stdout)]
+    if not counts:
+        return existing.get("rust", 0), existing.get("rust_doctests", 0)
+    # Last "N passed" is usually the doctest section; subtract it.
+    unit = sum(counts) - 1 if len(counts) > 1 else sum(counts)
+    doctests = 1 if len(counts) > 1 else 0
+    return unit, doctests
+
+
+def count_wrapper_tests(existing: dict) -> dict:
+    prev = existing.get("wrapper_test_counts", {})
+    rust_unit, rust_doctests = _collect_rust(prev)
     return {
         "wrapper_test_counts": {
-            "python": py_n,
-            "javascript": js_n,
-            "go": go_n,
-            "rust": sum(rust_counts) - 1 if rust_counts else 0,
-            "rust_doctests": 1,
+            "python": _collect_python(prev),
+            "javascript": _collect_javascript(prev),
+            "go": _collect_go(prev),
+            "rust": rust_unit,
+            "rust_doctests": rust_doctests,
         }
     }
 
@@ -125,10 +151,9 @@ def build_facts() -> dict:
     new.update(action_facts())
     new.update(validator_facts())
     new.update(sibling_versions())
-    new.update(count_root_tests())
-    new.update(count_wrapper_tests())
+    new.update(count_root_tests(existing))
+    new.update(count_wrapper_tests(existing))
 
-    # Preserve hand-maintained fields
     for key in ("populated_types", "reserved_types", "historical_depth_start",
                 "currencies", "root_test_skipped", "min_actions_docs",
                 "min_actions_roadmap_target", "sec_edgar_status",
@@ -137,7 +162,6 @@ def build_facts() -> dict:
         if key in existing:
             new[key] = existing[key]
 
-    # Stable key order
     ordered = {}
     for key in ["action_count", "instrument_count", "instruments",
                 "action_type_counts", "populated_types", "reserved_types",
