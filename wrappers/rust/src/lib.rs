@@ -28,11 +28,11 @@ mod ticker_index;
 
 // Re-export the test helper so external integration tests can reset the
 // per-path ticker index cache. See docs/wrapper_contract.md section 8.3.
-pub use ticker_index::reset_cache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+pub use ticker_index::reset_cache;
 
 // ---------------------------------------------------------------------------
 // Exported constants (wrapper contract section 4.9)
@@ -46,12 +46,8 @@ pub const DEFAULT_DATE_FIELD: &str = "ex_date";
 /// The closed set of date field names accepted by
 /// [`Registry::by_date_range`]. Callers who want to enumerate the
 /// choices should read this slice rather than duplicating the list.
-pub const VALID_DATE_FIELDS: &[&str] = &[
-    "announcement",
-    "ex_date",
-    "record_date",
-    "effective_date",
-];
+pub const VALID_DATE_FIELDS: &[&str] =
+    &["announcement", "ex_date", "record_date", "effective_date"];
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -261,8 +257,8 @@ impl Registry {
             }
 
             // Missing-identifier check (wrapper contract section 5.6).
-            let has_isin = action.isin.as_deref().map_or(false, |s| !s.is_empty());
-            let has_id = action.action_id.as_deref().map_or(false, |s| !s.is_empty());
+            let has_isin = action.isin.as_deref().is_some_and(|s| !s.is_empty());
+            let has_id = action.action_id.as_deref().is_some_and(|s| !s.is_empty());
             if !has_isin && !has_id {
                 return Err(RegistryError::InvalidStructure(format!(
                     "action at index {} has neither 'isin' nor 'action_id'",
