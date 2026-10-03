@@ -107,6 +107,7 @@ class Action:
             ratio=data.get("ratio"),
             amount=data.get("amount"),
             currency=data.get("currency"),
+            redistribution=data.get("redistribution"),  
             dates=Dates.from_dict(data.get("dates")),
             status=data.get("status"),
             provenance=Provenance.from_dict(data.get("provenance")),
