@@ -1118,6 +1118,9 @@ fn absent_redistribution_is_not_serialized_as_null() {
     let reg = Registry::from_value(doc).unwrap();
     let json_out = reg.to_json();
     let serialized = serde_json::to_string(&json_out).unwrap();
-    assert!(!serialized.contains("\"redistribution\""),
-            "absent field must not serialize at all: {}", serialized);
+    assert!(
+        !serialized.contains("\"redistribution\""),
+        "absent field must not serialize at all: {}",
+        serialized
+    );
 }
