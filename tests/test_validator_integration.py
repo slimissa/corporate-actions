@@ -152,7 +152,7 @@ def valid_split_action(**overrides):
         },
         "status": "COMPLETED",
         "provenance": {
-            "source": "NVIDIA Corp press release",
+            "source": "Yahoo Finance (yfinance)",
             "source_url": "https://example.com/nvda-split",
         },
         "impact": {
@@ -188,7 +188,7 @@ def valid_dividend_action(**overrides):
         },
         "status": "COMPLETED",
         "provenance": {
-            "source": "Test",
+            "source": "Yahoo Finance (yfinance)",
             "source_url": "https://example.com/div",
         },
         "impact": {
