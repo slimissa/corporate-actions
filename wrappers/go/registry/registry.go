@@ -88,17 +88,17 @@ type Impact struct {
 
 // Action represents a single corporate action entry.
 type Action struct {
-	ISIN       *string     `json:"isin,omitempty"`
-	ActionID   *string     `json:"action_id,omitempty"`
-	ActionType *string     `json:"action_type,omitempty"`
-	Ratio      *string     `json:"ratio,omitempty"`
-	Amount     *float64    `json:"amount,omitempty"`
-	Currency   *string     `json:"currency,omitempty"`
-	Dates      *Dates      `json:"dates,omitempty"`
-	Status     *string     `json:"status,omitempty"`
-	Provenance *Provenance `json:"provenance,omitempty"`
-	Impact     *Impact     `json:"impact,omitempty"`
-	Redistribution *string `json:"redistribution,omitempty"`
+	ISIN           *string     `json:"isin,omitempty"`
+	ActionID       *string     `json:"action_id,omitempty"`
+	ActionType     *string     `json:"action_type,omitempty"`
+	Ratio          *string     `json:"ratio,omitempty"`
+	Amount         *float64    `json:"amount,omitempty"`
+	Currency       *string     `json:"currency,omitempty"`
+	Dates          *Dates      `json:"dates,omitempty"`
+	Status         *string     `json:"status,omitempty"`
+	Provenance     *Provenance `json:"provenance,omitempty"`
+	Impact         *Impact     `json:"impact,omitempty"`
+	Redistribution *string     `json:"redistribution,omitempty"`
 }
 
 // Meta contains metadata about the registry file.

@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -452,13 +453,13 @@ func TestByISINFreshSlice(t *testing.T) {
 }
 
 func TestByISINDeepCopy(t *testing.T) {
-    r := loadSample(t)
-    first := r.ByISIN("US0378331005")
-    *first[0].Dates.ExDate = "1900-01-01"
-    again := r.ByISIN("US0378331005")
-    if *again[0].Dates.ExDate == "1900-01-01" {
-        t.Errorf("registry state corrupted: got %s", *again[0].Dates.ExDate)
-    }
+	r := loadSample(t)
+	first := r.ByISIN("US0378331005")
+	*first[0].Dates.ExDate = "1900-01-01"
+	again := r.ByISIN("US0378331005")
+	if *again[0].Dates.ExDate == "1900-01-01" {
+		t.Errorf("registry state corrupted: got %s", *again[0].Dates.ExDate)
+	}
 }
 
 // ----------------------------------------------------------------------
