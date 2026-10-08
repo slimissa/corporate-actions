@@ -71,6 +71,8 @@ jobs:
       - run: pip install -r requirements-dev.txt jsonschema rfc3339-validator
       - name: check_doc_facts
         run: python3 tools/check_doc_facts.py
+      - name: check_ecosystem_versions
+        run: python3 tools/check_ecosystem_versions.py
       - name: update_facts --check
         run: python3 tools/update_facts.py --check
 
