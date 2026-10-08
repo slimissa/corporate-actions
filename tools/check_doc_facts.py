@@ -96,8 +96,11 @@ CHECKS: list[tuple[str, str, str, str]] = [
         "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/roadmap.md ---------------------------------------------------
-    ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|",
-        "action_count", "int"),
+    ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|", "action_count", "int"),
+    ("docs/roadmap.md", r"\|\s*Instruments covered\s*\|\s*(\d+)", "instrument_count", "int"),
+    ("docs/roadmap.md", r"\|\s*Root tests\s*\|\s*(\d+)", "root_test_count", "int"),
+    ("docs/roadmap.md", r"ISO 4217.*?v(\d+\.\d+\.\d+)", "sibling_versions.iso4217", "version"),
+    ("docs/roadmap.md", r"Exchange Calendar.*?v(\d+\.\d+\.\d+)", "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/validation_layers.md -----------------------------------------
     ("docs/validation_layers.md", r"OK:\s*(\d+)\s+actions validated",

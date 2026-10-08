@@ -30,24 +30,28 @@ version section states its success criteria so that "done" is falsifiable.
 
 ## Where we are now
 
-As of v1.0.0, the Corporate Actions Registry has:
+As of v1.1.1 (2026-10-08):
 
 | Metric | Value |
 |--------|-------|
 | Actions | 240 |
 | Instruments covered | 6 US large caps |
 | Action types populated | 4 of 8 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`) |
-| Languages | Python, JavaScript, Go, Rust |
-| Wrapper tests | 93 (JS) + 70 (Rust) |
-| Root tests | 781 |
-| CI workflows | 3 (`validate`, `check-sources`, `update-actions`) |
-| Working fetchers | 2 (Yahoo Finance via `yfinance`; SEC EDGAR for SYMBOL_CHANGE/DELISTING) |
-| Broken fetchers | 0 |
-| Documentation | Complete for action types, data sources, validation |
+| Action types accepted but unpopulated | 3 of 8 (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`) |
+| Action types rejected by validator | 1 of 8 (`MERGER`) |
+| Redistribution categories in use | 2 (`secondary-source`, `facts-only`) |
+| Root tests | <N> |
+| Wrapper tests | 119 Python, 101 JavaScript, 79 Go, 98 Rust (+1 doctest) |
+| CI workflows | 1 (`validate.yml`, 6 jobs) |
+| Working fetchers | 2 (Yahoo Finance; SEC EDGAR for SYMBOL_CHANGE, DELISTING) |
+| SEC filing coverage | Full history (archive loading added v1.1.1) |
+| SEC corpus | 2 positives, 9 negatives |
+| Redistribution doc | `docs/redistribution.md` |
+| Sibling registries pinned | `tools/sibling_versions.json` |
 
-The registry is **production-ready for US equities splits and dividends**.
-Everything else is roadmap.
-
+The registry is **production-ready for US-equity splits, dividends,
+and symbol changes across six large-cap instruments**. Expansion to a
+larger instrument set is v1.2.0.
 ---
 
 ## Release philosophy
@@ -86,7 +90,7 @@ change that will be included in the next release.
 
 ## v1.0.0 — Foundation
 
-**Status**: Shipped. Tag `v1.0.0`.
+**Status**: Shipped. Tag `v1.0.0` (2026-09-13).
 
 **Success criteria**:
 
@@ -260,96 +264,130 @@ Extend the key with normalized comparisons.
 
 ---
 
-## v1.2.0 — International expansion
+## v1.1.1 — Hardening and licensing
 
-**Status**: Planned.
+**Status**: Shipped 2026-10-08.
 
-**Target**: 2–4 months after v1.1.0.
+**Theme**: The fetch pipeline was hardened against its two largest
+failure modes, and the registry gained a documented legal position for
+the data it redistributes.
 
-**Theme**: Extend coverage beyond US equities.
+### What shipped
+
+**Fetch pipeline (Phase 2)**
+
+- **SEC false-positive reduction.** `extract_new_symbol` now requires
+  a filing anchor (`Item 5.03`, `5.07`, `7.01`, or `8.01`) within
+  2000 characters of the match. Cover-page "Trading Symbol(s)" tables
+  and notes issuances no longer produce false positives.
+- **SEC archive loading.** `fetch_all_filings` merges
+  `filings.recent` with every archive listed under `filings.files[]`,
+  deduped by accession number. Coverage extends from ~2 years to the
+  full filing history SEC publishes.
+- **Yahoo `--ticker-offset`.** Enables chunked parallel fetches across
+  CI runners.
+- **`derive_impacts.py --check`.** Verify impacts in place without
+  writing.
+- **`--summary` alignment.** All four lookup examples behave identically.
+- **Exit-code convention.** `docs/exit_codes.md` defines 0/1/2/3;
+  `tests/test_exit_codes.py` enforces it across all tools.
+
+**Licensing (Phase 3)**
+
+- **`docs/redistribution.md`.** Four categories (`public-domain`,
+  `facts-only`, `secondary-source`, `restricted`), the *Feist* legal
+  theory, a takedown procedure, and jurisdictional limits.
+- **`redistribution` field on every action.** Required by the schema,
+  enforced by the validator, mapped by
+  `tools/derive_redistribution.py`, preserved by all four wrappers.
+- **Current distribution:** 234 `secondary-source`, 6 `facts-only`,
+  0 `restricted`.
+
+**Consolidation**
+
+- `tools/check_mojibake.py` — UTF-8 corruption detector, wired into CI
+- `tools/check_ecosystem_versions.py` + `tools/sibling_versions.json` —
+  README ecosystem table gated against pinned sibling versions
+- `tests/conftest.py` — canonical action factories shared across tests
+- `docs/roadmap.md` (this file) — metrics verified against `facts.json`
+
+### What did not ship
+
+- 50-instrument expansion — moved to v1.2.0
+- `--strict-isin` default flip — moved to v1.2.0
+- MERGER extraction — moved to v1.2.0
+- Ex-date trading-day check — moved to v1.2.0
+
+## v1.2.0 — Expansion
+
+**Status**: In progress.
+
+**Target**: TBD. Depends on rate-limit strategy and corpus growth.
+
+**Theme**: Extend the registry from 6 to a production-relevant
+instrument count, and close the remaining semantic gaps.
 
 ### Success criteria
 
-- [ ] At least 3 non-US markets covered (EU, JP, HK or UK)
-- [ ] Non-USD dividend amounts stored correctly
-- [ ] Currency conversion optional but supported
-- [ ] At least 200 instruments total
-- [ ] At least 2,000 actions total
+- [ ] Rate limiter on the Yahoo fetcher (token bucket, target 6 req/sec)
+- [ ] 50-instrument fetch verified end-to-end
+- [ ] 500-instrument fetch verified
+- [ ] `--min-actions` floor becomes a rolling percentage of the last
+      known count
+- [ ] `--strict-isin` flipped to default
+- [ ] SEC corpus grown to 20+ positives across sectors
+- [ ] MERGER accepted by the validator (schema already reserves it)
+- [ ] `REVERSE_SPLIT`, `SPINOFF`, and `DELISTING` each populated with at
+      least one entry
+- [ ] Ex-date trading-day check added as a validation layer
+- [ ] `docs/action_types.md` fully specifies all eight types including
+      the accepted-but-unpopulated three
 
 ### Items
 
-#### 1. ESMA FIRDS integration
+#### 1. Rate limiter
 
-**Priority**: High
-**Effort**: 2–3 weeks
+Add a global token bucket to `fetch_yahoo_actions.py`. Without it, a
+500-instrument fetch hits Yahoo's 429 limit around ticker 200.
 
-ESMA FIRDS provides EU instrument reference data (ISIN, MIC, currency) as
-daily XML/CSV files. It is open data. It does not contain corporate actions
-directly, but it identifies which instruments to fetch corporate actions for
-from other sources.
+#### 2. Instrument expansion
 
-Plan:
+Fetch 50 instruments first. Verify the yield rate (actions per
+instrument) against the six-instrument baseline. Then fetch the full
+500.
 
-- Download FIRDS daily files
-- Parse XML to extract EU-listed instruments
-- Cross-reference with Asset Identifiers
-- Feed the instrument list to the Yahoo fetcher for EU tickers
+#### 3. `--strict-isin` default flip
 
-#### 2. JPX integration
+Every ISIN in the expanded dataset must resolve against the private
+Asset Identifiers store. Turn the warning into an error.
 
-**Priority**: Medium
-**Effort**: 2–3 weeks
+#### 4. Corpus growth
 
-JPX publishes corporate action announcements for Tokyo-listed instruments.
-The interface is HTML-based; a scraper is required.
+Add at least 20 SEC corpus positives covering:
+- Tech, finance, energy, healthcare
+- Smaller issuers with less polished prose
+- Multi-item 8-Ks
 
-#### 3. HKEX integration
+#### 5. Action-type population
 
-**Priority**: Medium
-**Effort**: 2–3 weeks
+- `MERGER`: accept in the validator, add at least one entry once the
+  S-4 extraction pipeline exists
+- `REVERSE_SPLIT`: `GE` (2021), `NBR` (2020), and others
+- `SPINOFF`: `GE HealthCare` (2023), `Kellogg` (2023), and others
+- `DELISTING`: `TWTR` (2022), and others; the SEC fetcher already
+  extracts these
 
-HKEX publishes corporate action announcements in a structured format.
-Exchanges in Hong Kong tend to make this data more accessible than some
-other Asian markets.
+#### 6. Ex-date trading-day check
 
-#### 4. LSE / Companies House integration
-
-**Priority**: Medium
-**Effort**: 2–3 weeks
-
-The London Stock Exchange publishes corporate actions via RNS (Regulatory
-News Service). Companies House provides incorporation and filing data.
-Combined, they cover UK corporate actions.
-
-#### 5. Non-USD dividend support
-
-**Priority**: High
-**Effort**: 1 week
-
-Currently, dividends are assumed to be in the instrument's currency, and
-Yahoo returns them in that currency. Non-USD dividends work if Yahoo
-provides them, but the currency conversion logic in the wrappers is
-missing.
-
-Plan:
-
-- Add optional `currency_rate` field for historical FX conversion
-- Add a helper in each wrapper to convert to a base currency
-- Document the source of FX rates (planned: static table, later real-time)
-
-#### 6. Coverage expansion to 200+ instruments
-
-**Priority**: High
-**Effort**: Ongoing
-
-As new sources come online, expand the instrument list. Each market adds
-50–100 instruments.
+Add a validation layer that requires `ex_date` to be a trading day on
+the referenced exchange's calendar. Requires the Exchange Calendar
+snapshot; makes the dependency load-bearing rather than nominal.
 
 ### What v1.2.0 will not include
 
+- Non-USD dividends
+- International exchanges
 - Real-time updates
-- Historical coverage below 2000
-- Derivative or fixed-income corporate actions
 
 ---
 
