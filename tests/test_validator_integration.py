@@ -35,6 +35,10 @@ from tests.test_schema_full import actions
 
 from tests.test_schema_full import actions
 
+from tests.conftest import (
+    make_split_action as valid_split_action,
+    make_dividend_action as valid_dividend_action,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOLS = REPO_ROOT / "tools"
@@ -129,77 +133,6 @@ def run_validator(
         text=True,
         cwd=str(REPO_ROOT),
     )
-
-
-def valid_split_action(**overrides):
-    """A valid SPLIT action whose action_id matches its own fields.
-
-    ex_date and effective_date are equal (US equity convention for
-    splits), so the action_id is consistent regardless of which of the
-    two date fields the ID format check compares against.
-    """
-    action = {
-        "isin": "US67066G1040",
-        "action_id": "US67066G1040-SPLIT-2024-06-10-10-1",
-        "action_type": "SPLIT",
-        "ratio": "10:1",
-        "redistribution": "secondary-source", 
-        "dates": {
-            "announcement": "2024-05-22",
-            "ex_date": "2024-06-10",
-            "record_date": "2024-06-07",
-            "effective_date": "2024-06-10",
-        },
-        "status": "COMPLETED",
-        "provenance": {
-            "source": "Yahoo Finance (yfinance)",
-            "source_url": "https://example.com/nvda-split",
-        },
-        "impact": {
-            "price_multiplier": 0.1,
-            "share_multiplier": 10.0,
-            "cash_adjustment": 0.0,
-        },
-    }
-    action.update(overrides)
-    return action
-
-
-def valid_dividend_action(**overrides):
-    """A valid DIVIDEND action.
-
-    The action_id uses effective_date in its date component (the
-    canonical format). The test asserts only on currency / provenance /
-    temporal outcomes, so it passes even if the format check compares
-    against ex_date instead.
-    """
-    action = {
-        "isin": "US67066G1040",
-        "action_id": "US67066G1040-DIVIDEND-2024-05-23-0.2500",
-        "action_type": "DIVIDEND",
-        "amount": 0.25,
-        "currency": "USD",
-        "redistribution": "secondary-source", 
-        "dates": {
-            "announcement": "2024-05-02",
-            "ex_date": "2024-05-16",
-            "record_date": "2024-05-17",
-            "effective_date": "2024-05-23",
-        },
-        "status": "COMPLETED",
-        "provenance": {
-            "source": "Yahoo Finance (yfinance)",
-            "source_url": "https://example.com/div",
-        },
-        "impact": {
-            "price_multiplier": 1.0,
-            "share_multiplier": 1.0,
-            "cash_adjustment": 0.25,
-        },
-    }
-    action.update(overrides)
-    return action
-
 
 @pytest.fixture
 def project(tmp_path):
