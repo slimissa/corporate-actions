@@ -85,7 +85,7 @@ jobs:
       - run: python3 tools/build.py --actions actions.json --output-dir dist --check
 
   lint:
-    name: Ruff
+    name: Ruff and mojibake
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,6 +93,8 @@ jobs:
         with: { python-version: '3.12' }
       - run: pip install ruff
       - run: ruff check tests/ tools/ examples/ scripts/
+      - name: Check for mojibake
+        run: python3 tools/check_mojibake.py
 
   python:
     name: Python tests
