@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Detect UTF-8 / Latin-1 round-trip corruption in text files.
 
+mojibake-check: skip — this file contains the patterns as literals
+
 Some editors and paste operations save UTF-8 bytes as Latin-1, producing
 sequences like `â€"` where `—` was intended. This check catches that
 class of corruption before it lands in a commit.
@@ -55,11 +57,17 @@ def _is_excluded(path: Path) -> bool:
 
 def _scan(path: Path) -> list[str]:
     """Return a list of mojibake fragments found in the file."""
-    hits = []
     try:
         text = path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
-        return hits
+        return []
+    # A file may declare itself exempt by mentioning the marker in its
+    # first 5 lines. Used by this tool's own source, which contains the
+    # mojibake patterns as literals.
+    first_lines = "\n".join(text.splitlines()[:5])
+    if "mojibake-check: skip" in first_lines:
+        return []
+    hits = []
     for pat in MOJIBAKE_PATTERNS:
         for m in pat.finditer(text):
             hits.append(m.group(0))
