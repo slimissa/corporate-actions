@@ -43,8 +43,8 @@
     "rust_doctests": 1
   },
   "sibling_versions": {
-    "iso4217": "v1.5.3",
-    "exchange_calendar": "v2.2.2",
+    "iso4217": "v1.7.3",
+    "exchange_calendar": "v2.3.0",
     "asset_identifiers_schema": "1.2.1"
   },
   "min_actions_code": 100,
