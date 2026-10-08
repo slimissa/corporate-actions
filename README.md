@@ -686,8 +686,8 @@ Ledger Foundation:
 
 | Registry | Purpose | Status |
 |----------|---------|--------|
-| [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.5.3 |
-| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.2.2 |
+| [ISO 4217](https://github.com/slimissa/iso4217) | Currency codes | v1.7.3 |
+| [Exchange Calendar](https://github.com/slimissa/exchange-calendar) | Trading calendars | v2.3.0 |
 | [Asset Identifiers](https://github.com/slimissa/asset-identifiers) | ISIN/CUSIP/FIGI | schema 1.2.1 |
 | **Corporate Actions** | **This registry** | **v1.1.0** |
 
