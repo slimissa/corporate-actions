@@ -85,7 +85,7 @@ tool can depend on. It is language-agnostic by design.
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
 **Total tests**:
-1004 root (network deselected) + 117 Python + 99 JavaScript + 76 Go + 96 Rust + 1 Rust doctest
+1004 root (network deselected) + 119 Python + 101 JavaScript + 79 Go + 98 Rust + 1 Rust doctest
 
 ### Coverage
 
