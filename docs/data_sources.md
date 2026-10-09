@@ -140,6 +140,42 @@ action entries. The pipeline:
 The output is then merged into `actions.json` with fuzzy dedup (see
 `scripts/run_update.sh`).
 
+**Rate limiting**
+
+The Yahoo fetcher paces its requests through a token bucket in
+[`tools/rate_limit.py`](../tools/rate_limit.py). The bucket is shared
+across all tickers in a fetch, so the total request rate stays under
+the target regardless of the instrument count.
+
+Defaults:
+
+| Parameter | Value | Override |
+|-----------|-------|----------|
+| Rate | 5 requests/second | `--rate-limit N` or `$YAHOO_RATE_LIMIT` |
+| Burst | 10 tokens | `--rate-burst N` or `$YAHOO_RATE_BURST` |
+
+The default rate is half of Yahoo's observed throttling threshold
+(~10 req/sec before sustained 429s). The burst allows short catch-up
+after a slow network moment without violating the sustained rate.
+
+One token is acquired per ticker. yfinance makes 1–2 HTTP requests per
+ticker under the hood, so the effective HTTP rate is roughly double
+the ticker rate. At 5 tickers/sec, the HTTP rate stays under 10/sec.
+
+For a 500-ticker fetch:
+
+- Pure rate-limited time: ~100 seconds (500 / 5)
+- Plus network latency: ~5–15 minutes total
+- The fetcher prints the total time spent waiting on stderr at the end
+
+To run faster on a machine with a residential IP (Yahoo throttles CI
+runners more aggressively), raise the limit:
+
+    python3 tools/fetch_yahoo_actions.py \
+        --identifiers "$LAS_DATA_HOME/identifiers.json" \
+        --output yahoo_actions.json \
+        --rate-limit 8
+
 **Known limitations**
 
 - **Split-adjusted dividends.** `yfinance` returns dividend amounts that
