@@ -59,6 +59,15 @@ import time
 from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+
+# Running `python3 tools/fetch_yahoo_actions.py` puts tools/ on sys.path[0],
+# so `from tools.rate_limit import ...` looks for tools/tools/rate_limit.py.
+# Inserting the repo root makes the package path correct.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 from tools.rate_limit import TokenBucket
 
 try:
