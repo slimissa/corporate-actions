@@ -52,12 +52,15 @@ Exit codes:
 
 import argparse
 import json
+import os
+import os
 import random
 import sys
 import time
 from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Any, Dict, List, Optional, Tuple
+from tools.rate_limit import TokenBucket
 
 try:
     import yfinance as yf
@@ -427,7 +430,25 @@ def main() -> int:
         "--verbose", action="store_true",
         help="Print per-ticker progress and retry messages",
     )
+    parser.add_argument(
+        "--rate-limit", type=float,
+        default=float(os.environ.get("YAHOO_RATE_LIMIT", "5.0")),
+        help="Maximum requests per second (default: 5.0, "
+             "overridable via $YAHOO_RATE_LIMIT).",
+    )
+    parser.add_argument(
+        "--rate-burst", type=float,
+        default=float(os.environ.get("YAHOO_RATE_BURST", "10.0")),
+        help="Token bucket capacity (default: 10.0, "
+             "overridable via $YAHOO_RATE_BURST).",
+    )
     args = parser.parse_args()
+
+    bucket = TokenBucket(
+        rate=args.rate_limit,
+        capacity=args.rate_burst,
+    )
+
     if not _YFINANCE_AVAILABLE:
         print(
             "Error: yfinance is required. Install with: pip install yfinance",
@@ -449,6 +470,14 @@ def main() -> int:
             return 2
         instruments = instruments[:args.ticker_limit]
 
+    if args.rate_limit <= 0:
+        print("Error: --rate-limit must be positive", file=sys.stderr)
+        return 2
+    
+    if args.rate_burst <= 0:
+        print("Error: --rate-burst must be positive", file=sys.stderr)
+        return 2
+    
     if not instruments:
         print(
             f"Error: no instruments with a ticker found in "
@@ -469,6 +498,7 @@ def main() -> int:
     for idx, (isin, ticker, currency) in enumerate(instruments, start=1):
         if args.verbose:
             print(f"[{idx}/{len(instruments)}] {ticker} ({currency})")
+        bucket.acquire()
 
         try:
             actions = fetch_actions_for_ticker(
@@ -554,6 +584,12 @@ def main() -> int:
     #   every ticker failed     -> 3
     #   at least one failed     -> 1
     #   none failed (0 actions) -> 0
+    print(
+        f"Rate limit: {bucket.acquired} ticker(s) fetched, "
+        f"{bucket.waited_seconds:.1f}s waited",
+        file=sys.stderr,
+    )
+        
     if processed == 0:
         return 3
     if errors:

@@ -712,6 +712,39 @@ class TestFetchActionsForTicker:
             )
 
 
+class TestRateLimiter:
+
+    def test_ticker_loop_is_paced(self, tmp_path, monkeypatch):
+        """The fetcher must acquire a token per ticker.
+
+        With --rate-limit 100 and --rate-burst 1, 10 tickers should
+        take at least 0.09s (9/100). Without the limiter, they'd finish
+        in microseconds.
+        """
+        import time
+        from tools.fetch_yahoo_actions import main as fetch_main
+
+        path = _write_identifiers(tmp_path, [
+            {"isin": f"US000000000{i}", "ticker": f"T{i}"}
+            for i in range(10)
+        ])
+        _patch_ticker(monkeypatch, lambda t: FakeTicker())
+
+        monkeypatch.setattr(sys, "argv", [
+            "fetch_yahoo_actions.py",
+            "--identifiers", str(path),
+            "--output", str(tmp_path / "out.json"),
+            "--rate-limit", "100",
+            "--rate-burst", "1",
+        ])
+
+        start = time.monotonic()
+        code = fetch_main()
+        elapsed = time.monotonic() - start
+
+        assert code == 0
+        assert elapsed >= 0.08, f"rate limiter not applied: {elapsed:.4f}s"
+        
 # ---------------------------------------------------------------------------
 # main: integration via patched yf.Ticker
 # ---------------------------------------------------------------------------
