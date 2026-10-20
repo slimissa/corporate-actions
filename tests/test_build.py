@@ -952,3 +952,29 @@ class TestTwoPhaseCommit:
         forbidden = {"sec_actions.json", "fetched_actions.json", "yahoo_actions.json"}
         hits = [f for f in tracked if Path(f).name in forbidden]
         assert not hits, f"fetcher output tracked: {hits}"
+
+def test_write_atomic_uses_bytes_not_text():
+    """Path.write_text translates \\n to \\r\\n on Windows, which
+    doubles the CSV terminator when the writer already emits \\r\\n.
+    write_bytes avoids the translation. See issue #2."""
+    import inspect
+    from tools.build import _write_atomic
+    source = inspect.getsource(_write_atomic)
+    assert "write_bytes" in source, (
+        "write_bytes required to prevent Windows newline translation"
+    )
+    assert "write_text" not in source, (
+        "write_text corrupts CSV output on Windows (issue #2)"
+    )
+
+
+def test_committed_csv_has_no_double_cr():
+    """The committed actions.csv must use \\r\\n, not \\r\\r\\n."""
+    from pathlib import Path
+    real = Path(__file__).resolve().parents[1] / "actions.csv"
+    if not real.exists():
+        return
+    data = real.read_bytes()
+    assert b"\r\r\n" not in data, (
+        "double-\\r in actions.csv — writer translated line endings (issue #2)"
+    )

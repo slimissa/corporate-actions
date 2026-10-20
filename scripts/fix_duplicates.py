@@ -117,10 +117,10 @@ def main() -> int:
 
     doc = json.loads(ACTIONS_PATH.read_text(encoding="utf-8"))
     actions = doc.get("actions")
-    before = list(actions)
     if not isinstance(actions, list):
         print("Error: actions.json has no 'actions' list", file=sys.stderr)
         return 2
+    before = list(actions)
 
     before_count = len(actions)
     existing_ids = {a.get("action_id") for a in actions}

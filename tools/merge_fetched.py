@@ -165,7 +165,7 @@ def load_reject_set(path: Path) -> set[tuple]:
 
 def _write_atomic(path: Path, payload: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(payload, encoding="utf-8")
+    tmp.write_bytes(payload.encode("utf-8"))
     tmp.replace(path)
 
 
@@ -204,7 +204,7 @@ def merge(
 
         # Semantic check: append candidate to a trial list and see if
         # the layer flags it against anything already accepted.
-        if _HAVE_SEMANTIC and added:
+        if _HAVE_SEMANTIC:
             trial = working + [candidate]
             errors = validate_semantic_uniqueness(trial)
             if errors:
