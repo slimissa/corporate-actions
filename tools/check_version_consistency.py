@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify every version site in the repo agrees.
 
-Sites (6):
+Sites (7):
   1. VERSION
   2. CHANGELOG.md top released heading
   3. actions.json meta.version
@@ -67,6 +67,14 @@ def _v_cargo():
                 return m.group(1)
     print("ERROR: Cargo.toml [package].version missing", file=sys.stderr)
     sys.exit(2)
+
+
+def _v_readme():
+    m = re.search(r"registry-v?(\d+\.\d+\.\d+)-orange", _read("README.md"))
+    if not m:
+        print("ERROR: README badge registry-X.Y.Z-orange missing", file=sys.stderr)
+        sys.exit(2)
+    return m.group(1)
 
 
 SITES = [
