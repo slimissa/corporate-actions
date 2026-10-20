@@ -4,9 +4,7 @@ Data models for the Corporate Actions Registry.
 These dataclasses provide a typed representation of the JSON structure
 defined in actions.json. Each model has `from_dict()` and `to_dict()`. `to_dict()` produces a
 minimal representation with None-valued fields omitted. This is
-deliberate: the on-disk format never carries explicit nulls for
-optional fields, so round-tripping through `to_dict()` produces a
-document of the same shape.
+deliberate: the on-disk format sometimes carries explicit nulls (e.g., `verification_url: null` written by `scripts/fix_duplicates.py`). `to_dict()` drops None values, so a round-trip through the wrapper does NOT preserve explicit nulls and does NOT preserve key order. Callers that need byte-faithful round-trips should not use `save()` on the canonical `actions.json`.
 """
 
 from dataclasses import dataclass, field, asdict

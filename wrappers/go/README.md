@@ -46,7 +46,9 @@ func main() {
     // Get all actions for Apple Inc.
     aaplActions := r.ByISIN("US0378331005")
     for _, action := range aaplActions {
-        fmt.Println(*action.ActionType, *action.Dates.ExDate)
+        if action.ActionType != nil && action.Dates != nil && action.Dates.ExDate != nil {
+            fmt.Println(*action.ActionType, *action.Dates.ExDate)
+        }
     }
 
     // Find a specific action by its unique ID
