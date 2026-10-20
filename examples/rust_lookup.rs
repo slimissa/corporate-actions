@@ -307,13 +307,6 @@ fn main() {
         println!("  {}: {}", t, acts.len());
     }
 
-    println!();
-    println!("First 3 actions (for illustration):");
-    for a in registry.all_actions().iter().take(3) {
-        println!();
-        print_action(a);
-    }
-
     if !args.summary {
         println!();
         println!("First 3 actions (for illustration):");

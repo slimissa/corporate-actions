@@ -328,14 +328,18 @@ func main() {
 
 	if !a.summary {
 		fmt.Println()
-		fmt.Println("First 3 actions (for illustration):")
 		all := r.ByActionType("SPLIT")
 		if len(all) == 0 {
 			all = r.ByISIN("US0378331005")
 		}
-		for i := 0; i < len(all) && i < 3; i++ {
-			fmt.Println()
-			printAction(all[i])
+		if len(all) == 0 {
+			fmt.Println("(no actions to illustrate)")
+		} else {
+			fmt.Println("First 3 actions (for illustration):")
+			for i := 0; i < len(all) && i < 3; i++ {
+				fmt.Println()
+				printAction(all[i])
+			}
 		}
 	}
 

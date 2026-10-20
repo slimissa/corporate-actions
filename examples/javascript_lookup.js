@@ -128,8 +128,18 @@ function parseArgs(argv) {
         args.actionId = argv[++i]; break;
       case '--action-type':
         args.actionType = argv[++i]; break;
-      case '--date-range':
-        args.dateRange = [argv[++i], argv[++i]]; break;
+      case '--date-range': {
+        const start = argv[++i];
+        const end = argv[++i];
+        if (start === undefined || end === undefined ||
+            start.startsWith('--') || end.startsWith('--')) {
+          console.error('Error: --date-range requires START and END arguments');
+          printUsage();
+          process.exit(2);
+        }
+        args.dateRange = [start, end];
+        break;
+      }
       case '--date-field':
         args.dateField = argv[++i]; break;
       case '--summary':
@@ -227,13 +237,12 @@ function main() {
     console.log();
     console.log('Use --isin, --action-id, --action-type, or --date-range for targeted queries.');
     console.log('Run with --help for full usage.');
-  }
-
-  console.log();
-  console.log('First 3 actions (for illustration):');
-  for (const a of registry.actions.slice(0, 3)) {
     console.log();
-    printAction(a);
+    console.log('First 3 actions (for illustration):');
+    for (const a of registry.actions.slice(0, 3)) {
+      console.log();
+      printAction(a);
+    }
   }
 }
 
