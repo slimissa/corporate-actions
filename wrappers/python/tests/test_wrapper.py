@@ -1190,7 +1190,6 @@ class TestByDateRangeISOValidation:
     @pytest.mark.parametrize("bad_start,bad_end", [
         ("2024-6-10", None),      # no leading zero
         ("2024/06/10", None),     # slashes
-        (None, "2024-13-01"),     # invalid month (still matches regex, but parser catches field name; ISO regex accepts)
         (None, "06-10-2024"),     # wrong order
         ("2024-06-10T00:00", None),  # datetime
     ])

@@ -420,6 +420,12 @@ func (r *Registry) ByDateRange(startDate, endDate, dateField string) ([]Action, 
 		return nil, fmt.Errorf("%w: %s", ErrInvalidDateField, dateField)
 	}
 
+	for _, b := range [][2]string{{"startDate", startDate}, {"endDate", endDate}} {
+		if b[1] != "" && !isoDateRE.MatchString(b[1]) {
+			return nil, fmt.Errorf("%s must be YYYY-MM-DD, got %q", b[0], b[1])
+		}
+	}
+
 	dateValue := func(a Action) string {
 		if a.Dates == nil {
 			return ""
