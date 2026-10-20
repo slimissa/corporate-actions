@@ -47,5 +47,17 @@
       "file": "neg_10_fisv_notes_8k.html",
       "reason": "note issuance; 'Trading Symbol(s)' on cover"
     }
+  ],
+  "pending": [
+    {
+      "class": "no-change-filing",
+      "reason": "A filing that says 'will continue to trade under the symbol X' where X is the current symbol and no change is announced. The extractor would return X as a false positive.",
+      "status": "not yet sourced \u2014 add a real EDGAR filing when found"
+    },
+    {
+      "class": "singular-notes-symbol",
+      "reason": "A filing that says 'the Notes will trade under the symbol 'FI27'' (singular). The extractor would return FI27 as a false positive \u2014 it is a debt security symbol, not a common-stock symbol. The blocklist cannot catch this because FI27 is not an English word.",
+      "status": "not yet sourced \u2014 add a real EDGAR filing when found"
+    }
   ]
 }
