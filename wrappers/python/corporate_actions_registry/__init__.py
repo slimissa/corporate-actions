@@ -19,6 +19,7 @@ mirror the API style of the other QuantOS registry wrappers
 (iso4217-registry, exchange-calendar-registry, asset-identifiers-registry).
 """
 
+from .models import Action, Dates, Impact, Provenance, RegistryMeta
 from .registry import (
     CorporateActionsRegistry,
     DEFAULT_DATE_FIELD,
@@ -26,4 +27,8 @@ from .registry import (
 )
 
 __version__ = "1.1.0"
-__all__ = ["CorporateActionsRegistry", "DEFAULT_DATE_FIELD", "VALID_DATE_FIELDS"]
+__all__ = [
+    "CorporateActionsRegistry",
+    "Action", "Dates", "Impact", "Provenance", "RegistryMeta",
+    "DEFAULT_DATE_FIELD", "VALID_DATE_FIELDS",
+]
