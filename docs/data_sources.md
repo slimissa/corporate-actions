@@ -335,9 +335,9 @@ for the ticker index API.
 |-----------|-------|
 | Purpose | Validate currency codes in dividend entries |
 | Repository | `https://github.com/slimissa/iso4217` |
-| Version used | v1.5.3 |
+| Version used | v1.8.2 |
 | Load | `load_iso4217_registry()` in `tools/validate.py` |
-| Coverage | 167 active currencies, 135 withdrawn |
+| Coverage | 166 active currencies, 136 withdrawn |
 
 **How it is used**
 
@@ -353,7 +353,7 @@ Non-ISO codes (crypto, commodities) are not accepted.
 |-----------|-------|
 | Purpose | Validate exchange MIC codes and provide trading-hours context |
 | Repository | `https://github.com/slimissa/exchange-calendar` |
-| Version used | v2.2.2 |
+| Version used | v2.16.1 |
 | Load | `load_exchange_calendar_registry()` in `tools/validate.py` |
 | Coverage | 74 exchanges across 6 continents |
 

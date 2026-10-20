@@ -90,10 +90,12 @@ CHECKS: list[tuple[str, str, str, str]] = [
         "min_actions_docs", "int"),
 
     # --- docs/data_sources.md ----------------------------------------------
-    ("docs/data_sources.md", r"ISO 4217.*?\n.*?v(\d+\.\d+\.\d+)",
-        "sibling_versions.iso4217", "version"),
-    ("docs/data_sources.md", r"Exchange Calendar.*?\n.*?v(\d+\.\d+\.\d+)",
-        "sibling_versions.exchange_calendar", "version"),
+    ("docs/data_sources.md",
+     r"ISO 4217 Registry[\s\S]{0,500}?v(\d+\.\d+\.\d+)",
+     "sibling_versions.iso4217", "version"),
+    ("docs/data_sources.md",
+     r"Exchange Calendar Registry[\s\S]{0,500}?v(\d+\.\d+\.\d+)",
+     "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/roadmap.md ---------------------------------------------------
     ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|", "action_count", "int"),
@@ -101,6 +103,11 @@ CHECKS: list[tuple[str, str, str, str]] = [
     ("docs/roadmap.md", r"\|\s*Root tests\s*\|\s*(\d+)", "root_test_count", "int"),
     ("docs/roadmap.md", r"ISO 4217.*?v(\d+\.\d+\.\d+)", "sibling_versions.iso4217", "version"),
     ("docs/roadmap.md", r"Exchange Calendar.*?v(\d+\.\d+\.\d+)", "sibling_versions.exchange_calendar", "version"),
+
+    # --- docs/data_sources.md (continued) ----------------------------------
+    ("docs/data_sources.md",
+     r'historical_depth_start:\s*"(\d+)"',
+     "historical_depth_start", "string"),
 
     # --- docs/validation_layers.md -----------------------------------------
     ("docs/validation_layers.md", r"OK:\s*(\d+)\s+actions validated",
@@ -350,6 +357,42 @@ def run_checks(facts: dict[str, Any], quiet: bool) -> int:
 # CLI
 # ---------------------------------------------------------------------------
 
+def scan_placeholders(quiet: bool = False) -> int:
+    """Fail on unfilled placeholders in any doc.
+
+    Catches the class of drift where a doc says `<N>` or `TODO` and
+    the placeholder ships. Only checks prose — fenced code blocks
+    are skipped, since a pattern like `<N>` might be documented on
+    purpose.
+    """
+    markers = ("<N>", "TODO", "FIXME", "???", "[TBD]")
+    problems = 0
+    for doc in sorted(REPO_ROOT.glob("docs/*.md")) + [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "CONTRIBUTING.md",
+    ]:
+        if not doc.is_file():
+            continue
+        in_fence = False
+        for lineno, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+            if line.strip().startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            for marker in markers:
+                if marker in line:
+                    problems += 1
+                    if not quiet:
+                        rel = doc.relative_to(REPO_ROOT)
+                        print(f"{rel}:{lineno}: unfilled placeholder {marker!r}")
+                        print(f"  {line.strip()[:80]!r}")
+    if problems and not quiet:
+        print()
+        print(f"{problems} placeholder(s) found. Fill them or move to a code block.")
+    return 1 if problems else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Verify docs match docs/facts.json."
@@ -375,6 +418,11 @@ def main() -> int:
         action="store_true",
         help="Do not verify that facts.json agrees with actions.json.",
     )
+    parser.add_argument(
+        "--skip-placeholders",
+        action="store_true",
+        help="Skip the unfilled-placeholder scan.",
+    )
     args = parser.parse_args()
 
     if args.list:
@@ -390,6 +438,10 @@ def main() -> int:
     if not args.skip_self_check:
         if not self_check(facts):
             return 2
+
+    if not args.skip_placeholders:
+        if scan_placeholders(quiet=args.quiet):
+            return 1
 
     return run_checks(facts, quiet=args.quiet)
 
