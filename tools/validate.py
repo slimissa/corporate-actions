@@ -74,9 +74,13 @@ _FORMAT_CHECKER = jsonschema.FormatChecker()
 # Default paths (can be overridden by env vars or CLI args)
 DEFAULT_ACTIONS_PATH = "actions.json"
 DEFAULT_SCHEMA_PATH = "schema.json"
-DEFAULT_IDENTIFIERS_PATH = "../asset-identifiers/identifiers.json"
-DEFAULT_ISO4217_PATH = "../iso4217/iso4217.json"
-DEFAULT_EXCHANGE_CALENDAR_PATH = "../exchange-calendar/calendar.json"
+# Defaults are absolute paths derived from this file's location, not
+# the current working directory. The validate.py script works from any
+# CWD (CI runners, pre-commit hooks, editor integrations).
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_IDENTIFIERS_PATH = str(_REPO_ROOT.parent / "asset-identifiers" / "identifiers.json")
+DEFAULT_ISO4217_PATH = str(_REPO_ROOT.parent / "iso4217" / "iso4217.json")
+DEFAULT_EXCHANGE_CALENDAR_PATH = str(_REPO_ROOT.parent / "exchange-calendar" / "calendar.json")
 
 # Environment variable overrides
 ENV_ACTIONS = "CORP_ACTIONS_ACTIONS_PATH"

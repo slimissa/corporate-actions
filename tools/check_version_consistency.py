@@ -84,6 +84,7 @@ SITES = [
     ("wrappers/python/pyproject.toml",   _v_pyproject),
     ("wrappers/javascript/package.json", _v_package_json),
     ("wrappers/rust/Cargo.toml",         _v_cargo),
+    ("README.md",                        _v_readme),
 ]
 
 def main():

@@ -37,6 +37,15 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+# Ensure the repo root is on sys.path so "tools.io_utils" is
+# importable when this file is run as a script.
+import sys as _sys
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+
+from tools.io_utils import write_atomic as _write_atomic
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -161,13 +170,6 @@ def load_reject_set(path: Path) -> set[tuple]:
         )
         return set()
     return {reject_key_from_entry(e) for e in removed if isinstance(e, dict)}
-
-
-def _write_atomic(path: Path, payload: str) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_bytes(payload.encode("utf-8"))
-    tmp.replace(path)
-
 
 # ---------------------------------------------------------------------------
 # Merge

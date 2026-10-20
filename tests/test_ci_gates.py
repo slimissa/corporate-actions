@@ -62,7 +62,7 @@ def _layout(tmp_path: Path, overrides: dict | None = None) -> Path:
     (tmp_path / "dist").mkdir(parents=True, exist_ok=True)
 
     for name in ("check_doc_facts.py", "build.py", "update_facts.py",
-                 "validate.py"):
+                 "validate.py", "io_utils.py"):
         src = REPO_ROOT / "tools" / name
         if src.is_file():
             shutil.copy2(src, tmp_path / "tools" / name)

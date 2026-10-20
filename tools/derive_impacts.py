@@ -50,6 +50,16 @@ import json
 import re
 import sys
 from pathlib import Path
+# Ensure the repo root is on sys.path so "tools.io_utils" is
+# importable when this file is run as a script (python3 tools/foo.py
+# puts tools/ on sys.path, not the repo root).
+import sys as _sys
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+
+from tools.io_utils import write_atomic as _write_atomic
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -143,16 +153,6 @@ def derive_impact(action: Dict[str, Any]) -> Optional[Dict[str, float]]:
 
     return impact
 
-
-def _write_atomic(path: Path, payload: str) -> None:
-    """Write payload to path via a temp file and rename.
-
-    A killed process between the two steps leaves the original file
-    untouched rather than truncated.
-    """
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_bytes(payload.encode("utf-8"))
-    tmp.replace(path)
 
 
 def main() -> int:

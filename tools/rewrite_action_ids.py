@@ -59,6 +59,12 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+import sys as _sys
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+from tools.io_utils import write_atomic as _write_atomic
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -376,19 +382,12 @@ def rewrite(
     for i, _, new_id in changes:
         actions[i]["action_id"] = new_id
 
-    # Write atomically: temp file, then replace.
+    # Write atomically via the shared helper.
     payload = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
-    tmp = actions_path.with_suffix(actions_path.suffix + ".tmp")
     try:
-        tmp.write_bytes(payload.encode("utf-8"))
-        tmp.replace(actions_path)
+        _write_atomic(actions_path, payload)
     except OSError as exc:
         print(f"Error: write failed: {exc}", file=sys.stderr)
-        # Best-effort cleanup.
-        try:
-            tmp.unlink(missing_ok=True)
-        except OSError:
-            pass
         return 3
 
     print(f"Wrote {len(changes)} updated action_id(s) to {actions_path}")

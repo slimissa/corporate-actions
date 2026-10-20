@@ -18,10 +18,12 @@ Run
 """
 
 import csv
+from importlib.resources import files
 import json
 import subprocess
 import sys
 from pathlib import Path
+from unittest import result
 
 import pytest
 
@@ -361,6 +363,20 @@ class TestWriteAtomic:
         _write_atomic(path, payload)
         assert path.read_text(encoding="utf-8") == payload
 
+    def test_write_atomic_defined_in_one_place(self):
+        """#3: only tools/io_utils.py defines write_atomic. Every other
+        tool imports it. Confirms the refactor is complete and drift
+        can't creep back in."""
+        import subprocess
+        result = subprocess.run(
+            ["grep", "-rln", "def write_atomic", "tools/"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT),
+        )
+        files = sorted(result.stdout.strip().splitlines())
+        assert files == ["tools/io_utils.py"], (
+            f"expected only tools/io_utils.py to define write_atomic, "
+            f"found: {files}"
+        )
 
 # ---------------------------------------------------------------------------
 # build_dist / build_minified
@@ -963,8 +979,9 @@ def test_write_atomic_uses_bytes_not_text():
     assert "write_bytes" in source, (
         "write_bytes required to prevent Windows newline translation"
     )
-    assert "write_text" not in source, (
-        "write_text corrupts CSV output on Windows (issue #2)"
+    # Check for the *call* `tmp.write_text(`, not the docstring mention
+    assert ".write_text(" not in source, (
+        "Path.write_text corrupts CSV output on Windows (issue #2)"
     )
 
 
