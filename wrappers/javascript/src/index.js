@@ -27,6 +27,8 @@ const path = require('path');
 
 const DEFAULT_DATE_FIELD = 'ex_date';
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 const VALID_DATE_FIELDS = Object.freeze([
   'announcement',
   'ex_date',
@@ -273,6 +275,12 @@ class CorporateActionsRegistry {
         `invalid dateField '${dateField}'; expected one of ` +
         `${VALID_DATE_FIELDS.join(', ')}`
       );
+    }
+
+    for (const [name, v] of [['startDate', startDate], ['endDate', endDate]]) {
+      if (v && !ISO_DATE_RE.test(v)) {
+        throw new Error(`${name} must be YYYY-MM-DD, got ${JSON.stringify(v)}`);
+      }
     }
 
     const result = this.actions.filter((action) => {

@@ -1105,3 +1105,29 @@ it('does not share state with the input object', () => {
   out.meta.counts.total = 0;
   assert.strictEqual(reg.toJSON().meta.counts.total, 1);
 });
+
+describe('byDateRange ISO validation', () => {
+  it('throws on single-digit month', () => {
+    const registry = new CorporateActionsRegistry({ meta: {}, actions: [] });
+    assert.throws(
+      () => registry.byDateRange('2024-6-10', '2024-06-10'),
+      /must be YYYY-MM-DD/,
+    );
+  });
+
+  it('throws on slash-separated dates', () => {
+    const registry = new CorporateActionsRegistry({ meta: {}, actions: [] });
+    assert.throws(
+      () => registry.byDateRange('2024-01-01', '2024/06/10'),
+      /must be YYYY-MM-DD/,
+    );
+  });
+
+  it('accepts valid ISO dates', () => {
+    const registry = new CorporateActionsRegistry({ meta: {}, actions: [] });
+    assert.deepStrictEqual(
+      registry.byDateRange('2024-01-01', '2024-12-31'),
+      [],
+    );
+  });
+});
