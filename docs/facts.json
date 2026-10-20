@@ -31,10 +31,10 @@
   "currencies": [
     "USD"
   ],
-  "root_test_count": 1026,
+  "root_test_count": 1029,
   "root_test_skipped": 1,
   "root_test_network_deselected": 5,
-  "root_test_collected_total": 1031,
+  "root_test_collected_total": 1034,
   "wrapper_test_counts": {
     "python": 125,
     "javascript": 105,
