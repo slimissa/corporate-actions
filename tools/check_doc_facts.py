@@ -90,10 +90,12 @@ CHECKS: list[tuple[str, str, str, str]] = [
         "min_actions_docs", "int"),
 
     # --- docs/data_sources.md ----------------------------------------------
-    ("docs/data_sources.md", r"ISO 4217.*?\n.*?v(\d+\.\d+\.\d+)",
-        "sibling_versions.iso4217", "version"),
-    ("docs/data_sources.md", r"Exchange Calendar.*?\n.*?v(\d+\.\d+\.\d+)",
-        "sibling_versions.exchange_calendar", "version"),
+    ("docs/data_sources.md",
+     r"ISO 4217 Registry[\s\S]{0,500}?v(\d+\.\d+\.\d+)",
+     "sibling_versions.iso4217", "version"),
+    ("docs/data_sources.md",
+     r"Exchange Calendar Registry[\s\S]{0,500}?v(\d+\.\d+\.\d+)",
+     "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/roadmap.md ---------------------------------------------------
     ("docs/roadmap.md", r"\|\s*Actions\s*\|\s*(\d+)\s*\|", "action_count", "int"),
