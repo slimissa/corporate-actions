@@ -1079,3 +1079,29 @@ describe('redistribution', () => {
     assert.ok(!('redistribution' in out.actions[0]));
   });
 });
+
+it('does not share state with the input object', () => {
+  const data = {
+    meta: { version: '1.0.0', counts: { total: 1 } },
+    actions: [{
+      isin: 'US0000000001',
+      action_id: 'A',
+      action_type: 'SPLIT',
+      ratio: '10:1',
+      dates: { announcement: '2024-01-01', effective_date: '2024-01-01' },
+    }],
+  };
+  const reg = new CorporateActionsRegistry(data);
+
+  data.actions[0].ratio = '999:1';
+  data.meta.counts.total = 999;
+  data.meta.version = 'mutated';
+
+  assert.strictEqual(reg.byActionId('A').ratio, '10:1');
+  const out = reg.toJSON();
+  assert.strictEqual(out.meta.counts.total, 1);
+  assert.strictEqual(out.meta.version, '1.0.0');
+
+  out.meta.counts.total = 0;
+  assert.strictEqual(reg.toJSON().meta.counts.total, 1);
+});

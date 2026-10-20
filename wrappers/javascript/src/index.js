@@ -192,9 +192,9 @@ class CorporateActionsRegistry {
     }
 
     this.meta = (rawData.meta && typeof rawData.meta === 'object' && !Array.isArray(rawData.meta))
-      ? { ...rawData.meta }
+      ? structuredClone(rawData.meta)
       : {};
-    this.actions = rawData.actions;
+    this.actions = rawData.actions.map((a) => structuredClone(a));
     this._buildIndexes();
   }
 
@@ -347,7 +347,7 @@ class CorporateActionsRegistry {
    */
   toJSON() {
     return {
-      meta: { ...this.meta },
+      meta: structuredClone(this.meta),
       actions: this.actions.map((a) => structuredClone(a)),
     };
   }

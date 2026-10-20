@@ -1124,3 +1124,25 @@ fn absent_redistribution_is_not_serialized_as_null() {
         serialized
     );
 }
+
+
+#[test]
+fn save_does_not_inject_nulls() {
+    let path = write_temp_file("rt.json", sample_data().to_string().as_bytes());
+    let reg = Registry::load_from_file(&path).unwrap();
+    let out_path = write_temp_file("rt_out.json", b"");
+    reg.save(&out_path).unwrap();
+
+    let saved = fs::read_to_string(&out_path).unwrap();
+    let parsed: serde_json::Value = serde_json::from_str(&saved).unwrap();
+    let first = &parsed["actions"][0];
+    for absent in &["amount", "currency", "redistribution"] {
+        assert!(
+            first.get(absent).is_none(),
+            "save() injected a {} key: {}",
+            absent, saved,
+        );
+    }
+    remove_temp_file(&path);
+    remove_temp_file(&out_path);
+}

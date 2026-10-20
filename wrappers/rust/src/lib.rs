@@ -96,26 +96,37 @@ pub enum RegistryError {
 /// Represents the dates of a corporate action. Every field is optional.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Dates {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub announcement: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ex_date: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub record_date: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub effective_date: Option<String>,
 }
 
 /// Source and verification information for an action.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Provenance {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub source_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_url: Option<String>,
 }
 
 /// Financial impact multipliers for backtesting.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Impact {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub price_multiplier: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub share_multiplier: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cash_adjustment: Option<f64>,
 }
 
@@ -125,15 +136,25 @@ pub struct Impact {
 /// own tests. `Eq` is not derivable because `amount` is an `f64`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Action {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub isin: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub action_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub action_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ratio: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub dates: Option<Dates>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub provenance: Option<Provenance>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub impact: Option<Impact>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redistribution: Option<String>,
@@ -142,9 +163,13 @@ pub struct Action {
 /// Metadata about the registry file.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Meta {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub generated_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
 }
 

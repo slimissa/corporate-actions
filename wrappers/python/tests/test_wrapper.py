@@ -1167,3 +1167,19 @@ class TestByTicker:
         monkeypatch.delenv("LAS_DATA_HOME", raising=False)
         with pytest.raises(RuntimeError, match="neither CORP_ACTIONS_IDENTIFIERS_PATH"):
             reg.by_ticker(self.FIXTURE_TICKER, self.FIXTURE_EXCHANGE)
+
+def test_redistribution_is_on_action_not_dates():
+    """redistribution is action-level, not a Dates field. See issue #49."""
+    reg = CorporateActionsRegistry(actions_data={"actions": [{
+        "isin": "US0000000001",
+        "action_id": "A",
+        "action_type": "SPLIT",
+        "ratio": "2:1",
+        "redistribution": "secondary-source",
+        "dates": {"announcement": "2024-01-01", "effective_date": "2024-01-01"},
+    }]})
+    action = reg.by_action_id("A")
+    assert action.redistribution == "secondary-source"
+    assert not hasattr(action.dates, "redistribution"), (
+        "redistribution must not be a Dates field"
+    )

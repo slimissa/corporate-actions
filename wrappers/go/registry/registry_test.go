@@ -1333,3 +1333,16 @@ func TestByTickerMissingFileReturnsMissingData(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+
+func TestMetaIsolation(t *testing.T) {
+	r := loadSample(t)
+	m := r.Meta()
+	if m.Version == nil {
+		t.Fatal("expected Version to be set")
+	}
+	*m.Version = "corrupted"
+	if got := *r.Meta().Version; got != "1.0.0" {
+		t.Fatalf("Meta() leaked mutation into registry: got %q", got)
+	}
+}
