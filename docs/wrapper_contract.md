@@ -391,8 +391,10 @@ If none is set and the file does not exist, the wrapper raises or
 returns a `MissingData` error (see § 6). The message names the two
 environment variables that would fix it.
 
-The path is resolved once per process and the parsed index is cached.
-A caller who wants to force a reload can pass an explicit
+The path is resolved on every call. The parsed index is cached by
+resolved path for the life of the process; a caller who changes the
+environment variable between calls will see the new value on the next
+call. A caller who wants to force a reload can pass an explicit
 `identifiers_path` different from the cached one, or, in tests, use the
 language-specific cache-reset helper (see § 8.3).
 

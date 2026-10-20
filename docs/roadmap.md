@@ -677,7 +677,7 @@ design: financial data cannot ship with sloppy reviews.
 | v1.0.0 | 2026-09-13 | 242 | Foundation |
 | v1.0.1 | 2026-09-20 | 240 | Data correctness |
 | v1.1.1 | Planned Q4 2026 | ~1,500 | US completeness |
-| v1.2.0 | Planned Q1 2027 | ~5,000 | International |
+| v1.2.0 | TBD | ~5,000 | International |
 | v2.0.0 | Planned mid 2027 | ~15,000 | Real-time |
 | v3.0.0 | Planned 2028+ | 50,000+ | Comprehensive |
 
