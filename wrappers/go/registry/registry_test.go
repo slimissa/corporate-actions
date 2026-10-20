@@ -1346,3 +1346,18 @@ func TestMetaIsolation(t *testing.T) {
 		t.Fatalf("Meta() leaked mutation into registry: got %q", got)
 	}
 }
+
+func TestByDateRangeInvalidDateFormat(t *testing.T) {
+	cases := [][2]string{
+		{"2024-6-10", "2024-06-10"},   // no leading zero
+		{"2024-01-01", "2024/06/10"},  // slashes
+		{"06-10-2024", ""},            // wrong order
+	}
+	r := loadSample(t)
+	for _, c := range cases {
+		_, err := r.ByDateRange(c[0], c[1], "ex_date")
+		if err == nil {
+			t.Errorf("expected error for (%q, %q)", c[0], c[1])
+		}
+	}
+}

@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 )
 
@@ -51,6 +52,8 @@ var ErrMissingData = errors.New("missing identifier data")
 // validDateFields is a private O(1) lookup table for the values in
 // ValidDateFields. Kept separate so that a caller who mutates the
 // exported slice does not silently change what the validator accepts.
+var isoDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+
 var validDateFields = map[string]bool{
 	"announcement":   true,
 	"ex_date":        true,
