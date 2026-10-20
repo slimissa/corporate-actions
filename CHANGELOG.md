@@ -1,3 +1,5 @@
+## [1.1.0] - 2026-10-20
+
 # Changelog
 
 All notable changes to the Corporate Actions Registry are documented in
