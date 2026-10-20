@@ -531,6 +531,31 @@ implements every layer and produces a single report listing every failure.
   data. The `check-sources.yml` workflow monitors source health separately
   from per-action URL validity.
 
+  ### Redistribution category (validate_redistribution)
+
+  Layer 6 also validates the `redistribution` field. Every action
+  declares one of four categories recording the licensing basis under
+  which the action is redistributed.
+
+  Rules:
+
+  - `redistribution` must be present and non-empty
+  - The value must be one of `public-domain`, `facts-only`,
+    `secondary-source`
+  - `restricted` is a fail-safe; it must never appear in a shipped
+    registry
+  - The value must match what `redistribution_for(source)` derives from
+    `provenance.source` (see `tools/derive_redistribution.py`)
+
+  Why it exists: the value determines the legal position under which
+  the entry is distributed. A missing or wrong category means the
+  registry cannot defend its redistribution basis for that entry.
+
+  Known gap: `scripts/fix_duplicates.py` does not populate
+  `redistribution` on the entries it adds. After running it,
+  `tools/derive_redistribution.py` must run, or `tools/validate.py`
+  fails. See `docs/redistribution.md`.
+
   ### Example failures
 
   ```
@@ -918,7 +943,8 @@ implements every layer and produces a single report listing every failure.
   distinct keys on the same exchange. The lookup is deterministic.
 
   A miss raises `KeyError`. Callers should handle that explicitly — it
-  means the ticker is outside the S&P 500 universe the registry covers.
+  means the ticker is outside the current six-instrument universe
+  the registry covers.
   Do not silently fall back to a heuristic.
 
   ## Version history
