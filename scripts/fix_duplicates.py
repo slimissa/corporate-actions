@@ -60,6 +60,12 @@ ADD_ENTRIES = [
             "effective_date": "2024-05-16",
         },
         "status": "COMPLETED",
+        "impact": {
+            "price_multiplier": 1.0,
+            "share_multiplier": 1.0,
+            "cash_adjustment": 0.25,
+        },
+        "redistribution": "facts-only",
         "provenance": {
             "source": "Apple Inc. press release",
             "source_url": "https://www.apple.com/newsroom/2024/05/apple-reports-second-quarter-results/",
@@ -80,6 +86,12 @@ ADD_ENTRIES = [
             "effective_date": "2004-12-09",
         },
         "status": "COMPLETED",
+        "impact": {
+            "price_multiplier": 1.0,
+            "share_multiplier": 1.0,
+            "cash_adjustment": 0.08,
+        },
+        "redistribution": "facts-only",
         "provenance": {
             "source": "Microsoft press release",
             "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-quarterly-dividend-and-special-dividend/",
@@ -100,6 +112,12 @@ ADD_ENTRIES = [
             "effective_date": "2004-12-02",
         },
         "status": "COMPLETED",
+        "impact": {
+            "price_multiplier": 1.0,
+            "share_multiplier": 1.0,
+            "cash_adjustment": 3.0,
+        },
+        "redistribution": "facts-only",
         "provenance": {
             "source": "Microsoft press release",
             "source_url": "https://news.microsoft.com/2004/11/15/microsoft-declares-quarterly-dividend-and-special-dividend/",

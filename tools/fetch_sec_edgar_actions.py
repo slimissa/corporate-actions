@@ -84,6 +84,24 @@ DEFAULT_MIN_DATE = "2019-01-01"
 # URLs whose response can change between runs. Anything matching one of
 # these prefixes is fetched fresh on every request; everything else is
 # cached under CACHE_DIR.
+
+def strip_html(html: str) -> str:
+    """Strip HTML tags and entities to normalized plain text.
+
+    Used by SECClient.get_filing_text and by the corpus tests, so
+    both see identical text for the same filing. Handles curly
+    quotes, curly apostrophes, and any numeric entity — the
+    extract_new_symbol regex relies on quotes being straight.
+    """
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"&nbsp;?", " ", text)
+    text = re.sub(r"&amp;?", "&", text)
+    text = re.sub(r"&#8220;|&#8221;|&#8243;", '"', text)
+    text = re.sub(r"&#8216;|&#8217;", "'", text)
+    text = re.sub(r"&#\d+;", " ", text)
+    return re.sub(r"\s+", " ", text)
+
+
 MUTABLE_URL_PREFIXES = (
     "https://data.sec.gov/submissions/",
 )
@@ -416,11 +434,7 @@ class SECClient:
             doc_resp = self._get(doc_url)
             if doc_resp is None:
                 continue
-            text = re.sub(r"<[^>]+>", " ", doc_resp.text)
-            text = re.sub(r"&nbsp;?", " ", text)
-            text = re.sub(r"&amp;?", "&", text)
-            text = re.sub(r"\s+", " ", text)
-            texts.append(text)
+            texts.append(strip_html(doc_resp.text))
         return " ".join(texts) if texts else None
 
 

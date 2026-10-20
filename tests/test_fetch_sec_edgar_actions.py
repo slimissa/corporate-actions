@@ -1157,14 +1157,7 @@ class TestCachePolicy:
 CORPUS_DIR = Path(__file__).resolve().parent / "corpus" / "sec_symbol_change"
 
 
-def _strip_html(html: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"&nbsp;", " ", text)
-    text = re.sub(r"&amp;", "&", text)
-    text = re.sub(r"&#8220;|&#8221;|&#8243;", '"', text)  # curly quotes
-    text = re.sub(r"&#8216;|&#8217;", "'", text)          # curly apostrophes
-    text = re.sub(r"&#\d+;", " ", text)                    # any other entity
-    return re.sub(r"\s+", " ", text)
+from tools.fetch_sec_edgar_actions import strip_html as _strip_html
 
 
 @pytest.mark.skipif(
@@ -1229,3 +1222,62 @@ def test_corpus_extraction_accuracy():
         f"{len(false_positives)} false positive(s):\n"
         + "\n".join(f"  {f}: got {g!r}" for f, g in false_positives)
     )
+
+class TestManifestCompleteness:
+    """Enforce the README rule: every .html file must be in the manifest,
+    and every manifest entry must have a file. A file without a manifest
+    entry is invisible to the tests; a manifest entry without a file is
+    a broken checkout."""
+
+    def test_every_html_file_is_in_manifest(self):
+        manifest = json.loads(
+            (CORPUS_DIR / "manifest.json").read_text(encoding="utf-8")
+        )
+        listed = (
+            {e["file"] for e in manifest.get("positive", [])}
+            | {e["file"] for e in manifest.get("negative", [])}
+        )
+        on_disk = {p.name for p in CORPUS_DIR.glob("*.html")}
+        orphaned = on_disk - listed
+        assert not orphaned, (
+            f"corpus files not in manifest: {sorted(orphaned)}\n"
+            f"Add each to positive[] or negative[] in manifest.json."
+        )
+
+    def test_every_manifest_entry_exists_on_disk(self):
+        manifest = json.loads(
+            (CORPUS_DIR / "manifest.json").read_text(encoding="utf-8")
+        )
+        listed = (
+            {e["file"] for e in manifest.get("positive", [])}
+            | {e["file"] for e in manifest.get("negative", [])}
+        )
+        on_disk = {p.name for p in CORPUS_DIR.glob("*.html")}
+        missing = listed - on_disk
+        assert not missing, (
+            f"manifest entries without files: {sorted(missing)}"
+        )
+
+
+def test_pending_corpus_gaps_are_documented():
+    """Known corpus gaps (classes the extractor would false-positive on
+    but that no real filing has been sourced for) are recorded in
+    manifest.pending. When a filing is found, it moves to positive/
+    negative and pending shrinks.
+
+    Not a failure if pending is non-empty — a documented gap is
+    better than a missing test."""
+    manifest = json.loads(
+        (CORPUS_DIR / "manifest.json").read_text(encoding="utf-8")
+    )
+    pending = manifest.get("pending", [])
+    for p in pending:
+        assert "file" not in p, (
+            f"pending entry should not reference a file: {p!r}"
+        )
+        assert "class" in p, (
+            f"pending entry should name the class: {p!r}"
+        )
+        assert "reason" in p, (
+            f"pending entry should explain the gap: {p!r}"
+        )

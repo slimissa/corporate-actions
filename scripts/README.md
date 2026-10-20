@@ -88,7 +88,8 @@ The webhook payload is:
 | Code | Meaning |
 |------|---------|
 | `0` | No change, or change successfully processed |
-| `1` | File missing, unreadable, or state write failed |
+| `1` | State file could not be written |
+| `3` | Actions file missing or unreadable |
 | `2` | Usage error |
 
 Note: a webhook failure **does not** cause a non-zero exit. The state file

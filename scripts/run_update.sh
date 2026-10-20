@@ -39,8 +39,11 @@
 #
 # Exit codes:
 #   0 – success
-#   1 – any step failed
+#   1 – a checked step failed (validation, tests, fetch)
 #   2 – usage error
+#   Otherwise, the exit code of the first failing command. Under
+#   `set -euo pipefail`, cargo exit 101, git exit 128, and npm exit 1
+#   all propagate unchanged rather than being normalized to 1.
 
 set -euo pipefail
 
@@ -352,26 +355,12 @@ if $DO_COMMIT && ! $DRY_RUN; then
 
     if git diff --cached --quiet; then
         log "No changes to commit."
+        log "Pushing $BRANCH to origin..."
+        git push origin "$BRANCH"
+
         if [[ -n "$TAG_VERSION" ]]; then
             error_exit "Refusing to tag $TAG_VERSION: no changes were committed."
         fi
-        # No commit means no push. Pushing here is the bug we are fixing.
-    else
-        git commit -m "Automated registry update"
-
-        if [[ -n "$TAG_VERSION" ]]; then
-            log "Tagging release $TAG_VERSION"
-            # Delete a stale local tag before creating the new one.
-            if git rev-parse "$TAG_VERSION" >/dev/null 2>&1; then
-                log "Deleting stale local tag $TAG_VERSION"
-                git tag -d "$TAG_VERSION"
-            fi
-            git tag "$TAG_VERSION"
-            git push origin "$TAG_VERSION"
-        fi
-
-        log "Pushing $BRANCH to origin..."
-        git push origin "$BRANCH"
     fi
 elif $DO_COMMIT && $DRY_RUN; then
     log "DRY RUN: would commit and push changes (skipped)."
