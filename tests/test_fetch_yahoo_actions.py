@@ -971,21 +971,19 @@ class TestMainIntegration:
         assert code == 0
 
     def test_output_dir_can_be_created(self, tmp_path, monkeypatch):
+        """A nested output dir is created automatically."""
         path = _write_identifiers(tmp_path, [
             {"isin": "US0378331005", "ticker": "AAPL"},
         ])
         _patch_ticker(monkeypatch, lambda t: FakeTicker())
         out = tmp_path / "a" / "b" / "out.json"
-        # The parent does not exist yet; write should still work.
-        _run_main(monkeypatch, [
+        code = _run_main(monkeypatch, [
             "--identifiers", str(path),
             "--output", str(out),
         ])
-        # The write would raise FileNotFoundError because the dir is
-        # missing; the test is that main returns 3 rather than crashing.
-        # Since it is not required by the user, we just call it and
-        # tolerate either outcome.
-        assert True
+        assert code == 0
+        assert out.exists(), "output file was not created"
+        assert out.parent.is_dir(), "parent directories were not created"
 
     def test_min_date_filters_old_dividends(self, tmp_path, monkeypatch):
         path = _write_identifiers(tmp_path, [
@@ -1013,13 +1011,12 @@ class TestMainIntegration:
         path = _write_identifiers(tmp_path, [
             {"isin": "US0378331005", "ticker": "AAPL"},
         ])
-        # Same date and amount twice in the dict is impossible for a real
-        # dict, so simulate by returning two actions with the same id
-        # from the fake: it is not realistic but exercises the dedup path.
-        # The simplest way is to have two entries with the same date.
+        # FakeTimestamp has no __eq__/__hash__, so two instances with
+        # the same date are distinct dict keys. Both actions reach the
+        # dedup path with the same action_id, and dedup collapses them.
         divs = {
             FakeTimestamp(date(2024, 5, 10)): 0.25,
-            FakeTimestamp(date(2024, 5, 10)): 0.25,  # collapsed by dict
+            FakeTimestamp(date(2024, 5, 10)): 0.25,
         }
         factory, _ = _flaky_factory(0, divs=divs)
         _patch_ticker(monkeypatch, factory)

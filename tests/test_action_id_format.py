@@ -315,7 +315,7 @@ class TestMissingActionId:
 # Discriminator flexibility
 # ---------------------------------------------------------------------------
 
-class TestDiscriminatorIsFreeForm:
+class TestDiscriminatorFreeFormWhenUnderivable:
     """The discriminator is `.+` — the function does not check its content.
 
     That is deliberate: the discriminator encodes action-specific
@@ -380,7 +380,7 @@ class TestRealRegistry:
         vacuously passing."""
         assert len(real_actions) > 0
 
-class TestDiscriminatorConsistency:
+class TestDiscriminatorValidatedWhenDerivable:
     """The discriminator suffix must match the action's fields.
 
     These tests pin the behavior that validate_action_id_format now
