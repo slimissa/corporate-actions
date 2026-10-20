@@ -2,6 +2,7 @@
 name = "corporate-actions"
 version = "1.1.0"
 edition = "2021"
+rust-version = "1.70"
 description = "Rust wrapper for the Corporate Actions Registry (actions.json)"
 license = "Apache-2.0"
 authors = ["QuantOS Project <contact@quantos.org>"]

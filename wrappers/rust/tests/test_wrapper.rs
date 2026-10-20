@@ -321,8 +321,8 @@ fn load_action_missing_isin_and_action_id_returns_error() {
     match result {
         Err(RegistryError::InvalidStructure(msg)) => {
             assert!(
-                msg.contains("missing both") || msg.contains("isin"),
-                "got: {}",
+                msg.contains("neither"),
+                "expected 'neither' in: {}",
                 msg
             );
         }
