@@ -380,7 +380,7 @@ def rewrite(
     payload = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
     tmp = actions_path.with_suffix(actions_path.suffix + ".tmp")
     try:
-        tmp.write_text(payload, encoding="utf-8")
+        tmp.write_bytes(payload.encode("utf-8"))
         tmp.replace(actions_path)
     except OSError as exc:
         print(f"Error: write failed: {exc}", file=sys.stderr)

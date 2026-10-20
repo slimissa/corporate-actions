@@ -224,6 +224,30 @@ def resolve_isin(ticker: str, exchange: str, explicit_isin: str = None):
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
+def compute_unadjusted_return(
+    first_price: float,
+    last_price: float,
+    splits_in_window: list,
+) -> float:
+    """Return the price return a naive backtest would compute if it
+    ignored splits.
+
+    yfinance's Close series is already split-adjusted. To simulate the
+    naive case, reverse the split effect using the registry's
+    `impact.price_multiplier` on each split. For a 10:1 split,
+    price_multiplier = 0.1, so unadjusted_last = adjusted_last / 10.
+    See issue #99.
+    """
+    multiplier = 1.0
+    for split in splits_in_window:
+        if split.impact and split.impact.price_multiplier:
+            multiplier *= split.impact.price_multiplier
+    if multiplier == 0.0:
+        return 0.0
+    unadjusted_last = last_price / multiplier
+    return (unadjusted_last / first_price - 1.0) * 100.0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Demonstrate price adjustment for corporate actions."
@@ -283,22 +307,30 @@ def main() -> int:
         first_price, last_price, actions_for_ticker, start_d, end_d,
     )
 
-    print()
-    print("=" * 60)
-    print(f"Backtest return for {args.ticker}")
-    print(f"  Holding period: {args.start} to {args.end}")
-    print(f"  First price:    {first_price:.4f}  (as reported by yfinance)")
-    print(f"  Last price:     {last_price:.4f}")
-    print("=" * 60)
-    print(f"  Price return:                     {price_ret:+7.2f}%")
-    print(f"  Total return (price + dividends): {total_ret:+7.2f}%")
-    print("=" * 60)
-
     splits_in_range = [
         a for a in actions_for_ticker
         if a.action_type in ("SPLIT", "REVERSE_SPLIT")
         and a.dates and in_range(a.dates.ex_date, start_d, end_d)
     ]
+
+    unadj_ret = compute_unadjusted_return(
+        first_price, last_price, splits_in_range,
+    )
+
+    print()
+    print("=" * 68)
+    print(f"Backtest return for {args.ticker}")
+    print(f"  Holding period: {args.start} to {args.end}")
+    print(f"  First price:    {first_price:.4f}  (as reported by yfinance)")
+    print(f"  Last price:     {last_price:.4f}")
+    print("=" * 68)
+    print(f"  Unadjusted price return:             {unadj_ret:+7.2f}%   <- naive, wrong")
+    print(f"  Adjusted price return:               {price_ret:+7.2f}%   <- yfinance Close")
+    print(f"  Total return (price + dividends):    {total_ret:+7.2f}%")
+    print("=" * 68)
+    print()
+    print(f"  Split-effect gap: {price_ret - unadj_ret:+7.2f} pp — what the registry prevents")
+    print()
     dividends_in_range = [
         a for a in actions_for_ticker
         if a.action_type in ("DIVIDEND", "SPECIAL_DIVIDEND")

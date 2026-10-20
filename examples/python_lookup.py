@@ -27,8 +27,6 @@ import os
 import sys
 from pathlib import Path
 
-from tests.test_wrapper import registry
-
 # Try to import the wrapper (installed) or add local path as fallback
 try:
     from corporate_actions_registry import CorporateActionsRegistry

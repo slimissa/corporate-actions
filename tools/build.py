@@ -132,7 +132,7 @@ def _write_atomic(path: Path, payload: str) -> None:
     untouched rather than truncated.
     """
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(payload, encoding="utf-8")
+    tmp.write_bytes(payload.encode("utf-8"))
     tmp.replace(path)
 
 def render_dist(data: Dict[str, Any]) -> str:

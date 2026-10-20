@@ -187,3 +187,28 @@ class TestAdditions:
         assert len(after["actions"]) == 1
         assert after["actions"][0]["action_id"] == new["action_id"]
         assert "updated_at" in after["meta"]
+
+class TestSemanticDedup:
+    def test_semantic_duplicate_of_existing_is_rejected(self, tmp_path):
+        """A SPECIAL_DIVIDEND matching an existing DIVIDEND (same isin,
+        ex_date, amount, family collapsed) must be rejected as a semantic
+        duplicate even when `added` is empty. See issues #1, #14."""
+        actions = tmp_path / "actions.json"
+        fetched = tmp_path / "fetched.json"
+        removed = tmp_path / "reject.json"
+
+        existing = _action("AAPL", "2024-01-01", 0.25, action_type="DIVIDEND")
+        duplicate = _action("AAPL", "2024-01-01", 0.25,
+                            action_type="SPECIAL_DIVIDEND")
+
+        _write(actions, {"meta": {}, "actions": [existing]})
+        _write(fetched, {"meta": {}, "actions": [duplicate]})
+        _write(removed, {"removed": []})
+
+        r = _run(actions, fetched, removed)
+        assert r.returncode == 0, r.stdout + r.stderr
+
+        after = json.loads(actions.read_text())
+        assert len(after["actions"]) == 1, (
+            "semantic duplicate was merged into the registry"
+        )

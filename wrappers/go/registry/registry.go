@@ -534,6 +534,22 @@ func (r *Registry) Count() int {
 // them.
 func (r *Registry) Meta() *Meta {
 	m := r.meta
+	if m.Version != nil {
+		v := *m.Version
+		m.Version = &v
+	}
+	if m.GeneratedAt != nil {
+		v := *m.GeneratedAt
+		m.GeneratedAt = &v
+	}
+	if m.Source != nil {
+		v := *m.Source
+		m.Source = &v
+	}
+	if m.Notes != nil {
+		v := *m.Notes
+		m.Notes = &v
+	}
 	return &m
 }
 

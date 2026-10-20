@@ -102,7 +102,7 @@ def extract_source(action: Dict[str, Any]) -> Optional[str]:
 
 def _write_atomic(path: Path, payload: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(payload, encoding="utf-8")
+    tmp.write_bytes(payload.encode("utf-8"))
     tmp.replace(path)
 
 
