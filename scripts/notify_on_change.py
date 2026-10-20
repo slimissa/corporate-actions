@@ -22,9 +22,9 @@ Usage:
 Exit codes:
   0 - success, whether or not a change was detected
       and whether or not the webhook delivery succeeded
-  1 - error: missing or unreadable actions file,
-      or the state file could not be written
+  1 - state file could not be written
   2 - usage error (reserved; not currently returned)
+  3 - actions file missing or unreadable
 """
 
 import argparse

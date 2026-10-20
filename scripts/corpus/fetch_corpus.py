@@ -52,9 +52,8 @@ FILINGS = [
 
 SYMBOL_CHANGE_PATTERNS = [
     re.compile(
-        r"(?:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
+        r"(?i:will\s+(?:begin\s+trading|trade)\s+under\s+(?:the\s+)?"
         r"(?:new\s+)?(?:ticker\s+)?symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])",
-        re.IGNORECASE,
     ),
     re.compile(
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
