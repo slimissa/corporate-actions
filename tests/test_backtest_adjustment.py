@@ -399,7 +399,10 @@ class TestSourceGuards:
         assert "Use a vendor with unadjusted prices" not in example_source
 
     def test_price_return_label_present(self, example_source):
-        assert "Price return:" in example_source
+        # After v1.1.x the demo distinguishes adjusted vs unadjusted
+        # price returns. Both labels must be present.
+        assert "Adjusted price return:" in example_source
+        assert "Unadjusted price return:" in example_source
 
     def test_total_return_label_present(self, example_source):
         assert "Total return (price + dividends):" in example_source

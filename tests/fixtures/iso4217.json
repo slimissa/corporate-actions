@@ -1550,29 +1550,6 @@
         ]
       },
       {
-        "code": "BGN",
-        "numeric": "975",
-        "name": "Bulgarian Lev",
-        "minor_units": 2,
-        "symbol": "лв",
-        "entity": "Bulgaria",
-        "central_bank": "Bulgarian National Bank",
-        "pegged_to": "EUR",
-        "peg_type": "single",
-        "pegged_since": "1999-01-01",
-        "peg_rate": 1.95583,
-        "peg_band_pct": 0.0,
-        "is_independent": false,
-        "note": "Pegged to EUR via currency board. Bulgaria is in ERM II.",
-        "countries": [
-          {
-            "code": "BG",
-            "name": "Bulgaria",
-            "relationship": "issuing"
-          }
-        ]
-      },
-      {
         "code": "BOV",
         "numeric": "984",
         "name": "Bolivian Mvdol",
