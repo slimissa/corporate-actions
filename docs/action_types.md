@@ -743,7 +743,7 @@ hand-curated and unverifiable at scale.
 
 ### Planned schema
 
-When implemented in v1.1.0, a `MERGER` entry will have:
+When implemented in v1.1.1, a `MERGER` entry will have:
 
 - `ratio` — the exchange ratio `"acquirer:target"` for stock deals
 - `amount` — the cash component per share for cash-and-stock deals

@@ -1,9 +1,9 @@
   # Validation Layers
 
-  The Corporate Actions Registry is validated in seven layers. Each layer
-  catches a distinct class of error. A single action must pass all seven
-  before it enters `actions.json`. The validator (`tools/validate.py`)
-  implements every layer and produces a single report listing every failure.
+The Corporate Actions Registry is validated in seven layers. Each layer
+catches a distinct class of error. A single action must pass all seven
+before it enters `actions.json`. The validator (`tools/validate.py`)
+implements every layer and produces a single report listing every failure.
 
   This document specifies:
 

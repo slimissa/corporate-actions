@@ -39,6 +39,12 @@ The registry distributes **facts**, not the sources they came from.
    either `public-domain`, `facts-only`, or `secondary-source`.
    `restricted` is a fail-safe and never ships.
 
+> **Known gap:** `scripts/fix_duplicates.py` writes entries without
+> `redistribution`. After running it, `tools/derive_redistribution.py`
+> must run to populate the field, or validation fails. This will be
+> resolved when `fix_duplicates.py` populates the field directly (see
+> `docs/roadmap.md` v1.1.1).
+
 The registry's **compilation** — its schema, ordering, enrichment,
 validation rules, tooling, and documentation — is a copyrighted work of
 the maintainers, licensed under Apache 2.0.
