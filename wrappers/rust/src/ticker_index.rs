@@ -11,14 +11,14 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
 // ---------------------------------------------------------------------------
 // Cache
 // ---------------------------------------------------------------------------
 
 type Index = HashMap<String, String>;
-type Cache = HashMap<String, Index>;
+type Cache = HashMap<String, Arc<Index>>;
 
 /// Per-process cache, keyed by canonical path. A `OnceLock<Mutex<_>>`
 /// is the simplest way to get a lazily-initialised, thread-safe
@@ -104,7 +104,7 @@ pub(crate) fn resolve_path(explicit: Option<&str>) -> Result<String, RegistryErr
 /// The returned error is [`RegistryError::MissingData`] for a missing
 /// or malformed file. A path that does not exist is reported verbatim
 /// in the message.
-fn load_index(path: &str) -> Result<Index, RegistryError> {
+fn load_index(path: &str) -> Result<Arc<Index>, RegistryError> {
     // Canonicalise when possible so `./foo.json` and `foo.json` share a
     // cache slot. If the file does not exist, fall back to the given
     // path so the error message names what the caller passed.
@@ -118,7 +118,7 @@ fn load_index(path: &str) -> Result<Index, RegistryError> {
     {
         let c = cache().lock().expect("ticker cache mutex poisoned");
         if let Some(idx) = c.get(&key) {
-            return Ok(idx.clone());
+            return Ok(idx.clone());  // Arc clone, O(1)
         }
     }
 
@@ -145,12 +145,13 @@ fn load_index(path: &str) -> Result<Index, RegistryError> {
     }
 
     // Store in cache.
+    let arc = Arc::new(index);
     {
         let mut c = cache().lock().expect("ticker cache mutex poisoned");
-        c.insert(key, index.clone());
+        c.insert(key, arc.clone());
     }
 
-    Ok(index)
+    Ok(arc)
 }
 
 /// Resolve `(ticker, exchange)` to an ISIN using the Asset Identifiers

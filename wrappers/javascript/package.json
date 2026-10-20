@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test test/test_wrapper.js"
+    "test": "node --test test/"
   },
   "keywords": [
     "corporate-actions",

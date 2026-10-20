@@ -5,10 +5,10 @@
 // fixture is read by the Python, JavaScript, and Rust wrappers, so a
 // regression in any one wrapper shows up in all four suites.
 //
-// The fixture is not yet in the repository; it arrives in Session 3.5.
-// Until it does, every test in this file skips with a message naming
-// the missing path. Once the fixture is added, no change to this file
-// is required.
+// The fixture at tests/wrapper_contract.json is committed to the
+// repository and read by all four wrappers. A missing fixture fails
+// the test (t.Fatalf) rather than skipping: a broken checkout must
+// fail loudly, not silently hide the contract tests.
 //
 // Fixture shape is specified in docs/wrapper_contract.md section 8.2.
 //

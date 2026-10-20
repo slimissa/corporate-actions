@@ -9,7 +9,7 @@ This is the official Rust crate for the **Corporate Actions Registry** (part of 
 - **Date range filtering** on any date field
 - **Serialization** back to JSON (via `to_json()` and `save()`)
 - **Error handling** with `thiserror` for clear messages
-- **Works with Rust 2021 edition and later**
+- **Works with Rust 1.70+ (edition 2021)**
 
 ## Installation
 

@@ -15,6 +15,8 @@ Typical usage:
 
 from __future__ import annotations
 
+import re
+
 import copy
 import json
 import os
@@ -26,6 +28,8 @@ from .models import Action, RegistryMeta
 # ---------------------------------------------------------------------------
 # Exported constants (wrapper contract section 4.9)
 # ---------------------------------------------------------------------------
+
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 DEFAULT_DATE_FIELD = "ex_date"
 
@@ -47,7 +51,7 @@ VALID_DATE_FIELDS = (
 # use so two equivalent paths hit the same cache slot.
 # ---------------------------------------------------------------------------
 
-_TICKER_INDEX_CACHE: Dict[str, Dict[tuple, str]] = {}
+_TICKER_INDEX_CACHE: Dict[tuple, Dict[tuple, str]] = {}
 
 
 def _resolve_identifiers_path(explicit: Optional[str]) -> str:
@@ -85,7 +89,12 @@ def _build_ticker_index(path: str) -> Dict[tuple, str]:
     RuntimeError naming the two environment variables that would fix it.
     """
     abs_path = os.path.abspath(path)
-    cached = _TICKER_INDEX_CACHE.get(abs_path)
+    try:
+        mtime = os.path.getmtime(abs_path)
+    except OSError:
+        mtime = 0.0
+    cache_key = (abs_path, mtime)
+    cached = _TICKER_INDEX_CACHE.get(cache_key)
     if cached is not None:
         return cached
 
@@ -109,7 +118,7 @@ def _build_ticker_index(path: str) -> Dict[tuple, str]:
         if t and x and i:
             index[(str(t).upper(), str(x).upper())] = str(i)
 
-    _TICKER_INDEX_CACHE[abs_path] = index
+    _TICKER_INDEX_CACHE[cache_key] = index
     return index
 
 
@@ -287,6 +296,12 @@ class CorporateActionsRegistry:
                 f"invalid date_field {date_field!r}; "
                 f"expected one of {sorted(VALID_DATE_FIELDS)}"
             )
+
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value and not _ISO_DATE_RE.match(value):
+                raise ValueError(
+                    f"{name} must be YYYY-MM-DD, got {value!r}"
+                )
 
         result: List[Action] = []
         for action in self.actions:

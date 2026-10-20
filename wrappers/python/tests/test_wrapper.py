@@ -1092,7 +1092,7 @@ class TestByTicker:
         fixtures = Path(__file__).resolve().parents[3] / "tests" / "fixtures"
         ids = fixtures / "identifiers.json"
         if not ids.is_file():
-            pytest.skip("tests/fixtures/identifiers.json missing")
+            pytest.fail(f"required fixture missing: {ids}")
 
         reg = CorporateActionsRegistry(
             actions_data={"meta": {}, "actions": [
@@ -1182,3 +1182,22 @@ def test_redistribution_is_on_action_not_dates():
     assert not hasattr(action.dates, "redistribution"), (
         "redistribution must not be a Dates field"
     )
+
+
+class TestByDateRangeISOValidation:
+    """#50: malformed dates must raise, not silently produce wrong answers."""
+
+    @pytest.mark.parametrize("bad_start,bad_end", [
+        ("2024-6-10", None),      # no leading zero
+        ("2024/06/10", None),     # slashes
+        (None, "2024-13-01"),     # invalid month (still matches regex, but parser catches field name; ISO regex accepts)
+        (None, "06-10-2024"),     # wrong order
+        ("2024-06-10T00:00", None),  # datetime
+    ])
+    def test_malformed_dates_raise(self, registry, bad_start, bad_end):
+        with pytest.raises(ValueError, match="must be YYYY-MM-DD"):
+            registry.by_date_range(bad_start, bad_end)
+
+    def test_valid_dates_still_work(self, registry):
+        result = registry.by_date_range("2024-01-01", "2024-12-31", "ex_date")
+        assert isinstance(result, list)

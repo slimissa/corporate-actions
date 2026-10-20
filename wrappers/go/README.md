@@ -111,7 +111,10 @@ Filters actions by a date range on a specified date field.
 Example:
 
 ```go
-actions := r.ByDateRange("2020-01-01", "2023-12-31", "ex_date")
+actions, err := r.ByDateRange("2020-01-01", "2023-12-31", "ex_date")
+if err != nil {
+    panic(err)
+}
 ```
 
 ### `AllActionTypes() []string`
