@@ -1,4 +1,55 @@
-## [1.2.0] - 2026-10-21
+# Changelog
+
+All notable changes to the Corporate Actions Registry are documented in
+this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## Table of contents
+
+- [How to read this changelog](#how-to-read-this-changelog)
+- [Unreleased](#unreleased)
+- [1.2.0 — 2026-10-21](#120--2026-10-21)
+- [1.1.0 — 2026-09-21](#110--2026-09-21)
+- [1.0.0 — 2026-09-13](#100--2026-09-13)
+- [Pre-release history](#pre-release-history)
+
+---
+
+## How to read this changelog
+
+Entries use the following categories:
+
+| Category | Meaning |
+|----------|---------|
+| **Added** | New features, actions, wrappers, or files |
+| **Changed** | Changes to existing behavior |
+| **Deprecated** | Features that will be removed in a future version |
+| **Removed** | Features that were removed |
+| **Fixed** | Bug fixes |
+| **Security** | Security-relevant changes |
+| **Data** | Changes to `actions.json` content |
+| **Docs** | Documentation-only changes (READMEs, `docs/`, templates) |
+
+Version links at the end of each section compare against the previous
+tag. `BREAKING` annotations appear inline for major-version changes.
+
+**A note on section numbering.** Sections are added in release order, but
+an item removed or renamed in a later release does not renumber earlier
+sections. A missing number means the item was withdrawn, not lost.
+
+---
+
+## Unreleased
+
+_No unreleased changes._
+
+---
+
+## [1.2.0] — 2026-10-21
 
 ### Added
 
@@ -68,59 +119,6 @@
 - `wrappers/python/corporate_actions_registry/__init__.py` `__version__`
   is bumped manually this release; it is not yet a
   `check_version_consistency` site. Adding it is a `v1.2.1` chore.
-
-## [1.1.0] - 2026-10-20
-
-# Changelog
-
-All notable changes to the Corporate Actions Registry are documented in
-this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## Table of contents
-
-- [How to read this changelog](#how-to-read-this-changelog)
-- [Unreleased](#unreleased)
-- [1.2.0 — 2026-10-21](#120--2026-10-21)
-- [1.1.0 — 2026-10-20](#110--2026-10-20)
-- [1.0.0 — 2026-09-13](#100--2026-09-13)
-- [Pre-release history](#pre-release-history)
-
----
-
-## How to read this changelog
-
-Entries use the following categories:
-
-| Category | Meaning |
-|----------|---------|
-| **Added** | New features, actions, wrappers, or files |
-| **Changed** | Changes to existing behavior |
-| **Deprecated** | Features that will be removed in a future version |
-| **Removed** | Features that were removed |
-| **Fixed** | Bug fixes |
-| **Security** | Security-relevant changes |
-| **Data** | Changes to `actions.json` content |
-| **Docs** | Documentation-only changes (READMEs, `docs/`, templates) |
-
-Version links at the end of each section compare against the previous
-tag. `BREAKING` annotations appear inline for major-version changes.
-
-**A note on section numbering.** Sections are added in release order, but
-an item removed or renamed in a later release does not renumber earlier
-sections. A missing number means the item was withdrawn, not lost.
-
----
-
-## Unreleased
-
-_No unreleased changes._
-
----
 
 ## [1.1.0] — 2026-09-21
 
