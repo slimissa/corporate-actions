@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [How to read this changelog](#how-to-read-this-changelog)
 - [Unreleased](#unreleased)
+- [1.2.2 — 2026-10-22](#122--2026-10-22)
 - [1.2.1 — 2026-10-22](#121--2026-10-22)
 - [1.2.0 — 2026-10-21](#120--2026-10-21)
 - [1.1.0 — 2026-09-21](#110--2026-09-21)
@@ -49,6 +50,41 @@ sections. A missing number means the item was withdrawn, not lost.
 _No unreleased changes._
 
 ---
+
+## [1.2.2] — 2026-10-22
+
+### Added
+
+- `tests/test_contract_surface.py` — 86 tests asserting every § 4
+  method and § 4.9 constant is implemented in every wrapper, plus § 10
+  Appendix consistency per language.
+- § 10 Appendix consistency check catches § 4 → § 10 drift.
+
+### Changed
+
+- JS `engines.node` `>=18` → `>=20`.
+
+### Fixed
+
+- § 10 Appendix: 4 methods + 1 constant added to each of 4 language
+  blocks — stale since v1.1.0.
+- Removed false `verification_source: "SEC EDGAR 8-K"` claims from 6
+  entries (sourced from Yahoo, not EDGAR; no URL accompanied the claim).
+  `scripts/fix_duplicates.py::ADD_ENTRIES` no longer writes the pair.
+
+### Docs
+
+- CHANGELOG v1.1.0 reconciled with `roadmap.md` — added Fetch pipeline
+  and Licensing subsections to match the roadmap's shipped-work
+  description.
+- § 10 Appendix now reflects `all_actions`, `adjust_prices`,
+  `known_as_of`, `meta`, `DEFAULT_ADJUST_FOR` on all four wrappers.
+
+### Data
+
+- `actions.json`: removed 6 `verification_source` fields and 6
+  `verification_url` fields (all already `None`) from entries whose
+  provenance did not support the claim.
 
 ## [1.2.1] — 2026-10-22
 
