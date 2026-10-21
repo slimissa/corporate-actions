@@ -36,6 +36,17 @@ const VALID_DATE_FIELDS = Object.freeze([
   'effective_date',
 ]);
 
+/**
+ * Default set of action types applied by `adjustPrices` when the caller
+ * does not specify one. Exported per wrapper contract § 4.9.
+ */
+const DEFAULT_ADJUST_FOR = Object.freeze([
+  'SPLIT',
+  'REVERSE_SPLIT',
+  'DIVIDEND',
+  'SPECIAL_DIVIDEND',
+]);
+
 // ---------------------------------------------------------------------------
 // Ticker index (wrapper contract section 4.8)
 //
@@ -127,6 +138,54 @@ function _buildTickerIndex(p) {
  */
 function _resetTickerCache() {
   _tickerIndexCache.clear();
+}
+
+// ---------------------------------------------------------------------------
+// adjust_prices helpers (wrapper contract § 4.10)
+// ---------------------------------------------------------------------------
+
+/**
+ * Return the price multiplier for a SPLIT or REVERSE_SPLIT action.
+ *
+ * Prefers `impact.price_multiplier` when present; falls back to parsing
+ * `ratio` as "new:old" (multiplier = old / new); returns 1.0 when neither
+ * is available. See contract § 4.10 "Impact fallback".
+ *
+ * @param {object} action
+ * @returns {number}
+ */
+function _actionPriceMultiplier(action) {
+  if (action.impact && typeof action.impact.price_multiplier === 'number') {
+    return action.impact.price_multiplier;
+  }
+  if (action.ratio) {
+    const m = String(action.ratio).match(/^(\d+):(\d+)$/);
+    if (m) {
+      const newShares = parseInt(m[1], 10);
+      const oldShares = parseInt(m[2], 10);
+      if (newShares > 0) return oldShares / newShares;
+    }
+  }
+  return 1.0;
+}
+
+/**
+ * Return the cash adjustment for a DIVIDEND or SPECIAL_DIVIDEND action.
+ *
+ * Prefers `impact.cash_adjustment` when present; falls back to the
+ * primary `amount` field; returns 0.0 when neither is available.
+ *
+ * @param {object} action
+ * @returns {number}
+ */
+function _actionCashAdjustment(action) {
+  if (action.impact && typeof action.impact.cash_adjustment === 'number') {
+    return action.impact.cash_adjustment;
+  }
+  if (typeof action.amount === 'number') {
+    return action.amount;
+  }
+  return 0.0;
 }
 
 // ---------------------------------------------------------------------------
@@ -346,6 +405,72 @@ class CorporateActionsRegistry {
   }
 
   /**
+   * Adjust a price series for corporate actions.
+   *
+   * For each input bar at date D, every applicable action with
+   * ex_date > D is applied: SPLIT/REVERSE_SPLIT multiply by the price
+   * multiplier; DIVIDEND/SPECIAL_DIVIDEND subtract the cash amount.
+   * A bar on the ex-date itself is not adjusted (its price already
+   * reflects the action). See docs/wrapper_contract.md § 4.10.
+   *
+   * @param {string} isin
+   * @param {Array<{date: string, raw: number}>} prices
+   * @param {string[]|null} [adjustFor=DEFAULT_ADJUST_FOR]
+   * @returns {Array<{date, raw, adjusted, applied_action_ids}>}
+   * @throws {Error} on malformed date or missing `raw`
+   */
+  adjustPrices(isin, prices, adjustFor = null) {
+    if (adjustFor == null) adjustFor = DEFAULT_ADJUST_FOR;
+
+    for (const p of prices) {
+      if (!p || typeof p.date !== 'string' || !ISO_DATE_RE.test(p.date)) {
+        throw new Error(
+          `invalid price date: ${JSON.stringify(p && p.date)} (must be YYYY-MM-DD)`
+        );
+      }
+      if (!('raw' in p)) {
+        throw new Error(`price entry missing 'raw': ${JSON.stringify(p)}`);
+      }
+    }
+
+    const rawActions = this.byIsin(isin);
+    if (rawActions.length === 0) return [];
+
+    const adjustSet = new Set(adjustFor);
+    const actions = rawActions.filter((a) => adjustSet.has(a.action_type));
+
+    const sorted = prices
+      .slice()
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    const result = [];
+    for (const p of sorted) {
+      const date = String(p.date);
+      const raw = Number(p.raw);
+      let adjusted = raw;
+      const applied = [];
+
+      for (const a of actions) {
+        if (!a.dates || !a.dates.ex_date) continue;
+        if (a.dates.ex_date <= date) continue;
+        if (a.action_type === 'SPLIT' || a.action_type === 'REVERSE_SPLIT') {
+          adjusted *= _actionPriceMultiplier(a);
+          applied.push(a.action_id);
+        } else if (
+          a.action_type === 'DIVIDEND' ||
+          a.action_type === 'SPECIAL_DIVIDEND'
+        ) {
+          adjusted -= _actionCashAdjustment(a);
+          applied.push(a.action_id);
+        }
+      }
+
+      result.push({ date, raw, adjusted, applied_action_ids: applied });
+    }
+    return result;
+  }
+
+  /**
    * Return the total number of actions.
    * @returns {number}
    */
@@ -396,6 +521,7 @@ class CorporateActionsRegistry {
 module.exports = {
   CorporateActionsRegistry,
   DEFAULT_DATE_FIELD,
+  DEFAULT_ADJUST_FOR,
   VALID_DATE_FIELDS,
   _resetTickerCache,
 };

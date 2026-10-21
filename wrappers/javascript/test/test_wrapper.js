@@ -1195,3 +1195,67 @@ describe('accessor isolation', () => {
     assert.deepStrictEqual(reg.toJSON(), before);
   });
 });
+
+
+// ----------------------------------------------------------------------
+// adjust_prices (wrapper contract § 4.10)
+// ----------------------------------------------------------------------
+
+describe('adjustPrices', () => {
+  let fixture, reg;
+
+  before(() => {
+    const fixturePath = path.join(__dirname, '..', '..', '..', 'tests', 'wrapper_contract.json');
+    fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    reg = new CorporateActionsRegistry({ meta: {}, actions: fixture.actions });
+  });
+
+  it('matches every fixture price_adjustments case', () => {
+    const cases = fixture.price_adjustments || [];
+    assert.ok(cases.length > 0, 'fixture must have price_adjustments cases');
+    for (const c of cases) {
+      const isin = c.override_isin || c.isin;
+      const result = reg.adjustPrices(isin, c.prices);
+      assert.deepStrictEqual(
+        result,
+        c.expected,
+        `case ${JSON.stringify(c.description)}`
+      );
+    }
+  });
+
+  it('returns [] for empty prices', () => {
+    assert.deepStrictEqual(reg.adjustPrices('US0000000001', []), []);
+  });
+
+  it('returns [] for unknown ISIN', () => {
+    assert.deepStrictEqual(
+      reg.adjustPrices('US9999999999', [{ date: '2024-01-15', raw: 100.0 }]),
+      []
+    );
+  });
+
+  it('rejects malformed price date', () => {
+    assert.throws(
+      () => reg.adjustPrices('US0000000001', [{ date: '2024-6-10', raw: 100.0 }]),
+      /invalid price date/
+    );
+  });
+
+  it('rejects missing raw', () => {
+    assert.throws(
+      () => reg.adjustPrices('US0000000001', [{ date: '2024-01-15' }]),
+      /missing 'raw'/
+    );
+  });
+
+  it('respects adjustFor narrowing', () => {
+    const result = reg.adjustPrices(
+      'US0000000001',
+      [{ date: '2024-01-15', raw: 100.0 }],
+      ['SPLIT']
+    );
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].adjusted, 50.0);
+  });
+});
