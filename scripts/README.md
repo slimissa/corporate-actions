@@ -107,7 +107,7 @@ pytest tests/test_notify_on_change.py -v
 ```
 
 Covers hash computation, state persistence, webhook failure handling, and
-the CLI end-to-end. 16 tests.
+the CLI end-to-end. 20 tests.
 
 ---
 
