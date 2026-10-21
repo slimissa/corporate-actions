@@ -158,7 +158,7 @@ func findActionsFile(cliPath string) string {
 	if cliPath != "" {
 		if _, err := os.Stat(cliPath); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: file not found: %s\n", cliPath)
-			os.Exit(3)
+			os.Exit(2) // explicit path = usage error per § 7.2
 		}
 		return cliPath
 	}
