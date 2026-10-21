@@ -1003,10 +1003,21 @@ class CorporateActionsRegistry:
     def count(self) -> int: ...
     def to_dict(self) -> Dict[str, Any]: ...
     def save(self, path: str) -> None: ...
+    def all_actions(self) -> List[Action]: ...
+    def adjust_prices(self, isin: str,
+                      prices: List[Dict[str, Any]],
+                      *,
+                      adjust_for: Optional[Set[str]] = None)
+                      -> List[Dict[str, Any]]: ...
+    def known_as_of(self, isin: str, as_of_date: str)
+                      -> List[Action]: ...
+    @property
+    def meta(self) -> Dict[str, Any]: ...
 
 # Module scope
 DEFAULT_DATE_FIELD: str
 VALID_DATE_FIELDS: Tuple[str, ...]
+DEFAULT_ADJUST_FOR: Set[str]
 ```
 
 ### JavaScript
@@ -1033,11 +1044,17 @@ class CorporateActionsRegistry {
     count() { ... }                                   // -> number
     toJSON() { ... }                                  // -> { meta, actions }
     save(filePath) { ... }                            // -> void
+    allActions() { ... }                              // -> Object[]
+    adjustPrices(isin, prices, adjustFor = DEFAULT_ADJUST_FOR) { ... }
+                                                      // -> AdjustedBar[]
+    knownAsOf(isin, asOfDate) { ... }                 // -> Object[]
+    get meta() { ... }                                // -> Object
 }
 
 // Module scope
 DEFAULT_DATE_FIELD;                                   // 'ex_date'
 VALID_DATE_FIELDS;                                    // string[]
+DEFAULT_ADJUST_FOR;                                   // string[]
 ```
 
 ### Go
@@ -1059,11 +1076,19 @@ func (r *Registry) AllActionTypes() []string
 func (r *Registry) Count() int
 func (r *Registry) ToJSON() ([]byte, error)
 func (r *Registry) Save(path string) error
+func (r *Registry) AllActions() []Action
+func (r *Registry) AdjustPrices(isin string, prices []PriceBar, adjustFor ...string)
+    ([]AdjustedBar, error)
+func (r *Registry) KnownAsOf(isin, asOfDate string) ([]Action, error)
+func (r *Registry) Meta() *Meta
 
 // Module scope
 const DefaultDateField = "ex_date"
 var ValidDateFields = []string{
     "announcement", "ex_date", "record_date", "effective_date",
+}
+var DefaultAdjustFor = []string{
+    "SPLIT", "REVERSE_SPLIT", "DIVIDEND", "SPECIAL_DIVIDEND",
 }
 
 var ErrInvalidDateField = errors.New("invalid date_field")
@@ -1102,12 +1127,24 @@ impl Registry {
     pub fn to_json(&self) -> serde_json::Value;
     pub fn save<P: AsRef<Path>>(&self, path: P)
         -> Result<(), RegistryError>;
+    pub fn all_actions(&self) -> &[Action];
+    pub fn adjust_prices(&self,
+                         isin: &str,
+                         prices: &[PriceBar],
+                         adjust_for: Option<&[&str]>)
+                         -> Result<Vec<AdjustedBar>, RegistryError>;
+    pub fn known_as_of(&self, isin: &str, as_of_date: &str)
+                       -> Result<Vec<Action>, RegistryError>;
+    pub fn meta(&self) -> &Meta;
 }
 
 // Module scope
 pub const DEFAULT_DATE_FIELD: &str = "ex_date";
 pub const VALID_DATE_FIELDS: &[&str] = &[
     "announcement", "ex_date", "record_date", "effective_date",
+];
+pub const DEFAULT_ADJUST_FOR: &[&str] = &[
+    "SPLIT", "REVERSE_SPLIT", "DIVIDEND", "SPECIAL_DIVIDEND",
 ];
 
 #[non_exhaustive]
