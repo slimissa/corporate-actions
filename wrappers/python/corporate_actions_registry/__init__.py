@@ -27,7 +27,7 @@ from .registry import (
     VALID_DATE_FIELDS,
 )
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 __all__ = [
     "CorporateActionsRegistry",
     "Action", "Dates", "Impact", "Provenance", "RegistryMeta",

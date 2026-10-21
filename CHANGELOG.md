@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [How to read this changelog](#how-to-read-this-changelog)
 - [Unreleased](#unreleased)
+- [1.2.1 — 2026-10-22](#121--2026-10-22)
 - [1.2.0 — 2026-10-21](#120--2026-10-21)
 - [1.1.0 — 2026-09-21](#110--2026-09-21)
 - [1.0.0 — 2026-09-13](#100--2026-09-13)
@@ -48,6 +49,40 @@ sections. A missing number means the item was withdrawn, not lost.
 _No unreleased changes._
 
 ---
+
+## [1.2.1] — 2026-10-22
+
+### Added
+
+- `known_as_of` on all four wrappers — point-in-time query filtering
+  by `dates.announcement <= as_of_date`. See § 4.11.
+
+### Changed
+
+- `__init__.py` is now the 8th version-consistency site (was manual).
+- `run_update.sh` traps EXIT/INT/TERM; `fetch_by_accession` skips
+  existing files unless `CORPUS_FORCE=1`.
+- `fetch_corpus` fetches each filing body once.
+- `rust_lookup` third candidate `cwd/../../actions.json`.
+
+### Fixed
+
+- CHANGELOG structural rebuild: H1 at top, TOC corrected, duplicate
+  `## [1.1.0]` heading removed.
+- `roadmap.md` v1.1.0 date `2026-10-08` → `2026-09-21`.
+- `Action` field order: `redistribution` last (matches Rust).
+
+### Docs
+
+- § 4.11 contract; publication deferred to a future minor version.
+- #140 version-history scan: roadmap `Shipped` rows require exactly
+  one matching CHANGELOG heading.
+
+### Notes
+
+- #47 (`fix_duplicates` verification_url) → v1.2.2 (needs CIK map).
+- #150 (roadmap vs CHANGELOG content reconciliation) → v1.2.2.
+- #151 (tag reachability audit) → v1.2.2.
 
 ## [1.2.0] — 2026-10-21
 
