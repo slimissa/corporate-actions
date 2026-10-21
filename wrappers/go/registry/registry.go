@@ -276,6 +276,21 @@ func LoadRegistry(path string) (*Registry, error) {
 	return FromJSON(data)
 }
 
+// FromJSON parses a registry document from raw bytes.
+//
+// Byte-order marks are stripped (wrapper contract section 5.1). The
+// document must be a JSON object with an "actions" array; each entry
+// must itself be an object. The loader rejects non-object entries,
+// duplicate action_id values, and entries with neither "isin" nor
+// "action_id" — but it does NOT reject unknown fields inside an action.
+//
+// This is a deliberate divergence from Python's loader: the Python
+// side runs jsonschema validation (additionalProperties: false) at
+// tools/validate.py, so malformed input there fails before the wrapper
+// ever sees it. Go's loader accepts unknown fields so that a schema
+// evolution (new optional field) does not break existing Go callers
+// before they upgrade. Documented in docs/wrapper_contract.md § 5.
+
 // FromJSON parses the registry from raw JSON bytes.
 //
 // The document must be an object with an "actions" array. The "meta"
@@ -304,7 +319,10 @@ func FromJSON(data []byte) (*Registry, error) {
 		return nil, fmt.Errorf("parsing registry JSON: %w", err)
 	}
 	if raw.Actions == nil {
-		return nil, fmt.Errorf("parsing registry JSON: missing 'actions' key")
+		// `{"actions": null}` unmarshals to nil same as a missing key.
+		// Naming both cases saves a diagnostic round for callers who
+		// hand-edit the file and accidentally null the array.
+		return nil, fmt.Errorf("parsing registry JSON: missing 'actions' key (or null)")
 	}
 
 	actions := make([]Action, len(*raw.Actions))
