@@ -360,5 +360,50 @@
         }
       ]
     }
+  ],
+  "known_as_of": [
+    {
+      "isin": "US0000000001",
+      "as_of_date": "2024-01-15",
+      "expected_action_ids": []
+    },
+    {
+      "isin": "US0000000001",
+      "as_of_date": "2024-02-01",
+      "expected_action_ids": [
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "isin": "US0000000001",
+      "as_of_date": "2024-03-01",
+      "expected_action_ids": [
+        "US0000000001-SPLIT-2024-03-01-2-1"
+      ]
+    },
+    {
+      "isin": "US0000000005",
+      "as_of_date": "2023-11-14",
+      "expected_action_ids": []
+    },
+    {
+      "isin": "US0000000005",
+      "as_of_date": "2023-11-15",
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1"
+      ]
+    },
+    {
+      "isin": "US0000000005",
+      "as_of_date": "2024-01-01",
+      "expected_action_ids": [
+        "US0000000005-SPLIT-2023-12-01-4-1"
+      ]
+    },
+    {
+      "isin": "US9999999999",
+      "as_of_date": "2024-06-01",
+      "expected_action_ids": []
+    }
   ]
 }

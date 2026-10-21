@@ -627,6 +627,36 @@ down to match the post-split basis.
 input `prices` list, and an `expected` output list. All four wrappers
 read this array and assert identical results.
 
+### 4.11 `known_as_of` (new)
+
+Python: known_as_of(isin, as_of_date) -> List[Action]
+JavaScript: knownAsOf(isin, asOfDate) -> Action[]
+Go: KnownAsOf(isin, asOfDate string) ([]Action, error)
+Rust: known_as_of(&self, isin: &str, as_of_date: &str)
+     -> Result<Vec<Action>, RegistryError>
+
+Return actions for `isin` whose `dates.announcement` is on or before
+`as_of_date`. Point-in-time query: "what did the registry know on D?"
+
+Semantics:
+- `as_of_date` must be ISO `YYYY-MM-DD` (usage error otherwise)
+- Filter: `dates.announcement` present AND `<= as_of_date`
+- Actions missing `dates` or `announcement` are skipped silently
+- Unknown ISIN → `[]` (not error, same as `by_isin`)
+- Order: same as `by_isin` (registry insertion order)
+
+Distinct from `by_date_range`, which filters on `ex_date` /
+`effective_date` ("what was in effect"). This filters on `announcement`
+("what was knowable").
+
+Worked example — one action for ISIN X:
+  announcement: 2024-02-01, ex_date: 2024-03-01
+  known_as_of("X", "2024-01-15") → []        (not yet announced)
+  known_as_of("X", "2024-02-01") → [action]  (announced today)
+  known_as_of("X", "2024-06-01") → [action]  (known and effective)
+
+Fixture: `tests/wrapper_contract.json` key `known_as_of` (7 cases).
+
 ## 5. Loading behaviour
 
 ### 5.1 UTF-8 BOM
