@@ -86,14 +86,17 @@ def padded(cik: str) -> str:
     return cik.lstrip("0").zfill(10)
 
 
-def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | None:
-    """Return (accession, primary_document) for the first 8-K in the range
-    whose primary document contains a symbol-change sentence.
+def find_filing(
+    cik: str, date_from: str, date_to: str
+) -> tuple[str, str, bytes] | None:
+    """Return (accession, primary_document, body_bytes) for the first
+    8-K in the range whose primary document contains a symbol-change
+    sentence.
 
-    Fetches each candidate's index and primary document. Slower than
-    date-only matching but correct when a range spans multiple 8-Ks
-    (earnings releases, dividend declarations, and the actual symbol
-    change).
+    Returns the body so the caller does not have to re-fetch it. This
+    used to return only (accession, document), which forced main() to
+    re-fetch index.json and the doc body — three redundant SEC calls
+    per matched filing.
     """
     url = f"https://data.sec.gov/submissions/CIK{padded(cik)}.json"
     data = json.loads(fetch(url))
@@ -155,7 +158,7 @@ def find_filing(cik: str, date_from: str, date_to: str) -> tuple[str, str] | Non
             continue
         if _contains_symbol_change(body):
             print(f"    {date} {acc}: MATCH")
-            return acc, doc
+            return acc, doc, body
         print(f"    {date} {acc}: no symbol-change sentence")
         time.sleep(0.2)  # SEC allows 10 req/s
 
@@ -204,15 +207,9 @@ def main() -> int:
             print("  no 8-K found in range; widen the dates")
             continue
 
-        accession, _ = found
+        accession, doc, body = found
         base = primary_url(cik, accession)
-        doc = pick_document(base)
-        if not doc:
-            print("  no HTML document in index")
-            continue
-
         doc_url = f"{base}/{doc}"
-        body = fetch(doc_url)
         out.write_bytes(body)
         print(f"  wrote {out.name} ({len(body)} bytes)")
         print(f"  source: {doc_url}")
