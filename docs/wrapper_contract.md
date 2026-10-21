@@ -508,6 +508,8 @@ order for display purposes; sort if presentation order matters.
 Both constants are part of the public API. A wrapper that does not
 export them is non-conformant.
 
+**`DEFAULT_ADJUST_FOR`** — the default set of action types applied by `adjust_prices` when the caller does not specify one: `{SPLIT, REVERSE_SPLIT, DIVIDEND, SPECIAL_DIVIDEND}`. Exported by all four wrappers as `DEFAULT_ADJUST_FOR` (Python, JavaScript, Rust) and `DefaultAdjustFor` (Go).
+
 ### 4.10 `adjust_prices` (new)
 
 Python: adjust_prices(isin, prices, *, adjust_for=DEFAULT_ADJUST_FOR)
