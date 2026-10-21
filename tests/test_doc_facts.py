@@ -360,3 +360,48 @@ class TestValidationLayersConsistency:
                 f"validation_layers.md says Default: {doc_value}, "
                 f"code says {code_value}"
             )
+
+# ----------------------------------------------------------------------
+# #140: roadmap Shipped claims must match CHANGELOG headings
+# ----------------------------------------------------------------------
+
+class TestVersionHistoryScan:
+    """scan_version_history: roadmap 'Shipped' rows need unique CHANGELOG headings."""
+
+    def test_scan_passes_on_current_tree(self):
+        from tools import check_doc_facts as cdf
+        assert cdf.scan_version_history(quiet=True) == 0
+
+    def test_scan_detects_missing_heading(self, tmp_path, monkeypatch):
+        from tools import check_doc_facts as cdf
+        (tmp_path / "docs").mkdir()
+        (tmp_path / "docs" / "roadmap.md").write_text(
+            "| v9.9.9 | Fake | ✅ Shipped 2026-12-01 |\n", encoding="utf-8"
+        )
+        (tmp_path / "CHANGELOG.md").write_text(
+            "## [1.0.0] — 2026-09-13\n", encoding="utf-8"
+        )
+        monkeypatch.setattr(cdf, "REPO_ROOT", tmp_path)
+        assert cdf.scan_version_history(quiet=True) == 1
+
+    def test_scan_detects_duplicate_heading(self, tmp_path, monkeypatch):
+        from tools import check_doc_facts as cdf
+        (tmp_path / "docs").mkdir()
+        (tmp_path / "docs" / "roadmap.md").write_text(
+            "| v1.1.0 | Test | ✅ Shipped 2026-09-21 |\n", encoding="utf-8"
+        )
+        (tmp_path / "CHANGELOG.md").write_text(
+            "## [1.1.0] — 2026-09-21\n## [1.1.0] — 2026-09-21\n", encoding="utf-8"
+        )
+        monkeypatch.setattr(cdf, "REPO_ROOT", tmp_path)
+        assert cdf.scan_version_history(quiet=True) == 1
+
+    def test_scan_ignores_fenced_blocks(self, tmp_path, monkeypatch):
+        from tools import check_doc_facts as cdf
+        (tmp_path / "docs").mkdir()
+        (tmp_path / "docs" / "roadmap.md").write_text(
+            "```\n| v9.9.9 | example | Shipped |\n```\n", encoding="utf-8"
+        )
+        (tmp_path / "CHANGELOG.md").write_text("## [1.0.0] — 2026-09-13\n", encoding="utf-8")
+        monkeypatch.setattr(cdf, "REPO_ROOT", tmp_path)
+        assert cdf.scan_version_history(quiet=True) == 0

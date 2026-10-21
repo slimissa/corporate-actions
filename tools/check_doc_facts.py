@@ -357,6 +357,53 @@ def run_checks(facts: dict[str, Any], quiet: bool) -> int:
 # CLI
 # ---------------------------------------------------------------------------
 
+def scan_version_history(quiet: bool = False) -> int:
+    """Every roadmap "Shipped vX.Y.Z" must have exactly one CHANGELOG heading.
+
+    Catches:
+      - a roadmap row claiming a release with no CHANGELOG entry
+      - a duplicate CHANGELOG heading (same version twice)
+    Does NOT check dates — date reconciliation was a one-time fix (E-3a).
+    """
+    roadmap = REPO_ROOT / "docs" / "roadmap.md"
+    changelog = REPO_ROOT / "CHANGELOG.md"
+    if not roadmap.is_file() or not changelog.is_file():
+        return 0
+
+    rtext = roadmap.read_text(encoding="utf-8")
+    ctext = changelog.read_text(encoding="utf-8")
+
+    # Heading counts per version
+    from collections import Counter
+    heading_versions = re.findall(r"^## \[(\d+\.\d+\.\d+)\]", ctext, re.MULTILINE)
+    counts = Counter(heading_versions)
+
+    # Find shipped claims in roadmap, skipping fenced blocks
+    problems = 0
+    in_fence = False
+    for lineno, line in enumerate(rtext.splitlines(), 1):
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        m = re.search(r"\|\s*v(\d+\.\d+\.\d+)\s*\|.*Shipped", line)
+        if not m:
+            continue
+        ver = m.group(1)
+        n = counts.get(ver, 0)
+        if n == 0:
+            problems += 1
+            if not quiet:
+                print(f"docs/roadmap.md:{lineno}: v{ver} Shipped but no ## [{ver}] in CHANGELOG.md")
+        elif n > 1:
+            problems += 1
+            if not quiet:
+                print(f"docs/roadmap.md:{lineno}: v{ver} Shipped but CHANGELOG.md has {n} ## [{ver}] headings (expected 1)")
+
+    return problems
+
+
 def scan_placeholders(quiet: bool = False) -> int:
     """Fail on unfilled placeholders in any doc.
 
@@ -424,6 +471,11 @@ def main() -> int:
         help="Skip the unfilled-placeholder scan.",
     )
     parser.add_argument(
+        "--skip-version-history",
+        action="store_true",
+        help="Skip the roadmap-vs-CHANGELOG version check.",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="Treat a missing doc file as an error (default: silently skip).",
@@ -457,6 +509,10 @@ def main() -> int:
 
     if not args.skip_placeholders:
         if scan_placeholders(quiet=args.quiet):
+            return 1
+
+    if not args.skip_version_history:
+        if scan_version_history(quiet=args.quiet):
             return 1
 
     return run_checks(facts, quiet=args.quiet)
