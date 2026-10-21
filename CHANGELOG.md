@@ -115,7 +115,10 @@ _No unreleased changes._
 ### Notes
 
 - Wrappers are still source-only. Publication to PyPI, npm, crates.io,
-  and the Go module proxy is scheduled as `v1.2.1`.
+  and the Go module proxy is deferred to a future minor version. The
+  registry ships via git tag for now; `pip install corporate-actions-registry`
+  is not yet available. Publication triggers when an external adopter
+  needs a package-registry install.
 - `wrappers/python/corporate_actions_registry/__init__.py` `__version__`
   is bumped manually this release; it is not yet a
   `check_version_consistency` site. Adding it is a `v1.2.1` chore.
