@@ -154,7 +154,12 @@ def compute_price_plus_cash_return(
 
 
 def dedupe_actions(actions):
-    """Remove duplicate actions with same (action_type, ex_date, ratio/amount)."""
+    """Remove duplicate actions with same (action_type, ex_date, ratio/amount).
+
+    Actions without an ex_date (e.g. pure SYMBOL_CHANGE entries) are
+    kept as-is: they cannot be deduplicated by date, and dropping them
+    would lose the audit trail.
+    """
     seen = set()
     result = []
     for a in actions:
@@ -334,6 +339,10 @@ def main() -> int:
         print("No price data returned.")
         return 1
 
+    # iterrows() is not the fastest way to iterate a pandas DataFrame.
+    # For a demo of a handful of dates it is fine; a production backtest
+    # would use `zip(hist.index, hist["Close"])` to avoid the per-row
+    # Series construction. This file optimizes for readability.
     prices = {ts.date(): float(row["Close"]) for ts, row in hist.iterrows()}
     first_price = prices[min(prices)]
     last_price = prices[max(prices)]
