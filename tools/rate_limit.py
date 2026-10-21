@@ -83,6 +83,10 @@ class TokenBucket:
                 deficit = tokens - self._tokens
                 wait = deficit / self.rate
 
-            self.waited_seconds += wait
             time.sleep(wait)
+            # Update the metric inside the lock: the counter is shared
+            # state, and a non-atomic += races on free-threaded Python.
+            # Held only briefly — no work under the lock besides the add.
+            with self._lock:
+                self.waited_seconds += wait
         
