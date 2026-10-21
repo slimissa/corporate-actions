@@ -258,3 +258,5 @@ Anything else that would help a maintainer verify this action. For example:
 **Suggested JSON entry.** Advanced reporters can supply the full JSON, which a maintainer validates against `schema.json`. This turns a report into a near-drop-in addition — the maintainer's job becomes verification, not authoring.
 
 **Maintainer checklist.** The last section is only for maintainers. It documents the exact steps to accept an action. It is visible in the issue thread, so reporters can see what will happen.
+
+```

@@ -81,7 +81,12 @@ def _scan(path: Path) -> list[str]:
 def _check_fence(path: Path) -> Optional[str]:
     """Return a description of unclosed code fence, or None if OK.
 
-    Counts ``` open/close markers; odd count means unclosed.
+    State machine tracking the opening fence character (``` or ~~~).
+    A fence closes only when a matching-kind fence of equal-or-greater
+    length appears. Mixing backtick and tilde fences in one file is
+    valid; counting them independently would false-positive on any file
+    that uses both.
+
     Only meaningful for .md files. Exempt files are honored via the
     same 'mojibake-check: skip' marker used by _scan.
     """
@@ -92,9 +97,25 @@ def _check_fence(path: Path) -> Optional[str]:
     first_lines = "\n".join(text.splitlines()[:5])
     if "mojibake-check: skip" in first_lines:
         return None
-    count = len(re.findall(r"^```", text, re.M))
-    if count % 2 != 0:
-        return f"{count} fence markers (odd — unclosed)"
+
+    # (char, length) of the currently-open fence, or None.
+    open_marker: Optional[tuple[str, int]] = None
+    open_line = 0
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        m = re.match(r"^(`{3,}|~{3,})", line)
+        if not m:
+            continue
+        marker = m.group(1)
+        char = marker[0]
+        length = len(marker)
+        if open_marker is None:
+            open_marker = (char, length)
+            open_line = lineno
+        elif open_marker[0] == char and length >= open_marker[1]:
+            open_marker = None
+    if open_marker is not None:
+        char, length = open_marker
+        return f"unclosed {char * 3} fence opened at line {open_line}"
     return None
 
 
