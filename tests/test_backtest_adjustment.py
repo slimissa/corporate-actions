@@ -126,10 +126,10 @@ class TestComputeUnadjustedReturn:
 # compute_total_return
 # ---------------------------------------------------------------------------
 
-class TestComputeTotalReturn:
+class TestComputePricePlusCashReturn:
 
     def test_no_actions_equals_price_return(self):
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, [],
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -137,7 +137,7 @@ class TestComputeTotalReturn:
 
     def test_single_dividend_in_range(self):
         actions = [FakeAction("DIVIDEND", "2024-06-15", 1.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -146,7 +146,7 @@ class TestComputeTotalReturn:
 
     def test_special_dividend_counted(self):
         actions = [FakeAction("SPECIAL_DIVIDEND", "2024-06-15", 2.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -158,7 +158,7 @@ class TestComputeTotalReturn:
             FakeAction("DIVIDEND", "2024-06-15", 0.50),
             FakeAction("SPECIAL_DIVIDEND", "2024-09-15", 1.00),
         ]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -167,7 +167,7 @@ class TestComputeTotalReturn:
 
     def test_dividend_outside_range_ignored(self):
         actions = [FakeAction("DIVIDEND", "2023-06-15", 5.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -175,7 +175,7 @@ class TestComputeTotalReturn:
 
     def test_dividend_on_start_bound_included(self):
         actions = [FakeAction("DIVIDEND", "2024-01-01", 1.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -183,7 +183,7 @@ class TestComputeTotalReturn:
 
     def test_dividend_on_end_bound_included(self):
         actions = [FakeAction("DIVIDEND", "2024-12-31", 1.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -191,7 +191,7 @@ class TestComputeTotalReturn:
 
     def test_split_ignored(self):
         actions = [FakeAction("SPLIT", "2024-06-15", None, ratio="10:1")]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -199,7 +199,7 @@ class TestComputeTotalReturn:
 
     def test_symbol_change_ignored(self):
         actions = [FakeAction("SYMBOL_CHANGE", "2024-06-15")]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -207,7 +207,7 @@ class TestComputeTotalReturn:
 
     def test_action_missing_ex_date_ignored(self):
         actions = [FakeAction("DIVIDEND", ex_date=None, amount=1.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -218,7 +218,7 @@ class TestComputeTotalReturn:
             action_type = "DIVIDEND"
             dates = None
             amount = 1.00
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, [NoDates()],
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -226,7 +226,7 @@ class TestComputeTotalReturn:
 
     def test_zero_amount_ignored(self):
         actions = [FakeAction("DIVIDEND", "2024-06-15", 0.0)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -234,7 +234,7 @@ class TestComputeTotalReturn:
 
     def test_none_amount_ignored(self):
         actions = [FakeAction("DIVIDEND", "2024-06-15", None)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -242,7 +242,7 @@ class TestComputeTotalReturn:
 
     def test_malformed_ex_date_ignored(self):
         actions = [FakeAction("DIVIDEND", "not-a-date", 1.00)]
-        ret = ba.compute_total_return(
+        ret = ba.compute_price_plus_cash_return(
             100.0, 150.0, actions,
             date(2024, 1, 1), date(2024, 12, 31),
         )
@@ -255,7 +255,7 @@ class TestComputeTotalReturn:
             FakeAction("DIVIDEND", "2024-06-11", 0.010),
         ]
         price = ba.compute_price_return(48.168, 123.54)
-        total = ba.compute_total_return(
+        total = ba.compute_price_plus_cash_return(
             48.168, 123.54, actions,
             date(2024, 1, 2), date(2024, 7, 1),
         )
@@ -502,7 +502,7 @@ class TestCliEndToEnd:
         )
         assert result.returncode == 0, result.stdout + result.stderr
         price_m = re.search(r"Adjusted price return:\s+([+-]?\d+\.\d+)%", result.stdout)
-        total_m = re.search(r"Total return[^:]*:\s+([+-]?\d+\.\d+)%", result.stdout)
+        total_m = re.search(r"Price \+ cash return[^:]*:\s+([+-]?\d+\.\d+)%", result.stdout)
         assert price_m and total_m, result.stdout
         price = float(price_m.group(1))
         total = float(total_m.group(1))

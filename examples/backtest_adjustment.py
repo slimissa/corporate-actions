@@ -18,6 +18,9 @@ The example:
 Prerequisites:
   - Python wrapper installed (pip install wrappers/python)
   - yfinance installed (pip install yfinance)
+  - jsonschema installed (pip install jsonschema) — transitive
+    dependency of tools.validate, which the demo imports for ticker
+    resolution. Not in the wrapper's deps; install explicitly.
   - Ticker→ISIN resolution requires the Asset Identifiers registry.
     Set LAS_DATA_HOME to the directory containing identifiers.json, or
     pass --isin explicitly to skip ticker resolution.
@@ -118,18 +121,22 @@ def compute_price_return(first_price: float, last_price: float) -> float:
     return (last_price / first_price - 1.0) * 100.0
 
 
-def compute_total_return(
+def compute_price_plus_cash_return(
     first_price: float,
     last_price: float,
     actions,
     start: date,
     end: date,
 ) -> float:
-    """Price return plus dividends paid in [start, end].
+    """Price return plus cash received — NOT total return.
 
     Dividends are added to the final price before computing the return.
-    This is an approximation: it does not model reinvestment or the
-    timing of dividend payments within the window.
+    This does not model reinvestment of dividends at any point, and
+    ignores the timing of dividend payments within the window. Renamed
+    from compute_total_return in M2 to make the approximation visible
+    at the call site: a backtester wanting true total return should
+    reinvest each dividend at its ex-date close, which this function
+    does not do.
     """
     cash = 0.0
     for action in actions:
@@ -311,7 +318,7 @@ def main() -> int:
     last_price = prices[max(prices)]
 
     price_ret = compute_price_return(first_price, last_price)
-    total_ret = compute_total_return(
+    total_ret = compute_price_plus_cash_return(
         first_price, last_price, actions_for_ticker, start_d, end_d,
     )
 
@@ -334,7 +341,7 @@ def main() -> int:
     print("=" * 68)
     print(f"  Unadjusted price return:             {unadj_ret:+7.2f}%   <- naive, wrong")
     print(f"  Adjusted price return:               {price_ret:+7.2f}%   <- yfinance Close")
-    print(f"  Total return (price + dividends):    {total_ret:+7.2f}%")
+    print(f"  Price + cash return (price + dividends):    {total_ret:+7.2f}%")
     print("=" * 68)
     print()
     print(f"  Split-effect gap: {price_ret - unadj_ret:+7.2f} pp — what the registry prevents")

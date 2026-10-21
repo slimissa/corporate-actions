@@ -223,7 +223,7 @@ def main() -> int:
 
     print()
     print("First 3 actions (for illustration):")
-    for action in registry.actions[:3]:
+    for action in registry.all_actions()[:3]:
         print()
         print_action(action)
 
