@@ -65,6 +65,13 @@ SYMBOL_CHANGE_PATTERNS = [
 
 def _contains_symbol_change(html: bytes) -> bool:
     """True if the stripped text of an 8-K contains a symbol-change sentence."""
+    # errors="replace" is safe here: SEC 8-K filings are ASCII, and any
+    # replacement char that reaches the extractor produces a visible
+    # mismatch (not a silent pass), because the manifest's sha256 pins
+    # the exact file content and the extraction test compares to an
+    # expected symbol. If a filing ever contains non-ASCII, this becomes
+    # a signal to switch to errors="strict" for a clear error, not a
+    # silent pass — see #34.
     text = _strip_html(html.decode("utf-8", errors="replace"))
     return any(p.search(text) for p in SYMBOL_CHANGE_PATTERNS)
 
