@@ -95,12 +95,13 @@ function _resolveIdentifiersPath(explicit) {
  */
 function _buildTickerIndex(p) {
   const abs = path.resolve(p);
-  const cached = _tickerIndexCache.get(abs);
-  if (cached) return cached;
 
-  let content;
+  // Stat first: the cache key must include mtimeMs and size so a
+  // modified identifiers.json is re-parsed on the next call. A path-only
+  // key silently returned stale ISINs in long-running processes.
+  let stat;
   try {
-    content = fs.readFileSync(abs, 'utf8');
+    stat = fs.statSync(abs);
   } catch (e) {
     if (e.code === 'ENOENT') {
       throw new Error(
@@ -110,6 +111,11 @@ function _buildTickerIndex(p) {
     }
     throw e;
   }
+  const cacheKey = `${abs}:${stat.mtimeMs}:${stat.size}`;
+  const cached = _tickerIndexCache.get(cacheKey);
+  if (cached) return cached;
+
+  const content = fs.readFileSync(abs, 'utf8');
 
   // Strip UTF-8 BOM if present.
   if (content.charCodeAt(0) === 0xFEFF) content = content.slice(1);
@@ -129,7 +135,7 @@ function _buildTickerIndex(p) {
     }
   }
 
-  _tickerIndexCache.set(abs, index);
+  _tickerIndexCache.set(cacheKey, index);
   return index;
 }
 

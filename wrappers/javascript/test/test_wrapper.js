@@ -1278,3 +1278,48 @@ describe('adjustPrices', () => {
     assert.strictEqual(result[0].adjusted, 50.0);
   });
 });
+
+
+// ----------------------------------------------------------------------
+// _tickerIndexCache mtime invalidation (#67)
+// ----------------------------------------------------------------------
+
+describe('ticker cache mtime invalidation', () => {
+
+  it('re-reads after file mtime changes', () => {
+    const dir = makeTmpDir();
+    const idsPath = path.join(dir, 'identifiers.json');
+
+    // First version: TESTA -> US0000000001
+    fs.writeFileSync(idsPath, JSON.stringify({
+      instruments: [
+        { ticker: 'TESTA', exchange: 'XNAS', isin: 'US0000000001' },
+      ],
+    }), 'utf8');
+
+    const reg = new CorporateActionsRegistry({
+      actions: [
+        { isin: 'US0000000001', action_id: 'A1', action_type: 'SPLIT' },
+        { isin: 'US0000000002', action_id: 'A2', action_type: 'SPLIT' },
+      ],
+    });
+
+    const r1 = reg.byTicker('TESTA', 'XNAS', idsPath);
+    assert.strictEqual(r1.length, 1);
+    assert.strictEqual(r1[0].isin, 'US0000000001');
+
+    // Overwrite with a different mapping; bump mtime explicitly so the
+    // test is deterministic across filesystems with coarse mtime.
+    fs.writeFileSync(idsPath, JSON.stringify({
+      instruments: [
+        { ticker: 'TESTA', exchange: 'XNAS', isin: 'US0000000002' },
+      ],
+    }), 'utf8');
+    const future = new Date(Date.now() + 5000);
+    fs.utimesSync(idsPath, future, future);
+
+    const r2 = reg.byTicker('TESTA', 'XNAS', idsPath);
+    assert.strictEqual(r2.length, 1);
+    assert.strictEqual(r2[0].isin, 'US0000000002');
+  });
+});
