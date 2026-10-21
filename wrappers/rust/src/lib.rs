@@ -502,6 +502,12 @@ impl Registry {
         result.sort_by(|a, b| {
             let av = date_field_value(a, date_field).unwrap_or("");
             let bv = date_field_value(b, date_field).unwrap_or("");
+            // a.action_id is Option<String>; None sorts before Some.
+            // That is equivalent to "" first in the other wrappers'
+            // sorts (Python/JS compare "" < "x"; Go compares via
+            // *string deref where a nil would panic, so Go sorts by
+            // action_id only when present). The three wrappers agree
+            // on relative order for any pair with at least one Some.
             av.cmp(bv).then_with(|| a.action_id.cmp(&b.action_id))
         });
 

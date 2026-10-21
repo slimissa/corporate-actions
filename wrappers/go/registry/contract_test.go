@@ -82,6 +82,14 @@ func loadContractFixture(t *testing.T) contractFixture {
 // Uses FromJSON so the loader is exercised as well. A bug in the loader
 // surfaces here rather than hiding behind a hand-built Registry that
 // duplicates the index logic.
+// buildRegistryFromFixture builds a Registry from parsed fixture actions.
+//
+// Note: marshaling fixture.Actions ([]Action) then unmarshaling through
+// FromJSON means any fixture field not present on the Action struct is
+// silently dropped. That is fine for the current fixture (no unknown
+// fields) but would hide a fixture that grows a field the Action struct
+// does not yet model. If that becomes a concern, use json.RawMessage
+// for the actions slice instead.
 func buildRegistryFromFixture(t *testing.T, fixture contractFixture) *Registry {
 	t.Helper()
 	actionsJSON, err := json.Marshal(fixture.Actions)

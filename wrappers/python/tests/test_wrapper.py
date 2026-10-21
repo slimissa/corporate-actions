@@ -958,6 +958,14 @@ class TestRegistryMetaModel:
 # Cross-language contract fixture
 # ----------------------------------------------------------------------
 
+# parents[3] assumes this test file lives at
+#   <repo>/wrappers/python/tests/test_wrapper.py
+# and therefore the fixture at <repo>/tests/wrapper_contract.json is
+# three directories up. Running the tests from an installed wheel
+# (where the layout is site-packages/corporate_actions_registry/) would
+# resolve parents[3] to a different location, so these tests require a
+# repo checkout. That is the intended invocation: `cd wrappers/python
+# && pytest tests/` from a clone.
 CONTRACT_FIXTURE = (
     Path(__file__).resolve().parents[3] / "tests" / "wrapper_contract.json"
 )
