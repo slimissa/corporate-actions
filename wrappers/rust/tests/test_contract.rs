@@ -205,7 +205,6 @@ fn contract_invalid_date_fields_rejected() {
     }
 }
 
-
 // ----------------------------------------------------------------------
 // adjust_prices (wrapper contract § 4.10)
 // ----------------------------------------------------------------------
@@ -227,7 +226,10 @@ fn adjust_prices_matches_fixture() {
     let cases = data["price_adjustments"]
         .as_array()
         .expect("price_adjustments must be an array");
-    assert!(!cases.is_empty(), "fixture must have price_adjustments cases");
+    assert!(
+        !cases.is_empty(),
+        "fixture must have price_adjustments cases"
+    );
 
     for c in cases {
         let isin = c
@@ -246,7 +248,8 @@ fn adjust_prices_matches_fixture() {
             .expect("adjust_prices should succeed");
 
         assert_eq!(
-            result, expected,
+            result,
+            expected,
             "case: {}",
             c.get("description").and_then(|v| v.as_str()).unwrap_or("?")
         );
@@ -257,7 +260,10 @@ fn adjust_prices_matches_fixture() {
 fn adjust_prices_unknown_isin_returns_empty() {
     use corporate_actions_registry::{PriceBar, Registry};
     let reg = Registry::from_value(serde_json::json!({ "actions": [] })).unwrap();
-    let prices = vec![PriceBar { date: "2024-01-15".into(), raw: 100.0 }];
+    let prices = vec![PriceBar {
+        date: "2024-01-15".into(),
+        raw: 100.0,
+    }];
     let out = reg.adjust_prices("US9999999999", &prices, None).unwrap();
     assert!(out.is_empty());
 }
@@ -267,12 +273,19 @@ fn adjust_prices_rejects_malformed_date() {
     use corporate_actions_registry::{PriceBar, Registry};
     let reg = Registry::from_value(serde_json::json!({ "actions": [
         {"isin": "X", "action_id": "X-SPLIT", "action_type": "SPLIT"}
-    ]})).unwrap();
-    let prices = vec![PriceBar { date: "2024-6-10".into(), raw: 100.0 }];
+    ]}))
+    .unwrap();
+    let prices = vec![PriceBar {
+        date: "2024-6-10".into(),
+        raw: 100.0,
+    }];
     let err = reg.adjust_prices("X", &prices, None).unwrap_err();
-    assert!(err.to_string().contains("invalid price"), "unexpected: {}", err);
+    assert!(
+        err.to_string().contains("invalid price"),
+        "unexpected: {}",
+        err
+    );
 }
-
 
 #[test]
 fn known_as_of_matches_fixture() {
@@ -283,9 +296,7 @@ fn known_as_of_matches_fixture() {
     let data: serde_json::Value = serde_json::from_str(&content).unwrap();
 
     let actions_json = data["actions"].clone();
-    let reg = Registry::from_value(
-        serde_json::json!({ "actions": actions_json })
-    ).unwrap();
+    let reg = Registry::from_value(serde_json::json!({ "actions": actions_json })).unwrap();
 
     let cases = data["known_as_of"].as_array().expect("known_as_of array");
     for c in cases {
@@ -310,7 +321,10 @@ fn known_as_of_matches_fixture() {
 #[test]
 fn known_as_of_unknown_isin() {
     let reg = Registry::from_value(serde_json::json!({ "actions": [] })).unwrap();
-    assert!(reg.known_as_of("US9999999999", "2024-06-01").unwrap().is_empty());
+    assert!(reg
+        .known_as_of("US9999999999", "2024-06-01")
+        .unwrap()
+        .is_empty());
 }
 
 #[test]

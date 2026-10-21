@@ -118,7 +118,7 @@ fn load_index(path: &str) -> Result<Arc<Index>, RegistryError> {
     {
         let c = cache().lock().expect("ticker cache mutex poisoned");
         if let Some(idx) = c.get(&key) {
-            return Ok(idx.clone());  // Arc clone, O(1)
+            return Ok(idx.clone()); // Arc clone, O(1)
         }
     }
 
