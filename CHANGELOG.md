@@ -170,6 +170,27 @@ The headline is `by_ticker` on all four wrappers and a shared contract
 that specifies every public method. The rest is the groundwork that
 makes the contract verifiable.
 
+### Fetch pipeline
+
+- **SEC false-positive reduction.** `extract_new_symbol` requires a
+  filing anchor (`Item 5.03`, `5.07`, `7.01`, `8.01`) within 2000 chars
+  of the match. Cover-page "Trading Symbol(s)" tables no longer produce
+  false positives.
+- **SEC archive loading.** `fetch_all_filings` merges `filings.recent`
+  with every archive listed under `filings.files[]`, deduped by
+  accession number. Coverage extends from ~2 years to full SEC history.
+- **Yahoo `--ticker-offset`** for chunked parallel fetches.
+- **`--summary` alignment** across all four lookup examples.
+- **Exit-code convention** documented at `docs/exit_codes.md`,
+  enforced by `tests/test_exit_codes.py`.
+
+### Licensing
+
+- **`docs/redistribution.md`** — four categories (`public-domain`,
+  `facts-only`, `secondary-source`, `restricted`), the *Feist* legal
+  theory, takedown procedure, jurisdictional limits.
+- **`redistribution` field** on every action (schema-required).
+
 ### Data
 
 - **No changes to `actions.json` content.** Action count remains 240,

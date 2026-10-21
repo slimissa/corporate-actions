@@ -268,13 +268,6 @@ Extend the key with normalized comparisons.
 
 **Status**: Shipped 2026-09-21.
 
-> **Note (#150, tracked for v1.2.2):** This roadmap section describes fetch-pipeline
-> and licensing work; the CHANGELOG's `[1.1.0]` section describes wrapper-contract
-> and data-cleanup work. Both are legitimate achievements from the same release
-> window but are attributed to different prose in the two files. Reconciling the
-> two descriptions requires human judgment about what "shipped under v1.1.0"
-> actually means; deferred from v1.2.1 so the release-shipping discipline (E-3b
-> enforces single-heading uniqueness) can land first.
 
 **Theme**: The fetch pipeline was hardened against its two largest
 failure modes, and the registry gained a documented legal position for
