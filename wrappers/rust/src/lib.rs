@@ -54,12 +54,7 @@ pub const VALID_DATE_FIELDS: &[&str] =
 
 /// The default set of action types applied by [`Registry::adjust_prices`]
 /// when the caller passes `None`. Exported per wrapper contract § 4.9.
-pub const DEFAULT_ADJUST_FOR: &[&str] = &[
-    "SPLIT",
-    "REVERSE_SPLIT",
-    "DIVIDEND",
-    "SPECIAL_DIVIDEND",
-];
+pub const DEFAULT_ADJUST_FOR: &[&str] = &["SPLIT", "REVERSE_SPLIT", "DIVIDEND", "SPECIAL_DIVIDEND"];
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -258,9 +253,7 @@ fn action_price_multiplier(action: &Action) -> f64 {
     if let Some(ratio) = &action.ratio {
         let parts: Vec<&str> = ratio.split(':').collect();
         if parts.len() == 2 {
-            if let (Ok(new_s), Ok(old_s)) =
-                (parts[0].parse::<i64>(), parts[1].parse::<i64>())
-            {
+            if let (Ok(new_s), Ok(old_s)) = (parts[0].parse::<i64>(), parts[1].parse::<i64>()) {
                 if new_s > 0 {
                     return old_s as f64 / new_s as f64;
                 }
@@ -579,11 +572,7 @@ impl Registry {
     /// [`RegistryError::InvalidPrice`].
     /// Return actions for `isin` known as of `as_of_date`.
     /// Filters by dates.announcement <= as_of_date. See contract § 4.11.
-    pub fn known_as_of(
-        &self,
-        isin: &str,
-        as_of_date: &str,
-    ) -> Result<Vec<Action>, RegistryError> {
+    pub fn known_as_of(&self, isin: &str, as_of_date: &str) -> Result<Vec<Action>, RegistryError> {
         if !is_iso_date(as_of_date) {
             return Err(RegistryError::InvalidStructure(format!(
                 "invalid as_of_date: {:?} (must be YYYY-MM-DD)",
@@ -710,10 +699,7 @@ impl Registry {
         let content = serde_json::to_string_pretty(&json)?;
 
         let mut tmp_path = path.to_path_buf();
-        let file_name = path
-            .file_name()
-            .and_then(|s| s.to_str())
-            .unwrap_or("out");
+        let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("out");
         tmp_path.set_file_name(format!("{}.tmp.{}", file_name, std::process::id()));
 
         fs::write(&tmp_path, content)?;
