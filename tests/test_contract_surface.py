@@ -444,9 +444,11 @@ def _section_10_methods(lang: str) -> set:
             block, re.MULTILINE,
         ))
     if lang == "go":
+        # Go method names are mixed-case by idiom (ByISIN, ByActionID,
+        # ToJSON) — not PascalCase. § 10 contains them exactly as
+        # CANONICAL_METHODS does; preserve case for comparison.
         return set(
-            m[0].lower() + m[1:]
-            for m in re.findall(
+            re.findall(
                 r"^func\s+\(r\s+\*Registry\)\s+([A-Z][a-zA-Z0-9]*)\s*\(",
                 block, re.MULTILINE,
             )
