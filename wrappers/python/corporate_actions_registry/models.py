@@ -87,9 +87,9 @@ class Action:
     ratio: Optional[str] = None
     amount: Optional[float] = None
     currency: Optional[str] = None
-    redistribution: Optional[str] = None
     dates: Dates = field(default_factory=Dates)
     status: Optional[str] = None
+    redistribution: Optional[str] = None
     provenance: Provenance = field(default_factory=Provenance)
     impact: Impact = field(default_factory=Impact)
 
@@ -129,7 +129,6 @@ class Action:
             else:
                 result[f.name] = value
         return result
-
 @dataclass
 class RegistryMeta:
     """Metadata about the registry file."""
