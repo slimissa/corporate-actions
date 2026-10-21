@@ -164,9 +164,20 @@ function tiebreakData() {
 // Helpers
 // ----------------------------------------------------------------------
 
-/** Create a unique temp directory for one test. */
+// Temp-dir tracking: each mkdtempSync result is remembered and removed
+// on process exit, so CI does not leak directories across runs.
+const _tmpDirs = [];
+process.on('exit', () => {
+  for (const d of _tmpDirs) {
+    try { fs.rmSync(d, { recursive: true, force: true }); } catch {}
+  }
+});
+
+/** Create a unique temp directory for one test. Tracked for cleanup. */
 function makeTmpDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'ca-js-'));
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'ca-js-'));
+  _tmpDirs.push(d);
+  return d;
 }
 
 /** Write a JSON file into a unique temp dir and return its path. */
@@ -976,7 +987,7 @@ describe('byTicker', () => {
     } else {
         const { _resetTickerCache } = require('../src/index.js');
 
-        function makeRegistry() {
+        function makeTickerRegistry() {
             return new CorporateActionsRegistry({ actions: [
                 {
                     isin: FIXTURE_ISIN,
@@ -994,7 +1005,7 @@ describe('byTicker', () => {
 
         it('resolves a ticker', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             const result = r.byTicker(FIXTURE_TICKER, FIXTURE_EXCHANGE, idsPath);
             assert.strictEqual(result.length, 1);
             assert.strictEqual(result[0].isin, FIXTURE_ISIN);
@@ -1002,7 +1013,7 @@ describe('byTicker', () => {
 
         it('is case-insensitive', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             const lower = r.byTicker(
                 FIXTURE_TICKER.toLowerCase(),
                 FIXTURE_EXCHANGE.toLowerCase(),
@@ -1017,13 +1028,13 @@ describe('byTicker', () => {
 
         it('returns [] for unknown ticker', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             assert.deepStrictEqual(r.byTicker('NOTREAL', 'XNAS', idsPath), []);
         });
 
         it('returns [] for unknown exchange', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             assert.deepStrictEqual(
                 r.byTicker(FIXTURE_TICKER, 'NOTEXCH', idsPath),
                 [],
@@ -1032,7 +1043,7 @@ describe('byTicker', () => {
 
         it('throws when no path and no env var', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             const savedHome = process.env.LAS_DATA_HOME;
             const savedPath = process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
             delete process.env.LAS_DATA_HOME;
@@ -1052,7 +1063,7 @@ describe('byTicker', () => {
 
         it('resolves via env var', () => {
             _resetTickerCache();
-            const r = makeRegistry();
+            const r = makeTickerRegistry();
             const savedPath = process.env.CORP_ACTIONS_IDENTIFIERS_PATH;
             process.env.CORP_ACTIONS_IDENTIFIERS_PATH = idsPath;
             try {
@@ -1321,5 +1332,28 @@ describe('ticker cache mtime invalidation', () => {
     const r2 = reg.byTicker('TESTA', 'XNAS', idsPath);
     assert.strictEqual(r2.length, 1);
     assert.strictEqual(r2[0].isin, 'US0000000002');
+  });
+});
+
+
+// ----------------------------------------------------------------------
+// Symbol.iterator (#71)
+// ----------------------------------------------------------------------
+
+describe('Symbol.iterator', () => {
+  it('is iterable via Symbol.iterator', () => {
+    const reg = makeRegistry();
+    const collected = [...reg];
+    assert.strictEqual(collected.length, reg.count());
+  });
+
+  it('yields fresh clones (isolation contract)', () => {
+    const reg = makeRegistry();
+    const before = reg.toJSON();
+    for (const a of reg) {
+      a.ratio = 'CORRUPT';
+      if (a.dates) a.dates.ex_date = 'CORRUPT';
+    }
+    assert.deepStrictEqual(reg.toJSON(), before);
   });
 });

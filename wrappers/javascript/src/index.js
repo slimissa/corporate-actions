@@ -198,6 +198,13 @@ function _actionCashAdjustment(action) {
 // Registry
 // ---------------------------------------------------------------------------
 
+/**
+ * Note on lookup cost: every accessor returns a structuredClone so a
+ * caller cannot corrupt the registry's state (see #146 isolation
+ * contract). This is deliberate: the alternative — returning live
+ * references — makes the class unsafe to use from any concurrent or
+ * long-lived code path. The cost is O(size of returned data) per call.
+ */
 class CorporateActionsRegistry {
   /**
    * Create a registry instance.
@@ -279,11 +286,15 @@ class CorporateActionsRegistry {
         // The constructor already rejects duplicates.
         this._indexById.set(action.action_id, action);
       }
-      if (action.isin) {
-        if (!this._indexByIsin.has(action.isin)) {
-          this._indexByIsin.set(action.isin, []);
+      if (action.isin != null) {
+        // Coerce to string: a numeric ISIN in the JSON would otherwise
+        // create a Map entry under a number key, unreachable via the
+        // string ISIN the caller passes to byIsin().
+        const isinKey = String(action.isin);
+        if (!this._indexByIsin.has(isinKey)) {
+          this._indexByIsin.set(isinKey, []);
         }
-        this._indexByIsin.get(action.isin).push(action);
+        this._indexByIsin.get(isinKey).push(action);
       }
       if (action.action_type) {
         if (!this._indexByType.has(action.action_type)) {
@@ -385,7 +396,9 @@ class CorporateActionsRegistry {
    *
    * @param {string} ticker
    * @param {string} exchange
-   * @param {string|null} [identifiersPath=null]
+   * @param {string|null|undefined} [identifiersPath=null] - Path to
+   *   identifiers.json. Pass null or undefined to use the environment
+   *   ($CORP_ACTIONS_IDENTIFIERS_PATH, then $LAS_DATA_HOME).
    * @returns {Array<object>}
    */
   byTicker(ticker, exchange, identifiersPath = null) {
@@ -529,6 +542,18 @@ class CorporateActionsRegistry {
 
   get length() {
     return this.actions.length;
+  }
+
+  /**
+   * Iterate over every action in the registry.
+   *
+   * Yields fresh clones, matching the isolation contract every accessor
+   * obeys. `for (const a of registry)` and `[...registry]` both work.
+   */
+  *[Symbol.iterator]() {
+    for (const a of this.actions) {
+      yield structuredClone(a);
+    }
   }
 }
 
