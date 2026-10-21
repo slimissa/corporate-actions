@@ -17,10 +17,12 @@ from __future__ import annotations
 
 import re
 
+import re
+
 import copy
 import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from .models import Action, RegistryMeta
 
@@ -32,6 +34,11 @@ from .models import Action, RegistryMeta
 _ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 DEFAULT_DATE_FIELD = "ex_date"
+
+# The action types whose price effect adjust_prices() applies by default.
+DEFAULT_ADJUST_FOR: frozenset = frozenset({
+    "SPLIT", "REVERSE_SPLIT", "DIVIDEND", "SPECIAL_DIVIDEND",
+})
 
 VALID_DATE_FIELDS = (
     "announcement",
@@ -125,6 +132,36 @@ def _build_ticker_index(path: str) -> Dict[tuple, str]:
 def reset_ticker_cache() -> None:
     """Clear the per-path ticker index cache. For tests."""
     _TICKER_INDEX_CACHE.clear()
+
+
+def _action_price_multiplier(action: Action) -> float:
+    """Return the price multiplier for a SPLIT/REVERSE_SPLIT.
+
+    Prefers `impact.price_multiplier`; falls back to parsing `ratio`;
+    returns 1.0 (no effect) if neither is derivable.
+    """
+    if action.impact and action.impact.price_multiplier is not None:
+        return action.impact.price_multiplier
+    if action.action_type in ("SPLIT", "REVERSE_SPLIT") and action.ratio:
+        try:
+            new_s, old_s = action.ratio.split(":")
+            return int(old_s) / int(new_s)
+        except (ValueError, ZeroDivisionError):
+            return 1.0
+    return 1.0
+
+
+def _action_cash_adjustment(action: Action) -> float:
+    """Return the per-share cash adjustment for a DIVIDEND/SPECIAL_DIVIDEND.
+
+    Prefers `impact.cash_adjustment`; falls back to `amount`; returns 0.0
+    if neither is derivable.
+    """
+    if action.impact and action.impact.cash_adjustment is not None:
+        return action.impact.cash_adjustment
+    if action.action_type in ("DIVIDEND", "SPECIAL_DIVIDEND") and action.amount is not None:
+        return float(action.amount)
+    return 0.0
 
 
 class CorporateActionsRegistry:
@@ -382,6 +419,74 @@ class CorporateActionsRegistry:
     # ------------------------------------------------------------------
     # Serialization
     # ------------------------------------------------------------------
+
+
+    def adjust_prices(
+        self,
+        isin: str,
+        prices: List[Dict[str, Any]],
+        *,
+        adjust_for: Optional[Set[str]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Adjust a price series for corporate actions.
+
+        See docs/wrapper_contract.md § 4.10.
+
+        Returns a list of AdjustedBar dicts sorted by date, each with
+        fields: date, raw, adjusted, applied_action_ids.
+        """
+        if adjust_for is None:
+            adjust_for = DEFAULT_ADJUST_FOR
+
+        # Validate prices
+        for p in prices:
+            if "date" not in p or not _ISO_DATE_RE.match(str(p["date"])):
+                raise ValueError(
+                    f"invalid price date: {p.get('date')!r} (must be YYYY-MM-DD)"
+                )
+            if "raw" not in p:
+                raise ValueError(f"price entry missing 'raw': {p!r}")
+
+        # Unknown ISIN: return empty, per contract § 4.10.
+        # by_isin already returns []; the per-bar loop would otherwise
+        # emit unadjusted records, which is not what "unknown ISIN"
+        # means to the caller.
+        raw_actions = self.by_isin(isin)
+        if not raw_actions:
+            return []
+
+        actions = [
+            a for a in raw_actions
+            if a.action_type in adjust_for
+        ]
+
+        result: List[Dict[str, Any]] = []
+        for p in sorted(prices, key=lambda x: str(x["date"])):
+            date = str(p["date"])
+            raw = float(p["raw"])
+            adjusted = raw
+            applied: List[str] = []
+
+            for a in actions:
+                if not a.dates or not a.dates.ex_date:
+                    continue
+                if a.dates.ex_date <= date:
+                    continue  # action effect already in this bar
+                if a.action_type in ("SPLIT", "REVERSE_SPLIT"):
+                    adjusted *= _action_price_multiplier(a)
+                    applied.append(a.action_id)
+                elif a.action_type in ("DIVIDEND", "SPECIAL_DIVIDEND"):
+                    adjusted -= _action_cash_adjustment(a)
+                    applied.append(a.action_id)
+
+            result.append({
+                "date": date,
+                "raw": raw,
+                "adjusted": adjusted,
+                "applied_action_ids": applied,
+            })
+
+        return result
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the entire registry back to a dictionary.

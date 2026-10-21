@@ -1,8 +1,20 @@
 {
   "tickers": [
-      { "ticker": "AAPL", "exchange": "XNAS", "isin": "US0378331005" },
-      { "ticker": "PRU", "exchange": "XNYS", "isin": "US7443201022" },
-      { "ticker": "PRU", "exchange": "XLON", "isin": "GB0007099541" }
+    {
+      "ticker": "AAPL",
+      "exchange": "XNAS",
+      "isin": "US0378331005"
+    },
+    {
+      "ticker": "PRU",
+      "exchange": "XNYS",
+      "isin": "US7443201022"
+    },
+    {
+      "ticker": "PRU",
+      "exchange": "XLON",
+      "isin": "GB0007099541"
+    }
   ],
   "actions": [
     {
@@ -20,6 +32,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A1"
+      },
+      "impact": {
+        "price_multiplier": 0.5,
+        "share_multiplier": 2.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -37,6 +54,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A2"
+      },
+      "impact": {
+        "price_multiplier": 0.3333333333333333,
+        "share_multiplier": 3.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -55,6 +77,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A3"
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.25
       }
     },
     {
@@ -69,6 +96,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A4"
+      },
+      "impact": {
+        "price_multiplier": 1.0,
+        "share_multiplier": 1.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -86,6 +118,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A5"
+      },
+      "impact": {
+        "price_multiplier": 0.25,
+        "share_multiplier": 4.0,
+        "cash_adjustment": 0.0
       }
     },
     {
@@ -103,6 +140,11 @@
       "provenance": {
         "source": "fixture",
         "source_url": "https://example.com/A6"
+      },
+      "impact": {
+        "price_multiplier": 0.2,
+        "share_multiplier": 5.0,
+        "cash_adjustment": 0.0
       }
     }
   ],
@@ -218,5 +260,105 @@
     "ex_date ",
     " ex_date",
     ""
+  ],
+  "price_adjustments": [
+    {
+      "isin": "US0000000001",
+      "description": "2-for-1 split on 2024-03-01. Pre-split bar (2024-01-15) is scaled by 0.5; ex-date and after are unchanged.",
+      "prices": [
+        {
+          "date": "2024-01-15",
+          "raw": 100.0
+        },
+        {
+          "date": "2024-03-01",
+          "raw": 50.0
+        },
+        {
+          "date": "2024-04-01",
+          "raw": 60.0
+        }
+      ],
+      "expected": [
+        {
+          "date": "2024-01-15",
+          "raw": 100.0,
+          "adjusted": 50.0,
+          "applied_action_ids": [
+            "US0000000001-SPLIT-2024-03-01-2-1"
+          ]
+        },
+        {
+          "date": "2024-03-01",
+          "raw": 50.0,
+          "adjusted": 50.0,
+          "applied_action_ids": []
+        },
+        {
+          "date": "2024-04-01",
+          "raw": 60.0,
+          "adjusted": 60.0,
+          "applied_action_ids": []
+        }
+      ]
+    },
+    {
+      "isin": "US0000000001",
+      "description": "Empty price list returns empty result.",
+      "prices": [],
+      "expected": []
+    },
+    {
+      "isin": "US0000000001",
+      "description": "Unknown ISIN returns empty result \u2014 same as by_isin. The override_isin field is a test convention: the wrapper should use override_isin if present, else isin.",
+      "prices": [
+        {
+          "date": "2024-01-15",
+          "raw": 100.0
+        }
+      ],
+      "expected": [],
+      "override_isin": "US9999999999"
+    },
+    {
+      "isin": "US0000000002",
+      "description": "3-for-1 split on 2024-01-01. Only a price strictly before that date is adjusted.",
+      "prices": [
+        {
+          "date": "2023-12-31",
+          "raw": 300.0
+        },
+        {
+          "date": "2024-01-01",
+          "raw": 100.0
+        },
+        {
+          "date": "2024-02-01",
+          "raw": 90.0
+        }
+      ],
+      "expected": [
+        {
+          "date": "2023-12-31",
+          "raw": 300.0,
+          "adjusted": 100.0,
+          "applied_action_ids": [
+            "US0000000002-SPLIT-2024-01-01-3-1"
+          ]
+        },
+        {
+          "date": "2024-01-01",
+          "raw": 100.0,
+          "adjusted": 100.0,
+          "applied_action_ids": []
+        },
+        {
+          "date": "2024-02-01",
+          "raw": 90.0,
+          "adjusted": 90.0,
+          "applied_action_ids": []
+        }
+      ]
+    }
   ]
 }

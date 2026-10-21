@@ -106,7 +106,7 @@ tool can depend on. It is language-agnostic by design.
 | Yahoo Finance fetcher | ✅ Working |
 | SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
 | Validator | ✅ All 7 layers |
-| Python wrapper | ✅ 131 tests |
+| Python wrapper | ✅ 138 tests |
 | JavaScript wrapper | ✅ 111 tests |
 | Go wrapper | ✅ 82 tests |
 | Rust wrapper | ✅ 100 tests + 1 doctest |

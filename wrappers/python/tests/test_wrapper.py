@@ -1273,3 +1273,86 @@ class TestAccessorIsolation:
         assert reg.meta is not None
         reg.meta.version = "CORRUPT"
         assert reg.to_dict() == before
+
+
+class TestAdjustPrices:
+    """#142: adjust_prices against the shared fixture and real registry."""
+
+    @pytest.fixture(scope="class")
+    def fixture_and_reg(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[3]
+        fixture = json.loads((root / "tests" / "wrapper_contract.json").read_text())
+        reg = CorporateActionsRegistry(
+            actions_data={"meta": {}, "actions": fixture["actions"]},
+        )
+        return fixture, reg
+
+    def test_fixture_price_adjustments(self, fixture_and_reg):
+        """Every price_adjustments case in the shared fixture must match."""
+        fixture, reg = fixture_and_reg
+        cases = fixture.get("price_adjustments", [])
+        assert cases, "fixture must have price_adjustments cases"
+        for case in cases:
+            isin = case.get("override_isin") or case["isin"]
+            result = reg.adjust_prices(isin, case["prices"])
+            assert result == case["expected"], (
+                f"case {case.get('description', '?')!r}:\n"
+                f"  got: {result}\n"
+                f"  want: {case['expected']}"
+            )
+
+    def test_empty_prices_returns_empty(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        assert reg.adjust_prices("US0000000001", []) == []
+
+    def test_unknown_isin_returns_empty(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        assert reg.adjust_prices(
+            "US9999999999", [{"date": "2024-01-15", "raw": 100.0}],
+        ) == []
+
+    def test_malformed_date_raises(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        with pytest.raises(ValueError, match="invalid price date"):
+            reg.adjust_prices(
+                "US0000000001", [{"date": "2024-6-10", "raw": 100.0}],
+            )
+
+    def test_missing_raw_raises(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        with pytest.raises(ValueError, match="missing 'raw'"):
+            reg.adjust_prices("US0000000001", [{"date": "2024-01-15"}])
+
+    def test_adjust_for_split_only(self, fixture_and_reg):
+        """adjust_for narrows the set; SYMBOL_CHANGE never contributes anyway."""
+        _, reg = fixture_and_reg
+        result = reg.adjust_prices(
+            "US0000000001",
+            [{"date": "2024-01-15", "raw": 100.0}],
+            adjust_for={"SPLIT"},
+        )
+        assert len(result) == 1
+        assert result[0]["adjusted"] == 50.0
+
+    def test_real_registry_nvda_split(self):
+        """Real-registry integration: NVDA 10:1 split on 2024-06-10."""
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[3]
+        reg = CorporateActionsRegistry(str(root / "actions.json"))
+        prices = [
+            {"date": "2024-01-02", "raw": 48.168},
+            {"date": "2024-07-01", "raw": 123.54},
+        ]
+        # Split-only: isolates the split effect from dividend adjustments.
+        # (With default adjust_for, later dividends would restate the
+        # 2024-07-01 bar down slightly; that's correct total-return
+        # behavior but not what this test verifies.)
+        result = reg.adjust_prices("US67066G1040", prices, adjust_for={"SPLIT"})
+        assert len(result) == 2
+        # Pre-split bar scaled by 10:1 split's price_multiplier (0.1)
+        assert result[0]["date"] == "2024-01-02"
+        assert abs(result[0]["adjusted"] - 4.8168) < 1e-6
+        # Post-split bar has no further splits after 2024-07-01
+        assert result[1]["date"] == "2024-07-01"
+        assert result[1]["adjusted"] == 123.54

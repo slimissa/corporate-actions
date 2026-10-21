@@ -22,6 +22,7 @@ mirror the API style of the other QuantOS registry wrappers
 from .models import Action, Dates, Impact, Provenance, RegistryMeta
 from .registry import (
     CorporateActionsRegistry,
+    DEFAULT_ADJUST_FOR,
     DEFAULT_DATE_FIELD,
     VALID_DATE_FIELDS,
 )
@@ -30,5 +31,5 @@ __version__ = "1.1.0"
 __all__ = [
     "CorporateActionsRegistry",
     "Action", "Dates", "Impact", "Provenance", "RegistryMeta",
-    "DEFAULT_DATE_FIELD", "VALID_DATE_FIELDS",
+    "DEFAULT_DATE_FIELD", "DEFAULT_ADJUST_FOR", "VALID_DATE_FIELDS",
 ]

@@ -29,10 +29,12 @@ stable since v1 except where marked `(new)`.
    - [4.3 `by_action_type`](#43-by_action_type)
    - [4.4 `by_date_range`](#44-by_date_range)
    - [4.5 `all_action_types`](#45-all_action_types)
+   - [4.5b `all_actions`](#45b-all_actions)
    - [4.6 `count`](#46-count)
    - [4.7 Serialization](#47-serialization)
    - [4.8 `by_ticker` (new)](#48-by_ticker-new)
    - [4.9 Exported constants (new)](#49-exported-constants-new)
+   - [4.10 `adjust_prices` (new)](#410-adjust_prices-new)
 5. [Loading behaviour](#5-loading-behaviour)
    - [5.1 UTF-8 BOM](#51-utf-8-bom)
    - [5.2 Missing `actions` key](#52-missing-actions-key)
@@ -316,6 +318,32 @@ does not include reserved types that are valid per the schema but
 absent from `actions.json`. A registry with only SPLIT and DIVIDEND
 actions returns `["DIVIDEND", "SPLIT"]`, not all eight schema types.
 
+### 4.5b `all_actions`
+
+Python: all_actions() -> List[Action]
+JavaScript: allActions() -> Action[]
+Go: AllActions() []Action
+Rust: all_actions() -> &[Action]
+
+
+Returns every action in insertion order (the order they appear in
+`actions.json`).
+
+The four wrappers differ in ownership:
+
+- **Python** returns a fresh deep copy. Mutating the list or any Action
+  inside it does not affect the registry.
+- **JavaScript** returns a fresh array whose elements are each
+  `structuredClone`d. Same isolation guarantee.
+- **Go** returns a fresh slice whose elements are deep-copied via
+  `deepCopyAction`. Same isolation guarantee.
+- **Rust** returns a borrowed `&[Action]`. The borrow makes mutation
+  impossible at compile time; no copy is required.
+
+This is the method a caller should use for "iterate every action" or
+"show the first few examples" — it is safe to sort, slice, or filter
+the returned collection.
+
 ### 4.6 `count`
 
 ```
@@ -479,6 +507,123 @@ order for display purposes; sort if presentation order matters.
 
 Both constants are part of the public API. A wrapper that does not
 export them is non-conformant.
+
+### 4.10 `adjust_prices` (new)
+
+Python: adjust_prices(isin, prices, *, adjust_for=DEFAULT_ADJUST_FOR)
+-> List[AdjustedBar]
+
+JavaScript: adjustPrices(isin, prices, adjustFor=DEFAULT_ADJUST_FOR)
+-> AdjustedBar[]
+
+Go: AdjustPrices(isin string, prices []PriceBar,
+adjustFor ...string)
+([]AdjustedBar, error)
+
+Rust: adjust_prices(&self, isin: &str,
+prices: &[PriceBar],
+adjust_for: Option<&[&str]>)
+-> Result<Vec<AdjustedBar>, RegistryError>
+
+Adjust a price series for corporate actions. This is the operation the
+README's value proposition describes: a backtest needs a price series
+restated to a common basis, and the registry provides the actions.
+
+**Inputs.**
+
+- `isin` — the instrument's ISIN. Matching is exact.
+- `prices` — a list of `PriceBar` records, each with a `date` (ISO
+  `YYYY-MM-DD`) and a `raw` price. Order does not matter; the result is
+  sorted by date ascending.
+- `adjust_for` — an optional set of action types to apply. Defaults to
+  `{SPLIT, REVERSE_SPLIT, DIVIDEND, SPECIAL_DIVIDEND}`. Pass a narrower
+  set to exclude dividends (split-only adjustment); pass a wider set to
+  include reserved types that may later gain price effects.
+
+**Output.**
+
+A list of `AdjustedBar` records, one per input bar, sorted by date:
+
+{
+"date": "2024-01-15",
+"raw": 100.0,
+"adjusted": 50.0,
+"applied_action_ids": ["US0000000001-SPLIT-2024-03-01-2-1"]
+}
+
+- `date`, `raw` — echo the input
+- `adjusted` — the price adjusted for every applicable action
+- `applied_action_ids` — the action IDs applied to produce this `adjusted`
+  value. This is the audit trail; the caller can verify each one against
+  the registry.
+
+**Adjustment rules, in order.**
+
+For a bar at date `D` and an action with `ex_date = E`:
+
+- If `E <= D`, the action has already taken effect at or before this
+  bar. **Do not adjust.** A price on the ex-date itself is already on
+  the post-action basis.
+- If `E > D`, the action applies:
+  - `SPLIT` / `REVERSE_SPLIT`: `adjusted *= impact.price_multiplier`
+  - `DIVIDEND` / `SPECIAL_DIVIDEND`: `adjusted -= impact.cash_adjustment`
+  - `SYMBOL_CHANGE`, `SPINOFF`, `DELISTING`, `MERGER`: no price effect
+
+Composition when multiple actions apply to the same bar:
+`adjusted = raw * Π(price_multiplier) - Σ(cash_adjustment)`. This is the
+standard "dividend-adjusted price" convention.
+
+**Impact fallback.** If an action has no `impact` block, the value is
+derived from the primary fields:
+
+- For splits: parse `ratio` as `"new:old"` and compute
+  `price_multiplier = int(old) / int(new)`. If `ratio` is missing or
+  malformed, the multiplier is `1.0` (no effect).
+- For dividends: `cash_adjustment = amount`. If `amount` is missing,
+  `0.0`.
+
+This means the method works even against a registry that has not been
+run through `tools/derive_impacts.py`.
+
+**Order of application.** Actions are applied in ex-date order, but
+because split multipliers commute and cash adjustments commute, order
+does not change the result. The composition is mathematically the same
+regardless.
+
+**Errors and edge cases.**
+
+- Unknown ISIN → empty list. Not an error. Same as `by_isin`.
+- Malformed date in `prices` → raise or return `RegistryError`. The
+  error names the offending date.
+- Empty `prices` list → empty result.
+- Duplicate dates in `prices` → both appear in the result with the same
+  adjustment. Not deduplicated.
+- Actions without `dates` or `ex_date` → skipped silently.
+- Prices on or after the last action's ex-date → adjusted equals raw.
+
+**Worked example.** Registry has one split for ISIN X: 2-for-1 on
+2024-03-01 (`impact.price_multiplier = 0.5`).
+
+Input:
+[{date: "2024-01-15", raw: 100.0},
+{date: "2024-03-01", raw: 50.0},
+{date: "2024-04-01", raw: 60.0}]
+
+Output:
+[{date: "2024-01-15", raw: 100.0, adjusted: 50.0,
+applied_action_ids: ["X-SPLIT-2024-03-01-2-1"]},
+{date: "2024-03-01", raw: 50.0, adjusted: 50.0,
+applied_action_ids: []},
+{date: "2024-04-01", raw: 60.0, adjusted: 60.0,
+applied_action_ids: []}]
+
+The series is continuous (50, 50, 60) — the pre-split bar is scaled
+down to match the post-split basis.
+
+**Contract fixture.** `tests/wrapper_contract.json` carries a
+`price_adjustments` array (see § 8.2). Each entry names an ISIN, an
+input `prices` list, and an `expected` output list. All four wrappers
+read this array and assert identical results.
 
 ## 5. Loading behaviour
 
@@ -945,6 +1090,30 @@ pub enum RegistryError {
 
 ---
 
+### Shared types for `adjust_prices`
+
+`PriceBar` is the input element type:
+
+Python: Dict[str, Any] # {"date": "YYYY-MM-DD", "raw": float}
+JavaScript: { date: string, raw: number }
+Go: type PriceBar struct { Date string; Raw float64 }
+Rust: pub struct PriceBar { pub date: String, pub raw: f64 }
+
+`AdjustedBar` is the output element type:
+
+Python: Dict[str, Any] # {"date", "raw", "adjusted", "applied_action_ids"}
+JavaScript: { date, raw, adjusted, applied_action_ids }
+Go: type AdjustedBar struct {
+Date, Raw, Adjusted float64
+AppliedActionIDs []string
+}
+Rust: #[derive(Serialize, Deserialize)]
+pub struct AdjustedBar {
+pub date: String,
+pub raw: f64,
+pub adjusted: f64,
+pub applied_action_ids: Vec<String>,
+}
 ## See also
 
 - [`docs/action_types.md`](./action_types.md) — semantics of the eight
