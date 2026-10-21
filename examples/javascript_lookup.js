@@ -56,7 +56,7 @@ function findActionsFile(cliPath) {
   if (fs.existsSync(repoFile)) return repoFile;
 
   console.error('Error: could not find actions.json. Use --actions PATH.');
-  process.exit(2);
+  process.exit(3);  // no-default found: file-not-found per § 7.2
 }
 
 // ----------------------------------------------------------------------

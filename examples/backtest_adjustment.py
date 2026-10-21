@@ -88,7 +88,7 @@ def find_actions_file(cli_path: str = None) -> Path:
         return repo_file
     print("Error: could not find actions.json. Use --actions PATH.",
           file=sys.stderr)
-    sys.exit(2)
+    sys.exit(3)  # no-default found: file-not-found per § 7.2
 
 
 # ----------------------------------------------------------------------
