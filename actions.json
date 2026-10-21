@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "generated_at": "2026-09-09T00:00:00Z",
     "source": "Curated (5 actions) + Yahoo Finance (yfinance) extraction",
     "notes": "Minimal valid v1.0.0 dataset for Corporate Actions Registry. Covers SPLIT, DIVIDEND, SPECIAL_DIVIDEND, SYMBOL_CHANGE.",

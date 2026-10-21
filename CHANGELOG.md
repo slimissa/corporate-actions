@@ -1,3 +1,74 @@
+## [1.2.0] - 2026-10-21
+
+### Added
+
+- `adjust_prices(isin, prices, adjust_for)` on all four wrappers — the
+  value-proposition API. Restates a raw price series for splits and
+  dividends using the registry's `impact` block, returns each bar with
+  an audit trail of which actions were applied. See
+  `docs/wrapper_contract.md` § 4.10.
+- `all_actions()` / `allActions()` / `AllActions()` on all four wrappers
+  (Rust already had `all_actions()`); the four example CLIs now share
+  one "first 3 actions" pattern.
+- `DEFAULT_ADJUST_FOR` and `DEFAULT_DATE_FIELD` exported constants on
+  all four wrappers.
+- `RegistryError::InvalidPrice` variant (Rust, `#[non_exhaustive]`).
+
+### Changed
+
+- Python/JS/Go/Rust: `save()` is atomic (temp file + rename). A crash
+  mid-write leaves the original intact; a failed save leaves no
+  orphaned temp file.
+- Python/JS: ticker cache keyed on `(path, mtime, size)` — a long-running
+  process re-reads `identifiers.json` after it changes.
+- Go: ticker-index loader uses a double-checked lock; `go test -race`
+  clean.
+- `compute_total_return` renamed to `compute_price_plus_cash_return`
+  (the old name implied reinvested dividends, which the function never
+  modeled).
+- `examples/*_lookup` exit codes standardized to
+  `docs/wrapper_contract.md` § 7.2 (0=ok, 1=runtime, 2=usage,
+  3=file-not-found).
+
+### Fixed
+
+- 60+ items across eight phases (C, H1–H7, M1, M1.5-A, M1.5-B, M2, M3):
+  - **Wrapper isolation.** Every accessor deep-copies; nested-field
+    tests (`dates.ex_date`, `provenance.source`, `impact.cash_adjustment`)
+    lock in the contract across all four wrappers.
+  - **Merge pipeline.** `merge_fetched.py` semantic-dedup guard was
+    skipped on the first candidate — a `SPECIAL_DIVIDEND` could merge
+    as a `DIVIDEND` duplicate.
+  - **Backtest demo.** `compute_unadjusted_return` divided the last
+    price by `price_multiplier`; the correct operation multiplies the
+    first price by `share_multiplier`. The "why this exists" example
+    now shows the claim's shape: -74.35% unadjusted vs +156.48%
+    adjusted.
+  - **Rate-limit tests.** 8 tight upper bounds relaxed so a loaded CI
+    runner does not flake; upper bounds added where a runaway limiter
+    could have passed silently.
+
+### Docs
+
+- `README.md`, `CONTRIBUTING.md`, and 5 `docs/` files reconciled to
+  `docs/facts.json`. 25+ numeric facts across 3 files, all CI-gated.
+- `check_doc_facts.py --strict` mode added: a doc file missing from the
+  tree becomes an error, not a silent skip.
+- `check_mojibake.py`: unclosed-code-fence detection and
+  `--path FILE` flag; 2 real dangling fences closed.
+- `check_ecosystem_versions.py` renamed to `check_sibling_versions.py`
+  (actual scope: 3 siblings that `actions.json` references, not all 6).
+- `wrappers/*/README.md` claims audited; "dependency-light" →
+  "minimal dependencies".
+
+### Notes
+
+- Wrappers are still source-only. Publication to PyPI, npm, crates.io,
+  and the Go module proxy is scheduled as `v1.2.1`.
+- `wrappers/python/corporate_actions_registry/__init__.py` `__version__`
+  is bumped manually this release; it is not yet a
+  `check_version_consistency` site. Adding it is a `v1.2.1` chore.
+
 ## [1.1.0] - 2026-10-20
 
 # Changelog
@@ -14,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [How to read this changelog](#how-to-read-this-changelog)
 - [Unreleased](#unreleased)
-- [1.1.0 — 2026-09-21](#110--2026-09-21)
+- [1.2.0 — 2026-10-21](#120--2026-10-21)
+- [1.1.0 — 2026-10-20](#110--2026-10-20)
 - [1.0.0 — 2026-09-13](#100--2026-09-13)
 - [Pre-release history](#pre-release-history)
 
