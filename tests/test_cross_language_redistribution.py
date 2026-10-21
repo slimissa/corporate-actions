@@ -85,8 +85,10 @@ def python_registry_cls():
     try:
         from corporate_actions_registry import CorporateActionsRegistry
     except ImportError as e:
+        sys.path.pop(0)
         pytest.skip(f"Python wrapper not importable: {e}")
-    return CorporateActionsRegistry
+    yield CorporateActionsRegistry
+    sys.path.pop(0)
 
 
 @pytest.fixture(scope="module")

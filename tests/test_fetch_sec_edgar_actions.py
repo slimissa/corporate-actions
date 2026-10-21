@@ -107,6 +107,11 @@ class FakeSECClient:
         self.get_filing_text_calls.append(accession)
         return self.texts.get(accession)
 
+    def _get(self, url):
+        raise NotImplementedError(
+            "FakeSECClient subclasses that read archives must override _get"
+        )
+
 
 def _fake_submissions(forms, accessions, docs, dates, files=None):
     """Build a submissions dict in the shape data.sec.gov returns."""

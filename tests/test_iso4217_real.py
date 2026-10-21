@@ -15,6 +15,7 @@ reason names every path the test looked at.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -25,9 +26,19 @@ from tools.validate import load_iso4217_registry
 
 # ---------------------------------------------------------------------------
 # Locate the real registry
+#
+# Priority:
+#   1. $CORP_ACTIONS_ISO4217_PATH (explicit; CI and other machines)
+#   2. Sibling checkout at ../iso4217/iso4217.json (standard author layout)
+#   3. Legacy author paths (backward compatibility)
 # ---------------------------------------------------------------------------
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+_env_iso = os.environ.get("CORP_ACTIONS_ISO4217_PATH")
 CANDIDATE_PATHS = [
+    *( [Path(_env_iso)] if _env_iso else [] ),
+    REPO_ROOT.parent / "iso4217" / "iso4217.json",
     Path.home() / "Documents" / "iso4217 registry" / "iso4217.json",
     Path.home() / "Documents" / "iso4217" / "iso4217.json",
 ]
@@ -45,7 +56,8 @@ REAL_PATH = _find_real_registry()
 pytestmark = pytest.mark.skipif(
     REAL_PATH is None,
     reason=(
-        "real iso4217.json not found; looked at: "
+        "real iso4217.json not found; set $CORP_ACTIONS_ISO4217_PATH or place "
+        "a sibling checkout at ../iso4217/; looked at: "
         + ", ".join(str(p) for p in CANDIDATE_PATHS)
     ),
 )
