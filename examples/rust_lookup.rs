@@ -162,6 +162,14 @@ fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
         return parent_file;
     }
 
+    // Third candidate: cwd/../../actions.json. Needed when the example
+    // is run from wrappers/rust/ (cargo run --example rust_lookup),
+    // where the repo root is two levels up, not one.
+    let grandparent_file = cwd.join("..").join("..").join("actions.json");
+    if grandparent_file.exists() {
+        return grandparent_file;
+    }
+
     eprintln!("Error: could not find actions.json. Use --actions PATH.");
     process::exit(3); // no default found = file-not-found per § 7.2
 }
