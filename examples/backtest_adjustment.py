@@ -177,6 +177,23 @@ def dedupe_actions(actions):
 # ----------------------------------------------------------------------
 # ISIN resolution
 # ----------------------------------------------------------------------
+# Six instruments the registry ships. Resolving these tickers does not
+# require an Asset Identifiers checkout — the builtin map is authoritative
+# for the current corpus. Unknown tickers still fall through to the
+# registry or fail with the existing error.
+#
+# Verified against actions.json (6 instruments) as of v1.1.0:
+#   grep -o '"isin": "[A-Z0-9]*"' actions.json | sort -u
+_BUILTIN_TICKER_ISIN = {
+    ("AAPL",  "XNAS"): "US0378331005",
+    ("MSFT",  "XNAS"): "US5949181045",
+    ("GOOGL", "XNAS"): "US02079K3059",
+    ("AMZN",  "XNAS"): "US0231351067",
+    ("META",  "XNAS"): "US30303M1027",
+    ("NVDA",  "XNAS"): "US67066G1040",
+}
+
+
 def resolve_isin(ticker: str, exchange: str, explicit_isin: str = None):
     """
     Resolve a ticker+exchange pair to an ISIN.
@@ -189,6 +206,10 @@ def resolve_isin(ticker: str, exchange: str, explicit_isin: str = None):
     """
     if explicit_isin:
         return explicit_isin
+
+    key = (ticker.upper(), exchange.upper())
+    if key in _BUILTIN_TICKER_ISIN:
+        return _BUILTIN_TICKER_ISIN[key]
 
     try:
         index = load_ticker_isin_index()
