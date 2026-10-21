@@ -49,6 +49,15 @@ pub const DEFAULT_DATE_FIELD: &str = "ex_date";
 pub const VALID_DATE_FIELDS: &[&str] =
     &["announcement", "ex_date", "record_date", "effective_date"];
 
+/// The default set of action types applied by [`Registry::adjust_prices`]
+/// when the caller passes `None`. Exported per wrapper contract § 4.9.
+pub const DEFAULT_ADJUST_FOR: &[&str] = &[
+    "SPLIT",
+    "REVERSE_SPLIT",
+    "DIVIDEND",
+    "SPECIAL_DIVIDEND",
+];
+
 // ---------------------------------------------------------------------------
 // Errors
 // ---------------------------------------------------------------------------
@@ -87,6 +96,12 @@ pub enum RegistryError {
     /// environment variable that would fix it.
     #[error("missing identifier data: {0}")]
     MissingData(String),
+
+    /// A [`PriceBar`] passed to [`Registry::adjust_prices`] has a
+    /// malformed `date` or a missing `raw` value. The contained string
+    /// identifies which bar and why.
+    #[error("invalid price: {0}")]
+    InvalidPrice(String),
 }
 
 // ---------------------------------------------------------------------------
@@ -173,6 +188,25 @@ pub struct Meta {
     pub notes: Option<String>,
 }
 
+/// One input bar for [`Registry::adjust_prices`]: an ISO date and a raw
+/// price. See wrapper contract § 10 "Shared types for `adjust_prices`".
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PriceBar {
+    pub date: String,
+    pub raw: f64,
+}
+
+/// One output bar from [`Registry::adjust_prices`]: the input echoed
+/// back, the adjusted price, and the audit trail of action IDs that
+/// produced the adjustment.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AdjustedBar {
+    pub date: String,
+    pub raw: f64,
+    pub adjusted: f64,
+    pub applied_action_ids: Vec<String>,
+}
+
 /// Return the requested date from an action, or `None` if the action has
 /// no dates object or the requested field is absent.
 ///
@@ -189,6 +223,64 @@ fn date_field_value<'a>(action: &'a Action, date_field: &str) -> Option<&'a str>
         "effective_date" => dates.effective_date.as_deref(),
         _ => None,
     }
+}
+
+/// Return `true` if `s` matches `^\d{4}-\d{2}-\d{2}$`.
+///
+/// Manual check rather than a `regex` dependency: this crate is
+/// deliberately minimal on deps, and the pattern is trivial.
+fn is_iso_date(s: &str) -> bool {
+    if s.len() != 10 {
+        return false;
+    }
+    let b = s.as_bytes();
+    b[4] == b'-'
+        && b[7] == b'-'
+        && b[0..4].iter().all(|c| c.is_ascii_digit())
+        && b[5..7].iter().all(|c| c.is_ascii_digit())
+        && b[8..10].iter().all(|c| c.is_ascii_digit())
+}
+
+/// Price multiplier for a SPLIT or REVERSE_SPLIT action.
+///
+/// Prefers `impact.price_multiplier`; falls back to parsing `ratio` as
+/// `"new:old"` (`multiplier = old / new`); returns `1.0` otherwise.
+/// See wrapper contract § 4.10 "Impact fallback".
+fn action_price_multiplier(action: &Action) -> f64 {
+    if let Some(imp) = &action.impact {
+        if let Some(m) = imp.price_multiplier {
+            return m;
+        }
+    }
+    if let Some(ratio) = &action.ratio {
+        let parts: Vec<&str> = ratio.split(':').collect();
+        if parts.len() == 2 {
+            if let (Ok(new_s), Ok(old_s)) =
+                (parts[0].parse::<i64>(), parts[1].parse::<i64>())
+            {
+                if new_s > 0 {
+                    return old_s as f64 / new_s as f64;
+                }
+            }
+        }
+    }
+    1.0
+}
+
+/// Cash adjustment for a DIVIDEND or SPECIAL_DIVIDEND action.
+///
+/// Prefers `impact.cash_adjustment`; falls back to the primary `amount`
+/// field; returns `0.0` otherwise.
+fn action_cash_adjustment(action: &Action) -> f64 {
+    if let Some(imp) = &action.impact {
+        if let Some(c) = imp.cash_adjustment {
+            return c;
+        }
+    }
+    if let Some(a) = action.amount {
+        return a;
+    }
+    0.0
 }
 
 // ---------------------------------------------------------------------------
@@ -462,6 +554,95 @@ impl Registry {
     /// instead, which returns a fresh clone.
     pub fn all_actions(&self) -> &[Action] {
         &self.actions
+    }
+
+    /// Adjust a price series for corporate actions.
+    ///
+    /// For each input bar at date `D`, every applicable action with
+    /// `ex_date > D` is applied. `SPLIT`/`REVERSE_SPLIT` multiply by
+    /// `impact.price_multiplier`; `DIVIDEND`/`SPECIAL_DIVIDEND`
+    /// subtract `impact.cash_adjustment`. A bar on the ex-date itself
+    /// is not adjusted. See `docs/wrapper_contract.md` § 4.10.
+    ///
+    /// `adjust_for` defaults to [`DEFAULT_ADJUST_FOR`] when `None`.
+    /// An unknown ISIN returns an empty vector (not an error), matching
+    /// [`Self::by_isin`]. A malformed date or a missing `raw` returns
+    /// [`RegistryError::InvalidPrice`].
+    pub fn adjust_prices(
+        &self,
+        isin: &str,
+        prices: &[PriceBar],
+        adjust_for: Option<&[&str]>,
+    ) -> Result<Vec<AdjustedBar>, RegistryError> {
+        for p in prices {
+            if !is_iso_date(&p.date) {
+                return Err(RegistryError::InvalidPrice(format!(
+                    "invalid price date: {:?} (must be YYYY-MM-DD)",
+                    p.date
+                )));
+            }
+        }
+
+        let raw_actions = self.by_isin(isin);
+        if raw_actions.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let adjust_set: std::collections::HashSet<&str> = adjust_for
+            .unwrap_or(DEFAULT_ADJUST_FOR)
+            .iter()
+            .copied()
+            .collect();
+
+        let applicable: Vec<&Action> = raw_actions
+            .iter()
+            .filter(|a| {
+                a.action_type
+                    .as_deref()
+                    .map(|t| adjust_set.contains(t))
+                    .unwrap_or(false)
+            })
+            .collect();
+
+        let mut sorted: Vec<&PriceBar> = prices.iter().collect();
+        sorted.sort_by(|a, b| a.date.cmp(&b.date));
+
+        let mut result = Vec::with_capacity(prices.len());
+        for p in sorted {
+            let date = p.date.clone();
+            let mut adjusted = p.raw;
+            let mut applied: Vec<String> = Vec::new();
+
+            for a in &applicable {
+                let ex_date = match a.dates.as_ref().and_then(|d| d.ex_date.as_deref()) {
+                    Some(e) => e,
+                    None => continue,
+                };
+                if ex_date <= date.as_str() {
+                    continue;
+                }
+                match a.action_type.as_deref() {
+                    Some("SPLIT") | Some("REVERSE_SPLIT") => {
+                        adjusted *= action_price_multiplier(a);
+                        applied.push(a.action_id.clone().unwrap_or_default());
+                    }
+                    Some("DIVIDEND") | Some("SPECIAL_DIVIDEND") => {
+                        adjusted -= action_cash_adjustment(a);
+                        applied.push(a.action_id.clone().unwrap_or_default());
+                    }
+                    _ => {}
+                }
+            }
+
+            result.push(AdjustedBar {
+                date,
+                raw: p.raw,
+                adjusted,
+                applied_action_ids: applied,
+            });
+        }
+
+        Ok(result)
     }
 
     /// Return a reference to the registry metadata.

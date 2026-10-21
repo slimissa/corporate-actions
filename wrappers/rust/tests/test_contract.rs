@@ -201,3 +201,71 @@ fn contract_invalid_date_fields_rejected() {
         }
     }
 }
+
+
+// ----------------------------------------------------------------------
+// adjust_prices (wrapper contract § 4.10)
+// ----------------------------------------------------------------------
+
+#[test]
+fn adjust_prices_matches_fixture() {
+    use corporate_actions_registry::{AdjustedBar, PriceBar, Registry};
+    use std::fs;
+
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let root = manifest.parent().unwrap().parent().unwrap();
+    let fixture_path = root.join("tests").join("wrapper_contract.json");
+    let content = fs::read_to_string(&fixture_path).expect("fixture must exist");
+    let data: serde_json::Value = serde_json::from_str(&content).unwrap();
+
+    let actions_json = data["actions"].clone();
+    let reg = Registry::from_value(serde_json::json!({ "actions": actions_json })).unwrap();
+
+    let cases = data["price_adjustments"]
+        .as_array()
+        .expect("price_adjustments must be an array");
+    assert!(!cases.is_empty(), "fixture must have price_adjustments cases");
+
+    for c in cases {
+        let isin = c
+            .get("override_isin")
+            .and_then(|v| v.as_str())
+            .or_else(|| c.get("isin").and_then(|v| v.as_str()))
+            .expect("case must have isin or override_isin");
+
+        let prices: Vec<PriceBar> =
+            serde_json::from_value(c["prices"].clone()).expect("prices parse");
+        let expected: Vec<AdjustedBar> =
+            serde_json::from_value(c["expected"].clone()).expect("expected parse");
+
+        let result = reg
+            .adjust_prices(isin, &prices, None)
+            .expect("adjust_prices should succeed");
+
+        assert_eq!(
+            result, expected,
+            "case: {}",
+            c.get("description").and_then(|v| v.as_str()).unwrap_or("?")
+        );
+    }
+}
+
+#[test]
+fn adjust_prices_unknown_isin_returns_empty() {
+    use corporate_actions_registry::{PriceBar, Registry};
+    let reg = Registry::from_value(serde_json::json!({ "actions": [] })).unwrap();
+    let prices = vec![PriceBar { date: "2024-01-15".into(), raw: 100.0 }];
+    let out = reg.adjust_prices("US9999999999", &prices, None).unwrap();
+    assert!(out.is_empty());
+}
+
+#[test]
+fn adjust_prices_rejects_malformed_date() {
+    use corporate_actions_registry::{PriceBar, Registry};
+    let reg = Registry::from_value(serde_json::json!({ "actions": [
+        {"isin": "X", "action_id": "X-SPLIT", "action_type": "SPLIT"}
+    ]})).unwrap();
+    let prices = vec![PriceBar { date: "2024-6-10".into(), raw: 100.0 }];
+    let err = reg.adjust_prices("X", &prices, None).unwrap_err();
+    assert!(err.to_string().contains("invalid price"), "unexpected: {}", err);
+}
