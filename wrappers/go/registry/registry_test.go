@@ -1075,6 +1075,43 @@ func TestSaveAndReload(t *testing.T) {
 	}
 }
 
+func TestSaveOverwritesExistingFile(t *testing.T) {
+	r := loadSample(t)
+	dir := t.TempDir()
+	path := filepath.Join(dir, "out.json")
+	if err := os.WriteFile(path, []byte(`{"corrupt": true}`), 0644); err != nil {
+		t.Fatalf("setup write: %v", err)
+	}
+	if err := r.Save(path); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	loaded, err := LoadRegistry(path)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if loaded.Count() != r.Count() {
+		t.Errorf("count after overwrite: got %d, want %d", loaded.Count(), r.Count())
+	}
+}
+
+func TestSaveLeavesNoTmpFile(t *testing.T) {
+	r := loadSample(t)
+	dir := t.TempDir()
+	path := filepath.Join(dir, "out.json")
+	if err := r.Save(path); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	for _, e := range entries {
+		if strings.Contains(e.Name(), ".tmp.") {
+			t.Errorf("orphaned tmp file: %s", e.Name())
+		}
+	}
+}
+
 func TestSaveProducesValidJSON(t *testing.T) {
 	r := loadSample(t)
 	dir := t.TempDir()

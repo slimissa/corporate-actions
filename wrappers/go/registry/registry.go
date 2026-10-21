@@ -747,10 +747,24 @@ func (r *Registry) ToJSON() ([]byte, error) {
 //
 // The output is UTF-8 JSON without a BOM. The file is created with mode
 // 0644. Any existing file at the same path is overwritten.
+// Save writes the registry to a file.
+//
+// The write is atomic: content goes to a temp file adjacent to `path`,
+// then os.Rename moves it into place. A crash between write and rename
+// leaves the original file intact and a .tmp.<pid> orphan rather than
+// a truncated target. See issue #95.
 func (r *Registry) Save(path string) error {
 	data, err := r.ToJSON()
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	tmp := path + ".tmp." + strconv.Itoa(os.Getpid())
+	if err := os.WriteFile(tmp, data, 0644); err != nil {
+		return err
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+	return nil
 }
