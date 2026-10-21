@@ -1334,7 +1334,6 @@ func TestByTickerMissingFileReturnsMissingData(t *testing.T) {
 	}
 }
 
-
 func TestMetaIsolation(t *testing.T) {
 	r := loadSample(t)
 	m := r.Meta()
@@ -1349,9 +1348,9 @@ func TestMetaIsolation(t *testing.T) {
 
 func TestByDateRangeInvalidDateFormat(t *testing.T) {
 	cases := [][2]string{
-		{"2024-6-10", "2024-06-10"},   // no leading zero
-		{"2024-01-01", "2024/06/10"},  // slashes
-		{"06-10-2024", ""},            // wrong order
+		{"2024-6-10", "2024-06-10"},  // no leading zero
+		{"2024-01-01", "2024/06/10"}, // slashes
+		{"06-10-2024", ""},           // wrong order
 	}
 	r := loadSample(t)
 	for _, c := range cases {
@@ -1373,21 +1372,47 @@ func TestAllAccessorsIsolateState(t *testing.T) {
 	expected, _ := r.ToJSON()
 
 	corrupt := func(a *Action) {
-		if a.ISIN != nil { *a.ISIN = "CORRUPT" }
-		if a.ActionID != nil { *a.ActionID = "CORRUPT" }
-		if a.Ratio != nil { *a.Ratio = "CORRUPT" }
-		if a.Amount != nil { *a.Amount = -999 }
-		if a.Redistribution != nil { *a.Redistribution = "CORRUPT" }
-		if a.Dates != nil && a.Dates.ExDate != nil { *a.Dates.ExDate = "CORRUPT" }
-		if a.Provenance != nil && a.Provenance.Source != nil { *a.Provenance.Source = "CORRUPT" }
-		if a.Impact != nil && a.Impact.CashAdjustment != nil { *a.Impact.CashAdjustment = -999 }
+		if a.ISIN != nil {
+			*a.ISIN = "CORRUPT"
+		}
+		if a.ActionID != nil {
+			*a.ActionID = "CORRUPT"
+		}
+		if a.Ratio != nil {
+			*a.Ratio = "CORRUPT"
+		}
+		if a.Amount != nil {
+			*a.Amount = -999
+		}
+		if a.Redistribution != nil {
+			*a.Redistribution = "CORRUPT"
+		}
+		if a.Dates != nil && a.Dates.ExDate != nil {
+			*a.Dates.ExDate = "CORRUPT"
+		}
+		if a.Provenance != nil && a.Provenance.Source != nil {
+			*a.Provenance.Source = "CORRUPT"
+		}
+		if a.Impact != nil && a.Impact.CashAdjustment != nil {
+			*a.Impact.CashAdjustment = -999
+		}
 	}
 
-	if list := r.ByISIN("US0378331005"); len(list) > 0 { corrupt(&list[0]) }
-	if single := r.ByActionID("US0378331005-DIVIDEND-2024-05-16-0.2500"); single != nil { corrupt(single) }
-	if list := r.ByActionType("SPLIT"); len(list) > 0 { corrupt(&list[0]) }
-	if list, _ := r.ByDateRange("", "", "ex_date"); len(list) > 0 { corrupt(&list[0]) }
-	if m := r.Meta(); m != nil && m.Version != nil { *m.Version = "CORRUPT" }
+	if list := r.ByISIN("US0378331005"); len(list) > 0 {
+		corrupt(&list[0])
+	}
+	if single := r.ByActionID("US0378331005-DIVIDEND-2024-05-16-0.2500"); single != nil {
+		corrupt(single)
+	}
+	if list := r.ByActionType("SPLIT"); len(list) > 0 {
+		corrupt(&list[0])
+	}
+	if list, _ := r.ByDateRange("", "", "ex_date"); len(list) > 0 {
+		corrupt(&list[0])
+	}
+	if m := r.Meta(); m != nil && m.Version != nil {
+		*m.Version = "CORRUPT"
+	}
 
 	again, _ := r.ToJSON()
 	if string(again) != string(expected) {

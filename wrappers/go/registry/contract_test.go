@@ -285,3 +285,80 @@ func TestContractInvalidDateFields(t *testing.T) {
 		})
 	}
 }
+
+// TestAdjustPricesMatchesFixture reads the shared fixture's
+// price_adjustments array and verifies that AdjustPrices matches each
+// case exactly. See docs/wrapper_contract.md § 4.10 and § 8.2.
+func TestAdjustPricesMatchesFixture(t *testing.T) {
+	data, err := os.ReadFile(contractFixturePath)
+	if err != nil {
+		t.Fatalf("fixture must exist: %v", err)
+	}
+
+	var raw struct {
+		Actions          []Action `json:"actions"`
+		PriceAdjustments []struct {
+			ISIN         string        `json:"isin"`
+			OverrideISIN string        `json:"override_isin"`
+			Description  string        `json:"description"`
+			Prices       []PriceBar    `json:"prices"`
+			Expected     []AdjustedBar `json:"expected"`
+		} `json:"price_adjustments"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		t.Fatalf("fixture JSON parse: %v", err)
+	}
+	if len(raw.PriceAdjustments) == 0 {
+		t.Fatal("fixture must have price_adjustments cases")
+	}
+
+	doc := map[string]any{"actions": raw.Actions}
+	j, _ := json.Marshal(doc)
+	reg, err := FromJSON(j)
+	if err != nil {
+		t.Fatalf("FromJSON: %v", err)
+	}
+
+	for _, c := range raw.PriceAdjustments {
+		isin := c.ISIN
+		if c.OverrideISIN != "" {
+			isin = c.OverrideISIN
+		}
+		got, err := reg.AdjustPrices(isin, c.Prices)
+		if err != nil {
+			t.Fatalf("case %q: AdjustPrices error: %v", c.Description, err)
+		}
+		if !reflect.DeepEqual(got, c.Expected) {
+			t.Fatalf("case %q:\n  got:  %+v\n  want: %+v", c.Description, got, c.Expected)
+		}
+	}
+}
+
+// TestAdjustPricesUnknownISINReturnsEmpty verifies the unknown-ISIN path
+// returns an empty slice, not an error.
+func TestAdjustPricesUnknownISINReturnsEmpty(t *testing.T) {
+	reg, err := FromJSON([]byte(`{"actions": []}`))
+	if err != nil {
+		t.Fatalf("FromJSON: %v", err)
+	}
+	out, err := reg.AdjustPrices("US9999999999", []PriceBar{{Date: "2024-01-15", Raw: 100.0}})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(out) != 0 {
+		t.Fatalf("expected empty, got %v", out)
+	}
+}
+
+// TestAdjustPricesRejectsMalformedDate verifies that a bad date is an
+// error, not a silent passthrough.
+func TestAdjustPricesRejectsMalformedDate(t *testing.T) {
+	reg, err := FromJSON([]byte(`{"actions": [{"isin":"X","action_id":"X-SPLIT","action_type":"SPLIT"}]}`))
+	if err != nil {
+		t.Fatalf("FromJSON: %v", err)
+	}
+	_, err = reg.AdjustPrices("X", []PriceBar{{Date: "2024-6-10", Raw: 100.0}})
+	if err == nil || !strings.Contains(err.Error(), "invalid price date") {
+		t.Fatalf("expected invalid price date error, got %v", err)
+	}
+}

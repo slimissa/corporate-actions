@@ -16,6 +16,8 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 // ---------------------------------------------------------------------------
@@ -35,6 +37,16 @@ var ValidDateFields = []string{
 	"ex_date",
 	"record_date",
 	"effective_date",
+}
+
+// DefaultAdjustFor is the default set of action types applied by
+// AdjustPrices when the caller passes no adjustFor argument. Exported
+// per wrapper contract § 4.9.
+var DefaultAdjustFor = []string{
+	"SPLIT",
+	"REVERSE_SPLIT",
+	"DIVIDEND",
+	"SPECIAL_DIVIDEND",
 }
 
 // ---------------------------------------------------------------------------
@@ -110,6 +122,22 @@ type Meta struct {
 	GeneratedAt *string `json:"generated_at,omitempty"`
 	Source      *string `json:"source,omitempty"`
 	Notes       *string `json:"notes,omitempty"`
+}
+
+// PriceBar is a single date/price observation, the input element for
+// AdjustPrices.
+type PriceBar struct {
+	Date string  `json:"date"`
+	Raw  float64 `json:"raw"`
+}
+
+// AdjustedBar is the output of AdjustPrices for one input bar: the input
+// echoed back, the adjusted price, and the audit trail of action IDs.
+type AdjustedBar struct {
+	Date             string   `json:"date"`
+	Raw              float64  `json:"raw"`
+	Adjusted         float64  `json:"adjusted"`
+	AppliedActionIDs []string `json:"applied_action_ids"`
 }
 
 // Registry is the main container for all corporate actions.
@@ -526,6 +554,131 @@ func (r *Registry) AllActions() []Action {
 		result[i] = deepCopyAction(a)
 	}
 	return result
+}
+
+// AdjustPrices restates a price series for corporate actions.
+//
+// For each input bar at date D, every applicable action with ex_date > D
+// is applied. SPLIT/REVERSE_SPLIT multiply by impact.price_multiplier;
+// DIVIDEND/SPECIAL_DIVIDEND subtract impact.cash_adjustment. A bar on
+// the ex-date itself is not adjusted. See docs/wrapper_contract.md § 4.10.
+//
+// adjustFor is variadic: pass no arguments to use DefaultAdjustFor, or
+// one or more action type names to narrow (e.g. AdjustPrices(isin,
+// prices, "SPLIT") for split-only adjustment).
+//
+// An unknown ISIN returns an empty slice (not an error), matching ByISIN.
+// A malformed date returns an error naming the offending value.
+func (r *Registry) AdjustPrices(isin string, prices []PriceBar, adjustFor ...string) ([]AdjustedBar, error) {
+	for _, p := range prices {
+		if !isoDateRE.MatchString(p.Date) {
+			return nil, fmt.Errorf("invalid price date: %q (must be YYYY-MM-DD)", p.Date)
+		}
+	}
+
+	rawActions := r.ByISIN(isin)
+	if len(rawActions) == 0 {
+		return []AdjustedBar{}, nil
+	}
+
+	set := adjustFor
+	if len(set) == 0 {
+		set = DefaultAdjustFor
+	}
+	adjustSet := make(map[string]bool, len(set))
+	for _, t := range set {
+		adjustSet[t] = true
+	}
+
+	var actions []Action
+	for _, a := range rawActions {
+		if a.ActionType != nil && adjustSet[*a.ActionType] {
+			actions = append(actions, a)
+		}
+	}
+
+	sorted := make([]PriceBar, len(prices))
+	copy(sorted, prices)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return sorted[i].Date < sorted[j].Date
+	})
+
+	result := make([]AdjustedBar, 0, len(prices))
+	for _, p := range sorted {
+		adjusted := p.Raw
+		applied := []string{}
+
+		for _, a := range actions {
+			if a.Dates == nil || a.Dates.ExDate == nil {
+				continue
+			}
+			if *a.Dates.ExDate <= p.Date {
+				continue
+			}
+			var at string
+			if a.ActionType != nil {
+				at = *a.ActionType
+			}
+			switch at {
+			case "SPLIT", "REVERSE_SPLIT":
+				adjusted *= actionPriceMultiplier(a)
+				if a.ActionID != nil {
+					applied = append(applied, *a.ActionID)
+				} else {
+					applied = append(applied, "")
+				}
+			case "DIVIDEND", "SPECIAL_DIVIDEND":
+				adjusted -= actionCashAdjustment(a)
+				if a.ActionID != nil {
+					applied = append(applied, *a.ActionID)
+				} else {
+					applied = append(applied, "")
+				}
+			}
+		}
+
+		result = append(result, AdjustedBar{
+			Date:             p.Date,
+			Raw:              p.Raw,
+			Adjusted:         adjusted,
+			AppliedActionIDs: applied,
+		})
+	}
+
+	return result, nil
+}
+
+// actionPriceMultiplier returns the price multiplier for a SPLIT or
+// REVERSE_SPLIT action. Prefers impact.price_multiplier; falls back to
+// ratio "new:old" (multiplier = old / new); returns 1.0 otherwise.
+func actionPriceMultiplier(a Action) float64 {
+	if a.Impact != nil && a.Impact.PriceMultiplier != nil {
+		return *a.Impact.PriceMultiplier
+	}
+	if a.Ratio != nil {
+		parts := strings.SplitN(*a.Ratio, ":", 2)
+		if len(parts) == 2 {
+			newS, err1 := strconv.Atoi(parts[0])
+			oldS, err2 := strconv.Atoi(parts[1])
+			if err1 == nil && err2 == nil && newS > 0 {
+				return float64(oldS) / float64(newS)
+			}
+		}
+	}
+	return 1.0
+}
+
+// actionCashAdjustment returns the cash adjustment for a DIVIDEND or
+// SPECIAL_DIVIDEND action. Prefers impact.cash_adjustment; falls back to
+// amount; returns 0.0 otherwise.
+func actionCashAdjustment(a Action) float64 {
+	if a.Impact != nil && a.Impact.CashAdjustment != nil {
+		return *a.Impact.CashAdjustment
+	}
+	if a.Amount != nil {
+		return *a.Amount
+	}
+	return 0.0
 }
 
 // AllActionTypes returns a sorted list of all unique action types present
