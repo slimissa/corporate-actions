@@ -3,49 +3,60 @@
   "positive": [
     {
       "file": "pos_01_meta_fb_to_meta_8k.html",
-      "symbol": "META"
+      "symbol": "META",
+      "sha256": "0846d5e65eebd9105ccdec461375aecdee2df099cfdfbd3ff64d0d23ab665b16"
     },
     {
       "file": "pos_04_fisv_to_fi_8k.html",
-      "symbol": "FI"
+      "symbol": "FI",
+      "sha256": "ca0eb46a2ca0fd087bbf940dafcabf93e8a03126c100a1eb35f02f5aaa90d4cd"
     }
   ],
   "negative": [
     {
       "file": "neg_01_aapl_earnings_8k.html",
-      "reason": "quarterly earnings"
+      "reason": "quarterly earnings",
+      "sha256": "b1c787a5bffe63b09bddd44565e763fe07c256dc251601468b7eb0a14de71497"
     },
     {
       "file": "neg_02_msft_dividend_8k.html",
-      "reason": "dividend declaration"
+      "reason": "dividend declaration",
+      "sha256": "1cf097ef44d9802aef01a511890b292524f2aa4eb209f143417050c4cea822db"
     },
     {
       "file": "neg_03_nvda_split_8k.html",
-      "reason": "split announcement"
+      "reason": "split announcement",
+      "sha256": "1eeaf4197fdf8f87071cb41d4a71bddc475dda39b79979d73c87bf386720150a"
     },
     {
       "file": "neg_04_jpm_earnings_8k.html",
-      "reason": "quarterly earnings"
+      "reason": "quarterly earnings",
+      "sha256": "b1502b485d83ce5b9308216f946ec202f93f1015e927a3d23a704138ad845b11"
     },
     {
       "file": "neg_05_amzn_earnings_8k.html",
-      "reason": "quarterly earnings"
+      "reason": "quarterly earnings",
+      "sha256": "73255ee6c973a9503b4805e6ebaf936c0cb128c70441396b87b0ebc67bd4426a"
     },
     {
       "file": "neg_06_googl_earnings_8k.html",
-      "reason": "quarterly earnings; two classes"
+      "reason": "quarterly earnings; two classes",
+      "sha256": "302bff0ba78e81f0d160fbee6086e89edf7cb03eae89f286457f3f9e9bec0884"
     },
     {
       "file": "neg_08_tsla_earnings_8k.html",
-      "reason": "quarterly earnings"
+      "reason": "quarterly earnings",
+      "sha256": "343608fe7cc1e5f9714a1de6836d5121472687a831fa8f37ddb53a0edfad3cbe"
     },
     {
       "file": "neg_09_brk_earnings_8k.html",
-      "reason": "quarterly earnings; multiple classes"
+      "reason": "quarterly earnings; multiple classes",
+      "sha256": "5c749537afe39110e2a74154376fc79e2ff45eac7429084c12c229cf7a85bc5f"
     },
     {
       "file": "neg_10_fisv_notes_8k.html",
-      "reason": "note issuance; 'Trading Symbol(s)' on cover"
+      "reason": "note issuance; 'Trading Symbol(s)' on cover",
+      "sha256": "492628fb54aede9baa41f1794e68f02b890e7bf03e6a303bce36f9a0bc4a4b5e"
     }
   ],
   "pending": [

@@ -1264,6 +1264,68 @@ class TestManifestCompleteness:
         )
 
 
+def test_manifest_sha256_matches_file():
+    """Every manifest entry carries a sha256; it must match the file on disk.
+
+    A corpus file swapped without updating the manifest is a silent test
+    change. Hashing each file makes that swap visible.
+    """
+    import hashlib
+    manifest = json.loads((CORPUS_DIR / "manifest.json").read_text(encoding="utf-8"))
+    for key in ("positive", "negative"):
+        for entry in manifest[key]:
+            f = CORPUS_DIR / entry["file"]
+            assert f.is_file(), f"missing: {f}"
+            assert "sha256" in entry, f"no sha256: {entry['file']}"
+            actual = hashlib.sha256(f.read_bytes()).hexdigest()
+            assert actual == entry["sha256"], (
+                f"{entry['file']}: sha256 mismatch "
+                f"(manifest {entry['sha256'][:12]}.., file {actual[:12]}..)"
+            )
+
+
+def test_baseline_md_matches_measured_counts():
+    """BASELINE.md's declared TP/FP must equal the extractor's actual result.
+
+    Guards against two drift classes:
+      - extractor regression without updating BASELINE.md
+      - BASELINE.md edit without re-running the extractor
+    """
+    import re
+    baseline_text = (CORPUS_DIR / "BASELINE.md").read_text(encoding="utf-8")
+
+    tp_m = re.search(r"True positives:\s+(\d+)/(\d+)", baseline_text)
+    fp_m = re.search(r"False positives:\s+(\d+)/(\d+)", baseline_text)
+    assert tp_m and fp_m, "BASELINE.md missing 'True positives: X/Y' or 'False positives: X/Y'"
+    declared_tp, declared_tp_total = int(tp_m.group(1)), int(tp_m.group(2))
+    declared_fp, declared_fp_total = int(fp_m.group(1)), int(fp_m.group(2))
+
+    manifest = json.loads((CORPUS_DIR / "manifest.json").read_text(encoding="utf-8"))
+    actual_tp = 0
+    for entry in manifest["positive"]:
+        got = extract_new_symbol(
+            _strip_html((CORPUS_DIR / entry["file"]).read_text())
+        )
+        if got == entry["symbol"]:
+            actual_tp += 1
+    actual_fp = 0
+    for entry in manifest["negative"]:
+        got = extract_new_symbol(
+            _strip_html((CORPUS_DIR / entry["file"]).read_text())
+        )
+        if got is not None:
+            actual_fp += 1
+
+    assert (actual_tp, actual_fp) == (declared_tp, declared_fp), (
+        f"BASELINE.md declares TP={declared_tp} FP={declared_fp}, "
+        f"extractor produces TP={actual_tp} FP={actual_fp}. "
+        f"Update BASELINE.md or fix the extractor."
+    )
+    # Totals must match manifest counts too
+    assert declared_tp_total == len(manifest["positive"])
+    assert declared_fp_total == len(manifest["negative"])
+
+
 def test_pending_corpus_gaps_are_documented():
     """Known corpus gaps (classes the extractor would false-positive on
     but that no real filing has been sourced for) are recorded in
