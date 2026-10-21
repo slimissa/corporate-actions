@@ -234,18 +234,26 @@ def compute_unadjusted_return(
 
     yfinance's Close series is already split-adjusted. To simulate the
     naive case, reverse the split effect using the registry's
-    `impact.price_multiplier` on each split. For a 10:1 split,
-    price_multiplier = 0.1, so unadjusted_last = adjusted_last / 10.
+    `impact.share_multiplier` on the *first* price. For a 10:1 split,
+    share_multiplier = 10, so unadjusted_first = adjusted_first * 10.
+    A naive backtester saw the pre-split price on the first date and
+    the post-split price on the last date, producing a large negative
+    return.
+
     See issue #99.
     """
     multiplier = 1.0
     for split in splits_in_window:
-        if split.impact and split.impact.price_multiplier:
-            multiplier *= split.impact.price_multiplier
-    if multiplier == 0.0:
-        return 0.0
-    unadjusted_last = last_price / multiplier
-    return (unadjusted_last / first_price - 1.0) * 100.0
+        if split.impact and split.impact.share_multiplier:
+            multiplier *= split.impact.share_multiplier
+    if multiplier <= 1.0:
+        return (last_price / first_price - 1.0) * 100.0
+    # A 10:1 split means share_multiplier = 10. The naive backtester
+    # saw the pre-split price on the *first* date and the post-split
+    # price on the *last* date (yfinance restates all history). So
+    # unadjust the FIRST price upward, not the last price downward.
+    unadjusted_first = first_price * multiplier
+    return (last_price / unadjusted_first - 1.0) * 100.0
 
 
 def main() -> int:

@@ -87,6 +87,42 @@ class TestComputePriceReturn:
 
 
 # ---------------------------------------------------------------------------
+# compute_unadjusted_return
+#
+# The naive case: a backtester with yfinance's split-adjusted Close series
+# never saw the restatement. For a 10:1 split, the naive backtester saw
+# the pre-split price on day 1 and the post-split price on the last day.
+# ---------------------------------------------------------------------------
+
+class TestComputeUnadjustedReturn:
+
+    def test_no_splits_equals_price_return(self):
+        ret = ba.compute_unadjusted_return(100.0, 150.0, [])
+        assert ret == pytest.approx(50.0)
+
+    def test_nvda_10_for_1_split(self):
+        # 48.168 (adjusted) -> 123.54 (adjusted); naive saw 481.68 -> 123.54.
+        class Split:
+            impact = type('I', (), {'share_multiplier': 10.0, 'price_multiplier': 0.1})()
+        ret = ba.compute_unadjusted_return(48.168, 123.54, [Split()])
+        assert -80 < ret < -70  # ~-74.35%
+
+    def test_two_splits_compound(self):
+        # 2:1 followed by 2:1 = effective 4:1
+        class Split:
+            impact = type('I', (), {'share_multiplier': 2.0, 'price_multiplier': 0.5})()
+        ret = ba.compute_unadjusted_return(50.0, 100.0, [Split(), Split()])
+        # naive saw 50*4=200 -> 100 = -50%
+        assert ret == pytest.approx(-50.0)
+
+    def test_missing_impact_field_ignored(self):
+        class Split:
+            impact = type('I', (), {'share_multiplier': None})()
+        ret = ba.compute_unadjusted_return(100.0, 150.0, [Split()])
+        assert ret == pytest.approx(50.0)
+
+
+# ---------------------------------------------------------------------------
 # compute_total_return
 # ---------------------------------------------------------------------------
 
@@ -432,7 +468,7 @@ class TestCliEndToEnd:
             "--end", "2024-07-01",
         )
         assert result.returncode == 0, result.stdout + result.stderr
-        m = re.search(r"Price return:\s+([+-]?\d+\.\d+)%", result.stdout)
+        m = re.search(r"Adjusted price return:\s+([+-]?\d+\.\d+)%", result.stdout)
         assert m, f"no price return in output:\n{result.stdout}"
         pct = float(m.group(1))
         assert 150 < pct < 165, f"unexpected price return: {pct}%"
@@ -465,7 +501,7 @@ class TestCliEndToEnd:
             "--end", "2024-07-01",
         )
         assert result.returncode == 0, result.stdout + result.stderr
-        price_m = re.search(r"Price return:\s+([+-]?\d+\.\d+)%", result.stdout)
+        price_m = re.search(r"Adjusted price return:\s+([+-]?\d+\.\d+)%", result.stdout)
         total_m = re.search(r"Total return[^:]*:\s+([+-]?\d+\.\d+)%", result.stdout)
         assert price_m and total_m, result.stdout
         price = float(price_m.group(1))
