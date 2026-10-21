@@ -744,6 +744,9 @@ class TestRateLimiter:
 
         assert code == 0
         assert elapsed >= 0.08, f"rate limiter not applied: {elapsed:.4f}s"
+        # Upper bound: 10 tickers at 100/s ≈ 0.09s expected; 1.0s is
+        # 11× headroom. A limiter that blocks 10× too long fails here.
+        assert elapsed < 1.0, f"rate limiter blocked too long: {elapsed:.4f}s"
         
 # ---------------------------------------------------------------------------
 # main: integration via patched yf.Ticker
