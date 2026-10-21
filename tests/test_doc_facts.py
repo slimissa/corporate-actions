@@ -73,20 +73,38 @@ def _leaf_keys(node, prefix=""):
 
 # Fact keys that legitimately have no numeric restatement in a doc.
 # Every other leaf fact must have at least one manifest entry.
+# Keys exempt from doc-pattern coverage. A dict (not a set) so each
+# exemption carries its reason: the reason is what makes the exemption
+# auditable when the facts sheet next changes.
+#
+# Set subtraction in the coverage test iterates dict keys, so this
+# remains interchangeable with a set at call sites.
 IGNORABLE_KEYS = {
-    # Lists of strings restated in prose, not numbers
-    "instruments", "currencies", "populated_types", "reserved_types",
-    # Covered by the tool's self_check, not by a doc regex
-    "action_type_counts", "action_type_counts.SPLIT",
-    "action_type_counts.DIVIDEND", "action_type_counts.SPECIAL_DIVIDEND",
-    "action_type_counts.SYMBOL_CHANGE",
-    # Structural metadata, not numeric facts
-    "historical_depth_start", "root_test_skipped",
-    "root_test_network_deselected", "root_test_collected_total",
-    "min_actions_roadmap_target", "sec_edgar_status", "sec_edgar_scope",
-    "nasdaq_status", "format_date_enforcement",
-    "state_file_timestamp_example", "webhook_timestamp_format",
-    "min_actions_code",   
+    # Lists of names, not numeric facts; no regex to write.
+    "instruments":                   "list of names",
+    "currencies":                    "list of names",
+    "populated_types":               "list of action types",
+    "reserved_types":                "list of action types",
+    # Verified by the tool's self_check against actions.json, not by
+    # a regex in a doc. A regex per type would duplicate the check.
+    "action_type_counts":            "self_check",
+    "action_type_counts.SPLIT":      "self_check",
+    "action_type_counts.DIVIDEND":   "self_check",
+    "action_type_counts.SPECIAL_DIVIDEND": "self_check",
+    "action_type_counts.SYMBOL_CHANGE":    "self_check",
+    # Structural / non-numeric metadata.
+    "historical_depth_start":        "date, not a count",
+    "root_test_skipped":             "test-run metadata",
+    "root_test_network_deselected":  "test-run metadata",
+    "root_test_collected_total":     "test-run metadata",
+    "min_actions_roadmap_target":    "roadmap target",
+    "sec_edgar_status":              "prose status label",
+    "sec_edgar_scope":               "prose scope description",
+    "nasdaq_status":                 "prose status label",
+    "format_date_enforcement":       "prose, not a number",
+    "state_file_timestamp_example":  "example in prose",
+    "webhook_timestamp_format":      "format string",
+    "min_actions_code":              "checked via env var, not README",
 }
 
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -1166,11 +1167,7 @@ func contains(s []string, needle string) bool {
 
 // sortStrings sorts in place, avoiding an import of sort for two tests.
 func sortStrings(s []string) {
-	for i := 1; i < len(s); i++ {
-		for j := i; j > 0 && s[j-1] > s[j]; j-- {
-			s[j-1], s[j] = s[j], s[j-1]
-		}
-	}
+	sort.Strings(s)
 }
 
 // keys returns the keys of a map, for diagnostic output.
@@ -1329,7 +1326,7 @@ func TestByTickerMissingFileReturnsMissingData(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for missing identifiers file")
 	}
-	if !strings.Contains(err.Error(), "missing identifier data") {
+	if !errors.Is(err, ErrMissingData) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

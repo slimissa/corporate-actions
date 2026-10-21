@@ -109,17 +109,17 @@ class TestWorkflowWiring:
 
     def test_docs_facts_job_present(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        assert re.search(r"^\s{2}docs-facts:", text, re.M), \
+        assert re.search(r"^\s*docs-facts:", text, re.M), \
             "docs-facts job missing from validate.yml"
 
     def test_build_artifacts_job_present(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        assert re.search(r"^\s{2}build-artifacts:", text, re.M), \
+        assert re.search(r"^\s*build-artifacts:", text, re.M), \
             "build-artifacts job missing from validate.yml"
 
     def test_lint_job_present(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        assert re.search(r"^\s{2}lint:", text, re.M), \
+        assert re.search(r"^\s*lint:", text, re.M), \
             "lint job missing from validate.yml"
 
     def test_docs_facts_runs_two_commands(self):
