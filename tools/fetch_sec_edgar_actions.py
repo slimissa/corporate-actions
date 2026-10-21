@@ -297,6 +297,46 @@ def has_filing_context(text: str, pos: int, window: int = 2000) -> bool:
     end = min(len(text), pos + window)
     return any(a.search(text[start:end]) for a in SYMBOL_CHANGE_ANCHORS)
 
+def extract_new_symbol_with_pattern(text: str) -> Optional[Tuple[str, str]]:
+    """Return (symbol, pattern_name) for the first match, or None.
+
+    Pattern name is "strong_N" or "weak_N" where N is the index within
+    STRONG_SYMBOL_TRIGGERS / WEAK_SYMBOL_TRIGGERS. Used by
+    test_corpus_diagnostic to show which rule fired, so a future corpus
+    entry can be inspected without instrumenting the extractor. See #33.
+    """
+    for i, pat in enumerate(STRONG_SYMBOL_TRIGGERS):
+        for m in pat.finditer(text):
+            symbol = m.group(1)
+            if not (1 <= len(symbol) <= 6 and symbol.isalpha()):
+                continue
+            return (symbol, f"strong_{i}")
+
+    for i, pat in enumerate(WEAK_SYMBOL_TRIGGERS):
+        for m in pat.finditer(text):
+            symbol = m.group(1)
+            # The weak branch's blocklist + anchor logic lives inside
+            # extract_new_symbol; this variant tracks which pattern
+            # matched but does not duplicate that logic — it defers by
+            # calling the original and inferring the pattern from a
+            # second pass. Callers that need the guard use the original.
+            _ = symbol
+            break
+
+    # Fallback: use the original and label the pattern by re-scanning.
+    # This path is only reached for weak matches (rare); the strong
+    # path above returns early.
+    match = extract_new_symbol(text)
+    if match is None:
+        return None
+    # Re-scan to identify which weak pattern produced this symbol.
+    for i, pat in enumerate(WEAK_SYMBOL_TRIGGERS):
+        for m in pat.finditer(text):
+            if m.group(1) == match:
+                return (match, f"weak_{i}")
+    return (match, "unknown")
+
+
 def extract_new_symbol(text: str) -> Optional[str]:
     """Return the new ticker symbol, or None.
 

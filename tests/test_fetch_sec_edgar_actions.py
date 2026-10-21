@@ -38,6 +38,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import tools.fetch_sec_edgar_actions as mod
 from tools.fetch_sec_edgar_actions import (
+    extract_new_symbol_with_pattern,
     COMMON_ENGLISH_WORDS,
     _filing_url,
     build_delisting,
@@ -1176,12 +1177,13 @@ def test_corpus_diagnostic(capsys):
     tp = 0
     for entry in manifest["positive"]:
         text = _strip_html((CORPUS_DIR / entry["file"]).read_text())
-        got = extract_new_symbol(text)
+        result = extract_new_symbol_with_pattern(text)
+        got, pat = (result if result else (None, None))
         if got == entry["symbol"]:
             tp += 1
-            print(f"[+] {entry['file']}: TP ({got})")
+            print(f"[+] {entry['file']}: TP ({got}, pattern={pat})")
         else:
-            print(f"[+] {entry['file']}: MISS (want {entry['symbol']!r}, got {got!r})")
+            print(f"[+] {entry['file']}: MISS (want {entry['symbol']!r}, got {got!r}, pattern={pat})")
 
     fp = 0
     for entry in manifest["negative"]:
@@ -1227,6 +1229,35 @@ def test_corpus_extraction_accuracy():
         f"{len(false_positives)} false positive(s):\n"
         + "\n".join(f"  {f}: got {g!r}" for f, g in false_positives)
     )
+
+
+
+def test_extract_with_pattern_agrees_with_extract_new_symbol():
+    """The pattern-tracking variant must return the same symbol."""
+    samples = [
+        "will change its ticker symbol to NEWCO effective January 1",
+        "will trade under the symbol \"GO\" following the spin-off",
+        "quarterly earnings release",
+    ]
+    for s in samples:
+        a = extract_new_symbol(s)
+        b = extract_new_symbol_with_pattern(s)
+        b_sym = b[0] if b else None
+        assert a == b_sym, f"{s!r}: extract={a!r}, with_pattern={b!r}"
+
+
+def test_extract_with_pattern_names_the_rule():
+    """A strong match reports strong_N; no match returns None."""
+    result = extract_new_symbol_with_pattern(
+        "will change its ticker symbol to NEWCO effective January 1"
+    )
+    assert result is not None
+    symbol, pattern = result
+    assert symbol == "NEWCO"
+    assert pattern.startswith(("strong_", "weak_")), pattern
+
+    assert extract_new_symbol_with_pattern("quarterly earnings release") is None
+
 
 class TestManifestCompleteness:
     """Enforce the README rule: every .html file must be in the manifest,
