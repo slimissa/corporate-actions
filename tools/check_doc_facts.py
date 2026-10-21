@@ -423,6 +423,11 @@ def main() -> int:
         action="store_true",
         help="Skip the unfilled-placeholder scan.",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat a missing doc file as an error (default: silently skip).",
+    )
     args = parser.parse_args()
 
     if args.list:
@@ -431,6 +436,17 @@ def main() -> int:
         return 0
 
     facts = load_facts()
+
+    if args.strict:
+        missing = sorted({
+            doc for doc, _, _, _ in CHECKS
+            if not (REPO_ROOT / doc).is_file()
+        })
+        if missing:
+            if not args.quiet:
+                for doc in missing:
+                    print(f"missing doc: {doc}", file=sys.stderr)
+            return 1
 
     if args.scan:
         return scan_docs(facts, quiet=args.quiet)

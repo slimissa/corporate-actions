@@ -18,6 +18,7 @@ Exit codes:
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -71,31 +72,73 @@ def _scan(path: Path) -> list[str]:
     for pat in MOJIBAKE_PATTERNS:
         for m in pat.finditer(text):
             hits.append(m.group(0))
+    # U+FFFD replacement character: UTF-8 was corrupted at read time.
+    if '\ufffd' in text:
+        hits.append('\ufffd (U+FFFD)')
     return hits
 
 
+def _check_fence(path: Path) -> Optional[str]:
+    """Return a description of unclosed code fence, or None if OK.
+
+    Counts ``` open/close markers; odd count means unclosed.
+    Only meaningful for .md files. Exempt files are honored via the
+    same 'mojibake-check: skip' marker used by _scan.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return None
+    first_lines = "\n".join(text.splitlines()[:5])
+    if "mojibake-check: skip" in first_lines:
+        return None
+    count = len(re.findall(r"^```", text, re.M))
+    if count % 2 != 0:
+        return f"{count} fence markers (odd — unclosed)"
+    return None
+
+
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Detect mojibake, replacement chars, and unclosed fences."
+    )
+    parser.add_argument("--path", type=Path, default=None,
+                        help="Scan a single file instead of the whole tree.")
+    parser.add_argument("--quiet", action="store_true",
+                        help="Exit code only; no per-file listing.")
+    args = parser.parse_args()
+
+    if args.path is not None:
+        paths = [args.path]
+    else:
+        paths = [p for p in sorted(REPO_ROOT.rglob("*"))
+                 if p.is_file()
+                 and not _is_excluded(p)
+                 and p.suffix in TEXT_EXT]
+
     total_files = 0
     bad_files = 0
-
-    for path in sorted(REPO_ROOT.rglob("*")):
-        if not path.is_file():
-            continue
-        if _is_excluded(path):
-            continue
-        if path.suffix not in TEXT_EXT:
-            continue
+    for path in paths:
         total_files += 1
         hits = _scan(path)
+        fence = _check_fence(path) if path.suffix == ".md" else None
+        if not hits and not fence:
+            continue
+        bad_files += 1
+        if args.quiet:
+            continue
+        rel = path.relative_to(REPO_ROOT) if args.path is None else path
         if hits:
-            bad_files += 1
-            rel = path.relative_to(REPO_ROOT)
-            print(f"{rel}: {len(hits)} hit(s)")
+            print(f"{rel}: {len(hits)} mojibake hit(s)")
             for frag in set(hits):
                 print(f"  {frag!r}")
+        if fence:
+            print(f"{rel}: {fence}")
 
-    print()
-    print(f"Scanned {total_files} file(s), {bad_files} with mojibake.")
+    if not args.quiet:
+        print()
+        print(f"Scanned {total_files} file(s), {bad_files} with issues.")
     return 1 if bad_files else 0
 
 

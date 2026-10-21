@@ -1,23 +1,25 @@
-#!/usr/bin/env python3
 """Verify README ecosystem table matches tools/sibling_versions.json.
 
-The README names each sibling registry and its version. The pin file
-records what this repo expects. Drift between them means someone edited
-one and forgot the other.
+Checks the version pins for the 3 sibling registries that Corporate
+Actions cross-references in its data: ISO 4217 (currency), Exchange
+Calendar (exchange MIC), and Asset Identifiers (ISIN).
 
-Why a separate pin: README is prose, JSON is data. When a sibling
-releases a new version, update both in the same PR, and this check
-forces them to agree.
+ISO 3166 and ISO 10383 are part of the QuantOS ecosystem but are not
+referenced by this registry's data, so they are not pinned here. A
+future field that adds a country or MIC reference to actions.json
+should also add a corresponding pin here.
 
-Run:
-    python3 tools/check_ecosystem_versions.py
+Why a separate pin file: README is prose, JSON is data. When a sibling
+publishes a new version, both must be updated together — this check
+enforces that.
+
+Usage:
+    python3 tools/check_sibling_versions.py
 
 Exit codes:
-    0 - all versions agree
-    1 - drift detected
-    2 - README or pin missing/malformed
+    0  every pinned sibling agrees with the README
+    1  one or more mismatches
 """
-
 from __future__ import annotations
 
 import json
