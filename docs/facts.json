@@ -38,8 +38,8 @@
   "wrapper_test_counts": {
     "python": 138,
     "javascript": 111,
-    "go": 82,
-    "rust": 100,
+    "go": 85,
+    "rust": 103,
     "rust_doctests": 1
   },
   "sibling_versions": {
