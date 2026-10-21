@@ -202,7 +202,9 @@ class TestManifest:
     def test_every_non_ignorable_fact_key_is_covered(self, facts):
         declared = set(_leaf_keys(facts))
         covered = {k for _, _, k, _ in cdf.CHECKS}
-        uncovered = declared - covered - IGNORABLE_KEYS
+        # IGNORABLE_KEYS is a dict {key: reason} after #19; the
+        # subtraction uses its key set. Same behavior as before.
+        uncovered = declared - covered - set(IGNORABLE_KEYS)
         assert not uncovered, \
             f"fact keys with no manifest check: {sorted(uncovered)}"
 
