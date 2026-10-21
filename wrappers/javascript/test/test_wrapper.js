@@ -860,6 +860,25 @@ describe('save', () => {
     assert.notDeepStrictEqual(firstBytes, Buffer.from([0xef, 0xbb, 0xbf]));
   });
 
+  it('save_overwrites_existing_file', () => {
+    const registry = makeRegistry();
+    const dir = makeTmpDir();
+    const outPath = path.join(dir, 'out.json');
+    fs.writeFileSync(outPath, '{"corrupt": true}', 'utf8');
+    registry.save(outPath);
+    const parsed = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+    assert.strictEqual(parsed.actions.length, 4);
+  });
+
+  it('save_leaves_no_tmp_file', () => {
+    const registry = makeRegistry();
+    const dir = makeTmpDir();
+    const outPath = path.join(dir, 'out.json');
+    registry.save(outPath);
+    const orphans = fs.readdirSync(dir).filter((f) => f.includes('.tmp.'));
+    assert.deepStrictEqual(orphans, []);
+  });
+
   it('round-trips an empty registry', () => {
     const registry = new CorporateActionsRegistry({ actions: [] });
     const dir = makeTmpDir();

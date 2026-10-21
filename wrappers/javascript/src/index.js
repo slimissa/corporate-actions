@@ -494,8 +494,16 @@ class CorporateActionsRegistry {
    * @param {string} filePath - Destination path.
    */
   save(filePath) {
+    const abs = path.resolve(filePath);
+    const tmp = `${abs}.tmp.${process.pid}`;
     const data = JSON.stringify(this.toJSON(), null, 2);
-    fs.writeFileSync(path.resolve(filePath), data, 'utf8');
+    try {
+      fs.writeFileSync(tmp, data, 'utf8');
+      fs.renameSync(tmp, abs);
+    } catch (e) {
+      try { fs.unlinkSync(tmp); } catch {}
+      throw e;
+    }
   }
 
   /**
