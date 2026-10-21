@@ -440,8 +440,8 @@ class TestSourceGuards:
         assert "Adjusted price return:" in example_source
         assert "Unadjusted price return:" in example_source
 
-    def test_total_return_label_present(self, example_source):
-        assert "Total return (price + dividends):" in example_source
+    def test_price_plus_cash_label_present(self, example_source):
+        assert "Price + cash return (price + dividends):" in example_source
 
 
 # ---------------------------------------------------------------------------
