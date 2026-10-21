@@ -7,7 +7,7 @@ minimal representation with None-valued fields omitted. This is
 deliberate: the on-disk format sometimes carries explicit nulls (e.g., `verification_url: null` written by `scripts/fix_duplicates.py`). `to_dict()` drops None values, so a round-trip through the wrapper does NOT preserve explicit nulls and does NOT preserve key order. Callers that need byte-faithful round-trips should not use `save()` on the canonical `actions.json`.
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from typing import Any, Dict, Optional
 
 
@@ -112,18 +112,23 @@ class Action:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to a dict, including nested dataclasses."""
-        result = asdict(self)
-        # Remove None values from nested dicts to keep clean
-        if result["dates"] is not None:
-            result["dates"] = self.dates.to_dict()
-        if result["provenance"] is not None:
-            result["provenance"] = self.provenance.to_dict()
-        if result["impact"] is not None:
-            result["impact"] = self.impact.to_dict()
-        # Drop top-level None fields
-        return {k: v for k, v in result.items() if v is not None}
+        """Convert to a dict, including nested dataclasses.
 
+        Nested Dates/Provenance/Impact are converted via their own
+        to_dict(), which drops None fields. Top-level None fields are
+        dropped too. Builds the dict directly instead of running
+        dataclasses.asdict() and then overwriting the nested entries.
+        """
+        result: Dict[str, Any] = {}
+        for f in fields(self):
+            value = getattr(self, f.name)
+            if value is None:
+                continue
+            if hasattr(value, "to_dict"):
+                result[f.name] = value.to_dict()
+            else:
+                result[f.name] = value
+        return result
 
 @dataclass
 class RegistryMeta:
