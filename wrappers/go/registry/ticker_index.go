@@ -86,13 +86,18 @@ func loadTickerIndex(path string) (map[string]string, error) {
 		return nil, fmt.Errorf("%w: %v", ErrMissingData, err)
 	}
 
+	// Fast path: check the cache without holding the mutex for the
+	// slow read+parse below. A ByTicker call after the first is a
+	// single map lookup, no file I/O under lock.
 	tickerCacheMu.Lock()
-	defer tickerCacheMu.Unlock()
-
 	if cached, ok := tickerCache[abs]; ok {
+		tickerCacheMu.Unlock()
 		return cached, nil
 	}
+	tickerCacheMu.Unlock()
 
+	// Slow path: read and parse outside the lock so concurrent
+	// goroutines are not serialized by file I/O.
 	data, err := os.ReadFile(abs)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -119,6 +124,14 @@ func loadTickerIndex(path string) (map[string]string, error) {
 		index[tickerKey(inst.Ticker, inst.Exchange)] = inst.ISIN
 	}
 
+	// Store: re-acquire lock, double-check (a racing goroutine may have
+	// populated while we were parsing). Both versions are functionally
+	// identical since they parsed the same file; whichever wins is fine.
+	tickerCacheMu.Lock()
+	defer tickerCacheMu.Unlock()
+	if cached, ok := tickerCache[abs]; ok {
+		return cached, nil
+	}
 	tickerCache[abs] = index
 	return index, nil
 }
