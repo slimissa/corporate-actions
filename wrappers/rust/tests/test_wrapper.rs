@@ -946,6 +946,35 @@ fn save_and_reload_from_file() {
 }
 
 #[test]
+fn save_overwrites_existing_file() {
+    let registry = Registry::from_value(sample_data()).unwrap();
+    let path = write_temp_file("overwrite.json", b"{\"corrupt\": true}");
+    registry.save(&path).expect("save");
+    let loaded = Registry::load_from_file(&path).expect("reload");
+    assert_eq!(loaded.count(), registry.count());
+    remove_temp_file(&path);
+}
+
+#[test]
+fn save_leaves_no_tmp_file() {
+    let registry = Registry::from_value(sample_data()).unwrap();
+    let path = write_temp_file("notmp.json", b"");
+    registry.save(&path).expect("save");
+    let parent = path.parent().unwrap();
+    let prefix = format!(
+        "{}.tmp.",
+        path.file_name().unwrap().to_str().unwrap()
+    );
+    let orphans: Vec<_> = std::fs::read_dir(parent)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_name().to_string_lossy().starts_with(&prefix))
+        .collect();
+    assert!(orphans.is_empty(), "orphaned tmp files: {:?}", orphans);
+    remove_temp_file(&path);
+}
+
+#[test]
 fn save_produces_valid_json() {
     let registry = Registry::from_value(sample_data()).unwrap();
     let path = write_temp_file("valid.json", b"");

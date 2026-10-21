@@ -663,10 +663,29 @@ impl Registry {
     ///
     /// The output is UTF-8 without a BOM. Any existing file at the same
     /// path is overwritten.
+    /// Save the registry to a file as pretty-printed JSON.
+    ///
+    /// The write is atomic: content is written to a temp file adjacent
+    /// to `path`, then renamed. A crash between write and rename leaves
+    /// the original file intact and a `.tmp.<pid>` orphan rather than a
+    /// truncated target. See issue #79.
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), RegistryError> {
+        let path = path.as_ref();
         let json = self.to_json();
         let content = serde_json::to_string_pretty(&json)?;
-        fs::write(path, content)?;
+
+        let mut tmp_path = path.to_path_buf();
+        let file_name = path
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("out");
+        tmp_path.set_file_name(format!("{}.tmp.{}", file_name, std::process::id()));
+
+        fs::write(&tmp_path, content)?;
+        if let Err(e) = fs::rename(&tmp_path, path) {
+            let _ = fs::remove_file(&tmp_path);
+            return Err(e.into());
+        }
         Ok(())
     }
 }
