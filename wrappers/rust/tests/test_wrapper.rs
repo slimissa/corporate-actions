@@ -320,11 +320,7 @@ fn load_action_missing_isin_and_action_id_returns_error() {
     }));
     match result {
         Err(RegistryError::InvalidStructure(msg)) => {
-            assert!(
-                msg.contains("neither"),
-                "expected 'neither' in: {}",
-                msg
-            );
+            assert!(msg.contains("neither"), "expected 'neither' in: {}", msg);
         }
         _ => panic!("expected error for missing identifiers"),
     }
@@ -961,10 +957,7 @@ fn save_leaves_no_tmp_file() {
     let path = write_temp_file("notmp.json", b"");
     registry.save(&path).expect("save");
     let parent = path.parent().unwrap();
-    let prefix = format!(
-        "{}.tmp.",
-        path.file_name().unwrap().to_str().unwrap()
-    );
+    let prefix = format!("{}.tmp.", path.file_name().unwrap().to_str().unwrap());
     let orphans: Vec<_> = std::fs::read_dir(parent)
         .unwrap()
         .filter_map(|e| e.ok())
@@ -1154,7 +1147,6 @@ fn absent_redistribution_is_not_serialized_as_null() {
     );
 }
 
-
 #[test]
 fn save_does_not_inject_nulls() {
     let path = write_temp_file("rt.json", sample_data().to_string().as_bytes());
@@ -1169,7 +1161,8 @@ fn save_does_not_inject_nulls() {
         assert!(
             first.get(absent).is_none(),
             "save() injected a {} key: {}",
-            absent, saved,
+            absent,
+            saved,
         );
     }
     remove_temp_file(&path);
