@@ -102,6 +102,12 @@ CHECKS: list[tuple[str, str, str, str]] = [
     ("docs/roadmap.md", r"\|\s*Instruments covered\s*\|\s*(\d+)", "instrument_count", "int"),
     ("docs/roadmap.md", r"\|\s*Root tests\s*\|\s*(\d+)", "root_test_count", "int"),
     ("docs/roadmap.md", r"ISO 4217.*?v(\d+\.\d+\.\d+)", "sibling_versions.iso4217", "version"),
+    # Wrapper test counts — anchored to the Wrapper tests row so a bare
+    # digit elsewhere in the file cannot match.
+    ("docs/roadmap.md", r"\|\s*Wrapper tests\s*\|\s*(\d+) Python", "wrapper_test_counts.python", "int"),
+    ("docs/roadmap.md", r"\|\s*Wrapper tests\s*\|\s*\d+ Python, (\d+) JavaScript", "wrapper_test_counts.javascript", "int"),
+    ("docs/roadmap.md", r"\|\s*Wrapper tests\s*\|\s*\d+ Python, \d+ JavaScript, (\d+) Go", "wrapper_test_counts.go", "int"),
+    ("docs/roadmap.md", r"\|\s*Wrapper tests\s*\|\s*\d+ Python, \d+ JavaScript, \d+ Go, (\d+) Rust", "wrapper_test_counts.rust", "int"),
     ("docs/roadmap.md", r"Exchange Calendar.*?v(\d+\.\d+\.\d+)", "sibling_versions.exchange_calendar", "version"),
 
     # --- docs/data_sources.md (continued) ----------------------------------

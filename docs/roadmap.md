@@ -30,7 +30,7 @@ version section states its success criteria so that "done" is falsifiable.
 
 ## Where we are now
 
-As of v1.1.0 (2026-10-08):
+As of v1.2.2 (2026-10-22):
 
 | Metric | Value |
 |--------|-------|
@@ -41,7 +41,7 @@ As of v1.1.0 (2026-10-08):
 | Action types rejected by validator | 1 of 8 (`MERGER`) |
 | Redistribution categories in use | 2 (`secondary-source`, `facts-only`) |
 | Root tests | 1138 |
-| Wrapper tests | 119 Python, 101 JavaScript, 79 Go, 98 Rust (+1 doctest) |
+| Wrapper tests | 141 Python, 125 JavaScript, 90 Go, 108 Rust (+1 doctest) |
 | CI workflows | 1 (`validate.yml`, 6 jobs) |
 | Working fetchers | 2 (Yahoo Finance; SEC EDGAR for SYMBOL_CHANGE, DELISTING) |
 | SEC filing coverage | Full history (archive loading added v1.1.1) |
@@ -49,9 +49,7 @@ As of v1.1.0 (2026-10-08):
 | Redistribution doc | `docs/redistribution.md` |
 | Sibling registries pinned | `tools/sibling_versions.json` |
 
-The registry is **production-ready for US-equity splits, dividends,
-and symbol changes across six large-cap instruments**. Expansion to a
-larger instrument set is v1.2.0.
+
 ---
 
 ## Release philosophy
