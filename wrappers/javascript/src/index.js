@@ -193,7 +193,7 @@ class CorporateActionsRegistry {
       }
     }
 
-    this.meta = (rawData.meta && typeof rawData.meta === 'object' && !Array.isArray(rawData.meta))
+    this._meta = (rawData.meta && typeof rawData.meta === 'object' && !Array.isArray(rawData.meta))
       ? structuredClone(rawData.meta)
       : {};
     this.actions = rawData.actions.map((a) => structuredClone(a));
@@ -337,6 +337,10 @@ class CorporateActionsRegistry {
    * Return a sorted list of all unique action types.
    * @returns {string[]}
    */
+  allActions() {
+    return this.actions.map((a) => structuredClone(a));
+  }
+
   allActionTypes() {
     return Array.from(this._indexByType.keys()).sort();
   }
@@ -355,7 +359,7 @@ class CorporateActionsRegistry {
    */
   toJSON() {
     return {
-      meta: structuredClone(this.meta),
+      meta: structuredClone(this._meta),
       actions: this.actions.map((a) => structuredClone(a)),
     };
   }
@@ -373,6 +377,17 @@ class CorporateActionsRegistry {
    * Get number of actions.
    * @returns {number}
    */
+
+  /**
+   * Return a fresh copy of the registry metadata.
+   *
+   * Returned values are isolated: mutating `reg.meta.version` does not
+   * affect the registry. Same discipline as the Action accessors.
+   */
+  get meta() {
+    return structuredClone(this._meta);
+  }
+
   get length() {
     return this.actions.length;
   }

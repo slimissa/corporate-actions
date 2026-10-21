@@ -1131,3 +1131,67 @@ describe('byDateRange ISO validation', () => {
     );
   });
 });
+
+describe('accessor isolation', () => {
+  const path = require('path');
+  const REPO = path.resolve(__dirname, '..', '..', '..');
+  const actionsPath = path.join(REPO, 'actions.json');
+
+  function corruptAction(a) {
+    a.ratio = 'CORRUPT';
+    a.amount = -999;
+    a.redistribution = 'CORRUPT';
+    if (a.dates) {
+      a.dates.ex_date = 'CORRUPT';
+      a.dates.effective_date = 'CORRUPT';
+    }
+    if (a.provenance) a.provenance.source = 'CORRUPT';
+    if (a.impact) a.impact.cash_adjustment = -999;
+  }
+
+  it('byIsin returns a fresh list', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    for (const a of reg.byIsin('US0378331005')) corruptAction(a);
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+
+  it('byActionId returns a deep copy', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    const a = reg.byActionId('US0378331005-DIVIDEND-2024-05-16-0.2500');
+    if (a) corruptAction(a);
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+
+  it('byActionType returns a fresh list', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    for (const a of reg.byActionType('SPLIT')) corruptAction(a);
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+
+  it('byDateRange returns a fresh list', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    for (const a of reg.byDateRange(null, null)) corruptAction(a);
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+
+  it('toJSON returns a fresh object', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    const out = reg.toJSON();
+    if (out.meta) out.meta.version = 'CORRUPT';
+    if (out.actions && out.actions[0]) out.actions[0].ratio = 'CORRUPT';
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+
+  it('meta is isolated from internal state', () => {
+    const reg = new CorporateActionsRegistry(actionsPath);
+    const before = reg.toJSON();
+    assert.ok(reg.meta);
+    reg.meta.version = 'CORRUPT';
+    assert.deepStrictEqual(reg.toJSON(), before);
+  });
+});

@@ -518,6 +518,16 @@ func (r *Registry) ByTicker(ticker, exchange, identifiersPath string) ([]Action,
 	return r.ByISIN(isin), nil
 }
 
+// AllActions returns a fresh slice of every action, in insertion order.
+// Mutating a returned Action does not affect the registry.
+func (r *Registry) AllActions() []Action {
+	result := make([]Action, len(r.actions))
+	for i, a := range r.actions {
+		result[i] = deepCopyAction(a)
+	}
+	return result
+}
+
 // AllActionTypes returns a sorted list of all unique action types present
 // in the registry. Reserved types that are not present in the data do not
 // appear. The result is empty for an empty registry.

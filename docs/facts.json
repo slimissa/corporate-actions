@@ -36,10 +36,10 @@
   "root_test_network_deselected": 5,
   "root_test_collected_total": 1043,
   "wrapper_test_counts": {
-    "python": 125,
-    "javascript": 105,
-    "go": 81,
-    "rust": 99,
+    "python": 131,
+    "javascript": 111,
+    "go": 82,
+    "rust": 100,
     "rust_doctests": 1
   },
   "sibling_versions": {

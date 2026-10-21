@@ -1146,3 +1146,42 @@ fn save_does_not_inject_nulls() {
     remove_temp_file(&path);
     remove_temp_file(&out_path);
 }
+
+#[test]
+fn all_accessors_isolate_state() {
+    // Load from the committed actions.json — the file the registry
+    // actually ships. Skip if not present.
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../actions.json");
+    let reg = match Registry::load_from_file(path) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("skip: cannot load {}: {}", path, e);
+            return;
+        }
+    };
+    let expected = reg.to_json();
+
+    // by_isin returns Vec<Action> (owned), by_action_id returns Option<Action>
+    // (owned), all_actions returns &[Action] (borrowed). All safe by construction.
+    let mut by_isin = reg.by_isin("US0378331005");
+    if let Some(a) = by_isin.first_mut() {
+        a.ratio = Some("CORRUPT".into());
+        a.amount = Some(-999.0);
+        a.redistribution = Some("CORRUPT".into());
+        if let Some(d) = a.dates.as_mut() {
+            d.ex_date = Some("CORRUPT".into());
+        }
+        if let Some(p) = a.provenance.as_mut() {
+            p.source = Some("CORRUPT".into());
+        }
+        if let Some(i) = a.impact.as_mut() {
+            i.cash_adjustment = Some(-999.0);
+        }
+    }
+    if let Some(mut a) = reg.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500") {
+        a.ratio = Some("CORRUPT".into());
+    }
+
+    let again = reg.to_json();
+    assert_eq!(again, expected, "registry corrupted by accessor mutation");
+}

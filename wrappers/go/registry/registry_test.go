@@ -1361,3 +1361,36 @@ func TestByDateRangeInvalidDateFormat(t *testing.T) {
 		}
 	}
 }
+
+func TestAllAccessorsIsolateState(t *testing.T) {
+	// Load from the committed actions.json — the file the registry
+	// actually ships. Uses the fixture if the real file is not found.
+	path := "../../../actions.json"
+	r, err := LoadRegistry(path)
+	if err != nil {
+		t.Skipf("cannot load %s: %v", path, err)
+	}
+	expected, _ := r.ToJSON()
+
+	corrupt := func(a *Action) {
+		if a.ISIN != nil { *a.ISIN = "CORRUPT" }
+		if a.ActionID != nil { *a.ActionID = "CORRUPT" }
+		if a.Ratio != nil { *a.Ratio = "CORRUPT" }
+		if a.Amount != nil { *a.Amount = -999 }
+		if a.Redistribution != nil { *a.Redistribution = "CORRUPT" }
+		if a.Dates != nil && a.Dates.ExDate != nil { *a.Dates.ExDate = "CORRUPT" }
+		if a.Provenance != nil && a.Provenance.Source != nil { *a.Provenance.Source = "CORRUPT" }
+		if a.Impact != nil && a.Impact.CashAdjustment != nil { *a.Impact.CashAdjustment = -999 }
+	}
+
+	if list := r.ByISIN("US0378331005"); len(list) > 0 { corrupt(&list[0]) }
+	if single := r.ByActionID("US0378331005-DIVIDEND-2024-05-16-0.2500"); single != nil { corrupt(single) }
+	if list := r.ByActionType("SPLIT"); len(list) > 0 { corrupt(&list[0]) }
+	if list, _ := r.ByDateRange("", "", "ex_date"); len(list) > 0 { corrupt(&list[0]) }
+	if m := r.Meta(); m != nil && m.Version != nil { *m.Version = "CORRUPT" }
+
+	again, _ := r.ToJSON()
+	if string(again) != string(expected) {
+		t.Error("registry corrupted by mutation through an accessor")
+	}
+}

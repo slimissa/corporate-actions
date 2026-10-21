@@ -68,6 +68,13 @@ Where a language cannot express one of these directly — for example, Go
 returning `([]Action, error)` rather than raising — the language's
 idiom is used, and the difference is documented here.
 
+**Returned values are isolated.** Every public method that returns a
+value — `Action` list, single `Action`, `meta` / `Meta()`, `to_dict()`
+/ `toJSON()` / `to_json()` — returns a value the caller cannot use to
+corrupt the registry. Mutating the returned value, including through
+any nested pointer, has no effect on the registry's internal state.
+The isolation tests in each wrapper enforce this.
+
 ## 2. Scope
 
 ### In scope

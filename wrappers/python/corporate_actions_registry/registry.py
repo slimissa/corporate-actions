@@ -212,7 +212,7 @@ class CorporateActionsRegistry:
                     f"action at index {i} has neither 'isin' nor 'action_id'"
                 )
 
-        self.meta = RegistryMeta.from_dict(raw_data.get("meta"))
+        self._meta = RegistryMeta.from_dict(raw_data.get("meta"))
         self.actions: List[Action] = [
             Action.from_dict(item) for item in raw_actions
         ]
@@ -240,6 +240,15 @@ class CorporateActionsRegistry:
     # ------------------------------------------------------------------
     # Lookup methods
     # ------------------------------------------------------------------
+
+    @property
+    def meta(self) -> RegistryMeta:
+        """Return a fresh copy of the registry metadata.
+
+        Returned values are isolated: mutating `reg.meta.version` does
+        not affect the registry. Same discipline as the Action accessors.
+        """
+        return copy.deepcopy(self._meta)
 
     def by_isin(self, isin: str) -> List[Action]:
         """Return all actions for a given ISIN.
@@ -354,6 +363,14 @@ class CorporateActionsRegistry:
             return []
         return self.by_isin(isin)
 
+    def all_actions(self) -> List[Action]:
+        """Return a fresh deep copy of every action, in insertion order.
+
+        Same isolation contract as `by_isin`: mutating a returned Action
+        does not affect the registry.
+        """
+        return [copy.deepcopy(a) for a in self.actions]
+
     def all_action_types(self) -> List[str]:
         """Return a sorted list of unique action types in the registry."""
         return sorted(self._index_by_type.keys())
@@ -373,7 +390,7 @@ class CorporateActionsRegistry:
             Dict with 'meta' and 'actions' keys.
         """
         return {
-            "meta": self.meta.to_dict(),
+            "meta": self._meta.to_dict(),
             "actions": [action.to_dict() for action in self.actions],
         }
 

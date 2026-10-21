@@ -1200,3 +1200,76 @@ class TestByDateRangeISOValidation:
     def test_valid_dates_still_work(self, registry):
         result = registry.by_date_range("2024-01-01", "2024-12-31", "ex_date")
         assert isinstance(result, list)
+
+
+class TestAccessorIsolation:
+    """#146: every public method that returns an Action or list of Actions
+    must return a fresh copy. Mutating the returned value — including
+    through nested pointers — must not affect the registry.
+
+    This is the general discipline that would have caught all four
+    wrapper isolation bugs (Dates.redistribution, JS constructor
+    aliasing, Rust skip_serializing_if, Go Meta()). The targeted
+    tests exist per-bug; this test is the guard against a new one."""
+
+    @pytest.fixture(scope="class")
+    def reg(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[3]
+        return CorporateActionsRegistry(str(root / "actions.json"))
+
+    @staticmethod
+    def corrupt_action(a):
+        """Mutate every field including nested ones."""
+        a.ratio = "CORRUPT"
+        a.amount = -999.0
+        a.redistribution = "CORRUPT"
+        if a.dates is not None:
+            a.dates.ex_date = "CORRUPT"
+            a.dates.effective_date = "CORRUPT"
+        if a.provenance is not None:
+            a.provenance.source = "CORRUPT"
+        if a.impact is not None:
+            a.impact.cash_adjustment = -999.0
+
+    def test_by_isin(self, reg):
+        before = reg.to_dict()
+        for a in reg.by_isin("US0378331005"):
+            self.corrupt_action(a)
+        assert reg.to_dict() == before
+
+    def test_by_action_id(self, reg):
+        before = reg.to_dict()
+        a = reg.by_action_id("US0378331005-DIVIDEND-2024-05-16-0.2500")
+        if a is not None:
+            self.corrupt_action(a)
+        assert reg.to_dict() == before
+
+    def test_by_action_type(self, reg):
+        before = reg.to_dict()
+        for a in reg.by_action_type("SPLIT"):
+            self.corrupt_action(a)
+        assert reg.to_dict() == before
+
+    def test_by_date_range(self, reg):
+        before = reg.to_dict()
+        for a in reg.by_date_range(None, None):
+            self.corrupt_action(a)
+        assert reg.to_dict() == before
+
+    def test_to_dict(self, reg):
+        before = reg.to_dict()
+        d = reg.to_dict()
+        if d["meta"]:
+            d["meta"]["version"] = "CORRUPT"
+        if d["actions"]:
+            d["actions"][0]["ratio"] = "CORRUPT"
+        assert reg.to_dict() == before
+
+    def test_meta(self, reg):
+        """#146 + #85-equivalent for Python: meta is a public accessor.
+        Mutating it must not corrupt the registry."""
+        before = reg.to_dict()
+        assert reg.meta is not None
+        reg.meta.version = "CORRUPT"
+        assert reg.to_dict() == before
