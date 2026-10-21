@@ -400,3 +400,78 @@ def test_wrapper_method_coverage_summary(capsys):
     assert not incomplete, (
         f"Incomplete wrappers: {incomplete} — see per-method failures above for detail."
     )
+
+
+# ---------------------------------------------------------------------------
+# § 10 Appendix consistency — every canonical method must be in § 10 per lang
+# ---------------------------------------------------------------------------
+
+def _extract_section_10_block(lang_label: str) -> str:
+    """Return the fenced code block under `### <lang_label>` in § 10."""
+    text = CONTRACT.read_text(encoding="utf-8")
+    # Find § 10 start, then the language heading
+    s10 = text.find("## 10. Appendix")
+    if s10 < 0:
+        return ""
+    section = text[s10:]
+    marker = f"### {lang_label}"
+    i = section.find(marker)
+    if i < 0:
+        return ""
+    # Find opening ``` after the heading, then closing ```
+    after = section[i + len(marker):]
+    open_idx = after.find("```")
+    if open_idx < 0:
+        return ""
+    close_idx = after.find("```", open_idx + 3)
+    if close_idx < 0:
+        return ""
+    return after[open_idx + 3:close_idx]
+
+
+def _section_10_methods(lang: str) -> set:
+    """Extract method names from § 10 for one language."""
+    labels = {"python": "Python", "js": "JavaScript", "go": "Go", "rust": "Rust"}
+    block = _extract_section_10_block(labels[lang])
+    if not block:
+        return set()
+    if lang == "python":
+        return set(re.findall(r"def\s+([a-z_][a-z0-9_]*)\s*\(", block))
+    if lang == "js":
+        # matches: name(...) {  or  get name() {
+        return set(re.findall(
+            r"^\s+(?:get\s+)?([a-zA-Z][a-zA-Z0-9]*)\s*\(",
+            block, re.MULTILINE,
+        ))
+    if lang == "go":
+        return set(
+            m[0].lower() + m[1:]
+            for m in re.findall(
+                r"^func\s+\(r\s+\*Registry\)\s+([A-Z][a-zA-Z0-9]*)\s*\(",
+                block, re.MULTILINE,
+            )
+        )
+    if lang == "rust":
+        return set(re.findall(r"pub\s+fn\s+([a-z_][a-z0-9_]*)", block))
+    return set()
+
+
+@pytest.mark.parametrize("lang", sorted(WRAPPER_SOURCES))
+def test_section_10_documents_every_canonical_method(lang: str):
+    """§ 10 Appendix must document every § 4 method for this language.
+
+    Guards against § 10 drifting behind § 4 (the v1.2.2 #153 bug: five
+    methods were in § 4 but not § 10). #154 adds this check so it cannot
+    recur.
+    """
+    documented = _section_10_methods(lang)
+    assert documented, f"§ 10 {lang} block parsed to empty — check the fence format"
+    missing = []
+    for canonical, langs in CANONICAL_METHODS.items():
+        localized = langs[lang]
+        if localized not in documented:
+            missing.append(f"{canonical} ({localized})")
+    assert not missing, (
+        f"§ 10 {lang} block missing: {missing}. "
+        f"Update § 10 Appendix (docs/wrapper_contract.md)."
+    )
