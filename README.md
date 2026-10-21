@@ -107,7 +107,7 @@ tool can depend on. It is language-agnostic by design.
 | SEC EDGAR fetcher | ✅ Working (narrow scope: SYMBOL_CHANGE, DELISTING) |
 | Validator | ✅ All 7 layers |
 | Python wrapper | ✅ 138 tests |
-| JavaScript wrapper | ✅ 111 tests |
+| JavaScript wrapper | ✅ 117 tests |
 | Go wrapper | ✅ 85 tests |
 | Rust wrapper | ✅ 103 tests + 1 doctest |
 | Reject list | ✅ Enforced in merge step |
