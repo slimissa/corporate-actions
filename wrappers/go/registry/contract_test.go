@@ -38,7 +38,14 @@ const contractFixturePath = "../../../tests/wrapper_contract.json"
 // The fixture is shared across all four language wrappers; changing it
 // requires updating every wrapper's contract test. See section 8.2 of
 // docs/wrapper_contract.md.
+type knownAsOfCase struct {
+	ISIN              string   `json:"isin"`
+	AsOfDate          string   `json:"as_of_date"`
+	ExpectedActionIDs []string `json:"expected_action_ids"`
+}
+
 type contractFixture struct {
+	KnownAsOf         []knownAsOfCase `json:"known_as_of"`
 	Actions           []Action        `json:"actions"`
 	Queries           []contractQuery `json:"queries"`
 	InvalidDateFields []string        `json:"invalid_date_fields"`
@@ -369,5 +376,44 @@ func TestAdjustPricesRejectsMalformedDate(t *testing.T) {
 	_, err = reg.AdjustPrices("X", []PriceBar{{Date: "2024-6-10", Raw: 100.0}})
 	if err == nil || !strings.Contains(err.Error(), "invalid price date") {
 		t.Fatalf("expected invalid price date error, got %v", err)
+	}
+}
+
+func TestKnownAsOfMatchesFixture(t *testing.T) {
+	fixture := loadContractFixture(t)
+	reg := buildRegistryFromFixture(t, fixture)
+	for _, c := range fixture.KnownAsOf {
+		actions, err := reg.KnownAsOf(c.ISIN, c.AsOfDate)
+		if err != nil {
+			t.Fatalf("case %+v: %v", c, err)
+		}
+		got := []string{}
+		for _, a := range actions {
+			if a.ActionID != nil {
+				got = append(got, *a.ActionID)
+			}
+		}
+		if !reflect.DeepEqual(got, c.ExpectedActionIDs) {
+			t.Errorf("case %+v: got %v, want %v", c, got, c.ExpectedActionIDs)
+		}
+	}
+}
+
+func TestKnownAsOfUnknownISIN(t *testing.T) {
+	r := loadSample(t)
+	out, err := r.KnownAsOf("US9999999999", "2024-06-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out) != 0 {
+		t.Errorf("want empty, got %d", len(out))
+	}
+}
+
+func TestKnownAsOfRejectsMalformedDate(t *testing.T) {
+	r := loadSample(t)
+	_, err := r.KnownAsOf("X", "2024/01/15")
+	if err == nil {
+		t.Fatal("expected error")
 	}
 }

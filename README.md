@@ -108,7 +108,7 @@ tool can depend on. It is language-agnostic by design.
 | Validator | ✅ All 7 layers |
 | Python wrapper | ✅ 138 tests |
 | JavaScript wrapper | ✅ 125 tests |
-| Go wrapper | ✅ 87 tests |
+| Go wrapper | ✅ 90 tests |
 | Rust wrapper | ✅ 105 tests + 1 doctest |
 | Reject list | ✅ Enforced in merge step |
 | Doc-fact consistency | ✅ CI-gated |

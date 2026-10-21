@@ -587,6 +587,24 @@ func (r *Registry) AllActions() []Action {
 //
 // An unknown ISIN returns an empty slice (not an error), matching ByISIN.
 // A malformed date returns an error naming the offending value.
+// KnownAsOf returns actions for isin known as of asOfDate.
+// Filters by dates.announcement <= asOfDate. See contract § 4.11.
+func (r *Registry) KnownAsOf(isin, asOfDate string) ([]Action, error) {
+	if !isoDateRE.MatchString(asOfDate) {
+		return nil, fmt.Errorf("invalid as_of_date: %q (must be YYYY-MM-DD)", asOfDate)
+	}
+	result := []Action{}
+	for _, a := range r.ByISIN(isin) {
+		if a.Dates == nil || a.Dates.Announcement == nil {
+			continue
+		}
+		if *a.Dates.Announcement <= asOfDate {
+			result = append(result, a)
+		}
+	}
+	return result, nil
+}
+
 func (r *Registry) AdjustPrices(isin string, prices []PriceBar, adjustFor ...string) ([]AdjustedBar, error) {
 	for _, p := range prices {
 		if !isoDateRE.MatchString(p.Date) {
