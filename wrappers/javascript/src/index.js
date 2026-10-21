@@ -438,6 +438,22 @@ class CorporateActionsRegistry {
    * @returns {Array<{date, raw, adjusted, applied_action_ids}>}
    * @throws {Error} on malformed date or missing `raw`
    */
+  /**
+   * Return actions for `isin` known as of `asOfDate`.
+   * Filters by dates.announcement <= asOfDate. See § 4.11.
+   */
+  knownAsOf(isin, asOfDate) {
+    if (!ISO_DATE_RE.test(asOfDate)) {
+      throw new Error(
+        `invalid asOfDate: ${JSON.stringify(asOfDate)} (must be YYYY-MM-DD)`
+      );
+    }
+    return this.byIsin(isin).filter((a) => {
+      if (!a.dates || !a.dates.announcement) return false;
+      return a.dates.announcement <= asOfDate;
+    });
+  }
+
   adjustPrices(isin, prices, adjustFor = null) {
     if (adjustFor == null) adjustFor = DEFAULT_ADJUST_FOR;
 

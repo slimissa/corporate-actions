@@ -37,7 +37,7 @@
   "root_test_collected_total": 1057,
   "wrapper_test_counts": {
     "python": 138,
-    "javascript": 122,
+    "javascript": 125,
     "go": 87,
     "rust": 105,
     "rust_doctests": 1

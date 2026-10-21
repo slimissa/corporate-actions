@@ -1357,3 +1357,28 @@ describe('Symbol.iterator', () => {
     assert.deepStrictEqual(reg.toJSON(), before);
   });
 });
+
+
+describe('knownAsOf', () => {
+  let fixture, reg;
+  before(() => {
+    const fixturePath = path.join(__dirname, '..', '..', '..', 'tests', 'wrapper_contract.json');
+    fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    reg = new CorporateActionsRegistry({ meta: {}, actions: fixture.actions });
+  });
+
+  it('matches fixture cases', () => {
+    for (const c of fixture.known_as_of) {
+      const got = reg.knownAsOf(c.isin, c.as_of_date).map((a) => a.action_id);
+      assert.deepStrictEqual(got, c.expected_action_ids, JSON.stringify(c));
+    }
+  });
+
+  it('unknown ISIN returns []', () => {
+    assert.deepStrictEqual(reg.knownAsOf('US9999999999', '2024-06-01'), []);
+  });
+
+  it('rejects malformed date', () => {
+    assert.throws(() => reg.knownAsOf('US0000000001', '2024/01/15'), /invalid asOfDate/);
+  });
+});
