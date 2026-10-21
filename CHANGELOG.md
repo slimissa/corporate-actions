@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [How to read this changelog](#how-to-read-this-changelog)
 - [Unreleased](#unreleased)
+- [1.2.3 — 2026-10-22](#123--2026-10-22)
 - [1.2.2 — 2026-10-22](#122--2026-10-22)
 - [1.2.1 — 2026-10-22](#121--2026-10-22)
 - [1.2.0 — 2026-10-21](#120--2026-10-21)
@@ -50,6 +51,23 @@ sections. A missing number means the item was withdrawn, not lost.
 _No unreleased changes._
 
 ---
+
+## [1.2.3] — 2026-10-22
+
+### Fixed
+
+- Go § 10 test extractor: `ByISIN` was lowercased to `byISIN` before
+  comparison, so all 13 Go methods appeared missing.
+- Rust `cargo fmt` drift in 4 files (`lib.rs`, `ticker_index.rs`,
+  `test_contract.rs`, `test_wrapper.rs`) — cosmetic only; `cargo test`
+  was green, `cargo fmt --check` was red.
+
+### Notes
+
+- v1.2.1 and v1.2.2 shipped with red CI on `main` (runs
+  39689064792, 39691385033). Local verify passed; `gh run watch`
+  was not gated. This release confirms the tag can point at a
+  green-CI commit before the tag is pushed.
 
 ## [1.2.2] — 2026-10-22
 
