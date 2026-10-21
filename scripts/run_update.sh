@@ -25,6 +25,8 @@
 #                               Valid: yahoo, sec.
 #                               'nasdaq' was removed in v1.0.1.
 #   --ticker-limit N            Limit fetcher to first N tickers
+#                               (SEC fetches pass this as --cik-limit;
+#                                the flag name is historical)
 #   --min-actions N             Minimum number of actions required (default: 100)
 #   --skip-fetch                Do not run any fetcher
 #   --skip-tests                Do not run test suites
@@ -81,15 +83,22 @@ run_cmd() {
     fi
     local tmp rc
     tmp="$(mktemp)"
-    "$@" > "$tmp" 2>&1 && rc=0 || rc=$?
-    if [[ $rc -eq 0 ]]; then
-        rm -f "$tmp"
-        return 0
-    fi
-    echo "--- command failed (exit $rc): $*" >&2
-    cat "$tmp" >&2
+    # Run the command in a subshell with an EXIT/INT/TERM trap so a
+    # Ctrl-C (or any interruption) removes the temp file. The trap
+    # lives in the subshell, so it does not leak to the parent script.
+    (
+        trap 'rm -f '"$tmp"'' EXIT INT TERM
+        "$@" > "$tmp" 2>&1
+    ) && rc=0 || rc=$?
+    # Idempotent second cleanup for the "command exited 0 after trap ran"
+    # path — rm -f on a missing file is a no-op.
     rm -f "$tmp"
-    return $rc
+    if [[ $rc -ne 0 ]]; then
+        echo "--- command failed (exit $rc): $*" >&2
+        cat "$tmp" >&2
+        return $rc
+    fi
+    return 0
 }
 
 # ----------------------------------------------------------------------
