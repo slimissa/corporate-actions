@@ -77,11 +77,24 @@ def _v_readme():
     return m.group(1)
 
 
+
+def _v_init_py():
+    m = re.search(
+        r'__version__\s*=\s*"([\d.]+)"',
+        _read("wrappers/python/corporate_actions_registry/__init__.py"),
+        re.MULTILINE,
+    )
+    if not m:
+        print("ERROR: __init__.py __version__ missing", file=sys.stderr)
+        return None
+    return m.group(1)
+
 SITES = [
     ("VERSION",                          _v_VERSION),
     ("CHANGELOG.md",                     _v_changelog),
     ("actions.json",                     _v_actions_json),
     ("wrappers/python/pyproject.toml",   _v_pyproject),
+    ("wrappers/python/corporate_actions_registry/__init__.py", _v_init_py),
     ("wrappers/javascript/package.json", _v_package_json),
     ("wrappers/rust/Cargo.toml",         _v_cargo),
     ("README.md",                        _v_readme),
