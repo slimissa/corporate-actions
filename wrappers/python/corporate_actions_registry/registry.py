@@ -431,6 +431,24 @@ class CorporateActionsRegistry:
     # ------------------------------------------------------------------
 
 
+    def known_as_of(self, isin: str, as_of_date: str) -> List[Action]:
+        """Return actions for `isin` known as of `as_of_date`.
+
+        Filters by dates.announcement <= as_of_date. Skips actions
+        missing dates or announcement. See wrapper_contract.md § 4.11.
+        """
+        if not _ISO_DATE_RE.match(as_of_date):
+            raise ValueError(
+                f"invalid as_of_date: {as_of_date!r} (must be YYYY-MM-DD)"
+            )
+        result: List[Action] = []
+        for a in self.by_isin(isin):
+            if not a.dates or not a.dates.announcement:
+                continue
+            if a.dates.announcement <= as_of_date:
+                result.append(a)
+        return result
+
     def adjust_prices(
         self,
         isin: str,

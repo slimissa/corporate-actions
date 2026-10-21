@@ -36,7 +36,7 @@
   "root_test_network_deselected": 5,
   "root_test_collected_total": 1057,
   "wrapper_test_counts": {
-    "python": 138,
+    "python": 141,
     "javascript": 125,
     "go": 90,
     "rust": 108,

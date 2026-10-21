@@ -1364,3 +1364,33 @@ class TestAdjustPrices:
         # Post-split bar has no further splits after 2024-07-01
         assert result[1]["date"] == "2024-07-01"
         assert result[1]["adjusted"] == 123.54
+
+
+class TestKnownAsOf:
+    @pytest.fixture(scope="class")
+    def fixture_and_reg(self):
+        from pathlib import Path as _P
+        root = _P(__file__).resolve().parents[3]
+        fixture = json.loads((root / "tests" / "wrapper_contract.json").read_text())
+        reg = CorporateActionsRegistry(
+            actions_data={"meta": {}, "actions": fixture["actions"]},
+        )
+        return fixture, reg
+
+    def test_fixture_known_as_of(self, fixture_and_reg):
+        fixture, reg = fixture_and_reg
+        cases = fixture.get("known_as_of", [])
+        assert cases
+        for case in cases:
+            result = reg.known_as_of(case["isin"], case["as_of_date"])
+            got = [a.action_id for a in result]
+            assert got == case["expected_action_ids"], case
+
+    def test_unknown_isin_returns_empty(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        assert reg.known_as_of("US9999999999", "2024-06-01") == []
+
+    def test_malformed_date_raises(self, fixture_and_reg):
+        _, reg = fixture_and_reg
+        with pytest.raises(ValueError, match="invalid as_of_date"):
+            reg.known_as_of("US0000000001", "2024/01/15")
