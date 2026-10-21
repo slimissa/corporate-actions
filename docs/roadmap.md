@@ -306,7 +306,7 @@ the data it redistributes.
 **Consolidation**
 
 - `tools/check_mojibake.py` — UTF-8 corruption detector, wired into CI
-- `tools/check_ecosystem_versions.py` + `tools/sibling_versions.json` —
+- `tools/check_sibling_versions.py` + `tools/sibling_versions.json` —
   README ecosystem table gated against pinned sibling versions
 - `tests/conftest.py` — canonical action factories shared across tests
 - `docs/roadmap.md` (this file) — metrics verified against `facts.json`
