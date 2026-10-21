@@ -336,6 +336,16 @@ class CorporateActionsRegistry:
         action_id. See the wrapper contract section 4.4.
 
         The returned list is a fresh deep copy.
+        
+
+        An empty string is treated as None: no bound on that side. The
+        CLI passes "" for unset flags, so the two are equivalent at
+        this API boundary.
+
+        Returns a fresh list of deep-copied Actions; mutating them does
+        not affect the registry. Walks the full action list (O(n)), so
+        callers that already hold a narrower set should filter it
+        directly.
         """
         if date_field not in VALID_DATE_FIELDS:
             raise ValueError(
