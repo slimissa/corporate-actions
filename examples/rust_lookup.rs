@@ -163,7 +163,7 @@ fn find_actions_file(cli_path: &Option<PathBuf>) -> PathBuf {
     }
 
     eprintln!("Error: could not find actions.json. Use --actions PATH.");
-    process::exit(2);
+    process::exit(3); // no default found = file-not-found per § 7.2
 }
 
 fn print_action(action: &Action) {
