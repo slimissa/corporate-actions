@@ -1,6 +1,6 @@
 # Corporate Actions Registry — Rust Wrapper
 
-This is the official Rust crate for the **Corporate Actions Registry** (part of the QuantOS Ledger Foundation). It loads `actions.json` and provides a typed, dependency‑light interface to query corporate actions such as stock splits, dividends, symbol changes, and more.
+This is the official Rust crate for the **Corporate Actions Registry** (part of the QuantOS Ledger Foundation). It loads `actions.json` and provides a typed interface with minimal dependencies to query corporate actions such as stock splits, dividends, symbol changes, and more.
 
 ## Features
 

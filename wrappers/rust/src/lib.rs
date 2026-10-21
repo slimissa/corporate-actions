@@ -32,6 +32,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+// Re-exported for tests only: not part of the public contract. Hidden
+// from generated docs so it doesn't appear in the crate's API surface.
+#[doc(hidden)]
 pub use ticker_index::reset_cache;
 
 // ---------------------------------------------------------------------------

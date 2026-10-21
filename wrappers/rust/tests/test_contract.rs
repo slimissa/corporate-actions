@@ -85,7 +85,10 @@ fn build_registry(fixture: &ContractFixture) -> Registry {
         "meta": {},
         "actions": fixture.actions,
     });
-    Registry::from_value(doc).expect("loader accepts fixture actions")
+    match Registry::from_value(doc) {
+        Ok(r) => r,
+        Err(e) => panic!("loader rejected fixture actions: {:?}", e),
+    }
 }
 
 /// Extract the `action_id` of every action, using an empty string for
