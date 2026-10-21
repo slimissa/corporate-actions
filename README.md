@@ -109,7 +109,7 @@ tool can depend on. It is language-agnostic by design.
 | Python wrapper | ✅ 138 tests |
 | JavaScript wrapper | ✅ 125 tests |
 | Go wrapper | ✅ 90 tests |
-| Rust wrapper | ✅ 105 tests + 1 doctest |
+| Rust wrapper | ✅ 108 tests + 1 doctest |
 | Reject list | ✅ Enforced in merge step |
 | Doc-fact consistency | ✅ CI-gated |
 | Build artifact consistency | ✅ CI-gated |

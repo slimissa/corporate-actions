@@ -577,6 +577,32 @@ impl Registry {
     /// An unknown ISIN returns an empty vector (not an error), matching
     /// [`Self::by_isin`]. A malformed date or a missing `raw` returns
     /// [`RegistryError::InvalidPrice`].
+    /// Return actions for `isin` known as of `as_of_date`.
+    /// Filters by dates.announcement <= as_of_date. See contract § 4.11.
+    pub fn known_as_of(
+        &self,
+        isin: &str,
+        as_of_date: &str,
+    ) -> Result<Vec<Action>, RegistryError> {
+        if !is_iso_date(as_of_date) {
+            return Err(RegistryError::InvalidStructure(format!(
+                "invalid as_of_date: {:?} (must be YYYY-MM-DD)",
+                as_of_date
+            )));
+        }
+        Ok(self
+            .by_isin(isin)
+            .into_iter()
+            .filter(|a| {
+                a.dates
+                    .as_ref()
+                    .and_then(|d| d.announcement.as_deref())
+                    .map(|ann| ann <= as_of_date)
+                    .unwrap_or(false)
+            })
+            .collect())
+    }
+
     pub fn adjust_prices(
         &self,
         isin: &str,

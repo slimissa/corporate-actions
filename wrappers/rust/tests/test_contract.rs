@@ -272,3 +272,50 @@ fn adjust_prices_rejects_malformed_date() {
     let err = reg.adjust_prices("X", &prices, None).unwrap_err();
     assert!(err.to_string().contains("invalid price"), "unexpected: {}", err);
 }
+
+
+#[test]
+fn known_as_of_matches_fixture() {
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let root = manifest.parent().unwrap().parent().unwrap();
+    let fixture_path = root.join("tests").join("wrapper_contract.json");
+    let content = std::fs::read_to_string(&fixture_path).expect("fixture");
+    let data: serde_json::Value = serde_json::from_str(&content).unwrap();
+
+    let actions_json = data["actions"].clone();
+    let reg = Registry::from_value(
+        serde_json::json!({ "actions": actions_json })
+    ).unwrap();
+
+    let cases = data["known_as_of"].as_array().expect("known_as_of array");
+    for c in cases {
+        let isin = c["isin"].as_str().unwrap();
+        let as_of = c["as_of_date"].as_str().unwrap();
+        let expected: Vec<String> = c["expected_action_ids"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap().to_string())
+            .collect();
+        let got: Vec<String> = reg
+            .known_as_of(isin, as_of)
+            .unwrap()
+            .into_iter()
+            .filter_map(|a| a.action_id)
+            .collect();
+        assert_eq!(got, expected, "case isin={} as_of={}", isin, as_of);
+    }
+}
+
+#[test]
+fn known_as_of_unknown_isin() {
+    let reg = Registry::from_value(serde_json::json!({ "actions": [] })).unwrap();
+    assert!(reg.known_as_of("US9999999999", "2024-06-01").unwrap().is_empty());
+}
+
+#[test]
+fn known_as_of_rejects_malformed_date() {
+    let reg = Registry::from_value(serde_json::json!({ "actions": [] })).unwrap();
+    let err = reg.known_as_of("X", "2024/01/15").unwrap_err();
+    assert!(err.to_string().contains("invalid as_of_date"), "{}", err);
+}
