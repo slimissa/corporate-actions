@@ -149,7 +149,7 @@ pytest tests/ -v
 Expected:
 
 - Validator: `OK: 240 actions validated successfully.`
-- Tests: `1138 passed, 1 skipped, 5 deselected`
+- Tests: `1151 passed, 1 skipped, 5 deselected`
 
 The validator prints `Loaded N ISINs`. What N is depends on which
 identifiers file it read:
@@ -1008,6 +1008,19 @@ The maintainers do not provide:
 - Free consulting on your trading strategy
 - Guarantees about data accuracy for any specific use case
 - Support for outdated versions (only the latest release is supported)
+
+---
+
+## Pre-commit hook
+
+Install once after cloning:
+
+    cp scripts/pre-commit-check.sh .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+
+Runs: update_facts --check, check_doc_facts, check_sibling_versions,
+check_mojibake, ruff, pytest. Bypass with `git commit --no-verify` when
+necessary.
 
 ---
 

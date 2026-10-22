@@ -40,7 +40,7 @@ As of v1.2.2 (2026-10-22):
 | Action types accepted but unpopulated | 3 of 8 (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`) |
 | Action types rejected by validator | 1 of 8 (`MERGER`) |
 | Redistribution categories in use | 2 (`secondary-source`, `facts-only`) |
-| Root tests | 1138 |
+| Root tests | 1151 |
 | Wrapper tests | 141 Python, 125 JavaScript, 90 Go, 108 Rust (+1 doctest) |
 | CI workflows | 1 (`validate.yml`, 6 jobs) |
 | Working fetchers | 2 (Yahoo Finance; SEC EDGAR for SYMBOL_CHANGE, DELISTING) |
