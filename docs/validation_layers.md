@@ -608,7 +608,7 @@ implements every layer and produces a single report listing every failure.
   3. Default: `100` (matches `DEFAULT_MIN_ACTIONS` in `tools/validate.py`)
   
   For CI, the workflow sets `--min-actions 100` as a regression guard. The
-  current registry has 240 actions; if a future change drops it below 100,
+  current registry has 2058 actions; if a future change drops it below 100,
   CI fails.
 
   ### Recommended thresholds by context
@@ -781,10 +781,10 @@ implements every layer and produces a single report listing every failure.
   Loading Exchange Calendar registry...
     Loaded 74 exchange MICs
 
-  Validating 240 actions...
+  Validating 2058 actions...
 
-  OK: 240 actions validated successfully.
-  Cross-reference: 240 actions checked, 0 with unknown ISIN
+  OK: 2058 actions validated successfully.
+  Cross-reference: 2058 actions checked, 0 with unknown ISIN
   All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage
   ```
 
@@ -798,7 +798,7 @@ implements every layer and produces a single report listing every failure.
   Loading Exchange Calendar registry...
     Loaded 74 exchange MICs
 
-  Validating 240 actions...
+  Validating 2058 actions...
 
   Validation FAILED with the following errors:
     - Action US0378331005-DIVIDEND-2024-05-16-0.2500: arithmetic: DIVIDEND amount must be positive: -0.25

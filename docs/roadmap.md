@@ -30,12 +30,12 @@ version section states its success criteria so that "done" is falsifiable.
 
 ## Where we are now
 
-As of v1.2.2 (2026-10-22):
+As of v1.2.3 (2026-10-24) pre-v1.3.0 expansion:
 
 | Metric | Value |
 |--------|-------|
-| Actions | 240 |
-| Instruments covered | 6 US large caps |
+| Actions | 2058 |
+| Instruments covered | 26 US large caps |
 | Action types populated | 4 of 8 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`) |
 | Action types accepted but unpopulated | 3 of 8 (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`) |
 | Action types rejected by validator | 1 of 8 (`MERGER`) |

@@ -30,9 +30,17 @@
       "isin": "US5949181045",
       "action_type": "SPECIAL_DIVIDEND",
       "ex_date": "2004-12-03",
-      "amount": 3.00,
+      "amount": 3.0,
       "original_action_id": "US5949181045-SPECIAL_DIVIDEND-2004-12-03-3.0000",
       "reason": "wrong payment date; corrected entry is US5949181045-SPECIAL_DIVIDEND-2004-12-02-3.0000"
+    },
+    {
+      "isin": "US7170811035",
+      "action_type": "DELISTING",
+      "ex_date": "2020-06-30",
+      "amount": null,
+      "original_action_id": "US7170811035-DELISTING-2020-06-30-DELISTED",
+      "reason": "False positive: SEC fetcher attributed a debt-series delisting to PFE common stock. PFE was not delisted."
     }
   ]
 }

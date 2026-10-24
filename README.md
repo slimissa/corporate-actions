@@ -4,7 +4,7 @@
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Registry](https://img.shields.io/badge/registry-v1.2.3-orange.svg)](./CHANGELOG.md)
-[![Actions](https://img.shields.io/badge/actions-240-green.svg)](./actions.json)
+[![Actions](https://img.shields.io/badge/actions-2058-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
 [![Tests](https://img.shields.io/badge/tests-1151-success.svg)](./tests/)
 
@@ -80,8 +80,8 @@ tool can depend on. It is language-agnostic by design.
 ## Current status
 
 **Version**: v1.1.0
-**Actions**: 240
-**Instruments**: 6 US large caps
+**Actions**: 2058
+**Instruments**: 26 instruments
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
 **Total tests**:
@@ -91,7 +91,7 @@ tool can depend on. It is language-agnostic by design.
 
 | Category | Count | Notes |
 |----------|-------|-------|
-| Actions | 240 | Splits and dividends dominate |
+| Actions | 2058 | Splits and dividends dominate |
 | Instruments | 6 | AAPL, MSFT, GOOGL, AMZN, META, NVDA |
 | Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
 | Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
@@ -143,7 +143,7 @@ The headline additions:
 - **CI enforcement** of doc-fact consistency, build-artifact drift, and
   lint.
 
-The registry data itself is unchanged: 240 actions across 6 instruments.
+The registry data itself is unchanged: 2058 actions across 6 instruments.
 
 See [`CHANGELOG.md`](./CHANGELOG.md) for the full list.
 
@@ -374,10 +374,10 @@ Loading ISO 4217 registry...
 Loading Exchange Calendar registry...
   Loaded 74 exchange MICs
 
-Validating 240 actions...
+Validating 2058 actions...
 
-OK: 240 actions validated successfully.
-Cross-reference: 240 actions checked, 0 with unknown ISIN
+OK: 2058 actions validated successfully.
+Cross-reference: 2058 actions checked, 0 with unknown ISIN
 All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage
 ```
 
@@ -451,7 +451,7 @@ fixture. Adding a contract rule does.
 
 ```
 corporate-actions/
-├── actions.json                 # The registry (240 actions)
+├── actions.json                 # The registry (2058 actions)
 ├── schema.json                  # JSON Schema
 ├── _removed_actions.json        # Durable reject list for merges
 ├── README.md                    # This file
