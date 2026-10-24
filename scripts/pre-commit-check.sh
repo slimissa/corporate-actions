@@ -15,6 +15,17 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+# Branch guard: refuse to commit on main. Phase-4 work happens on branches.
+# If you're legitimately committing to main (release commits), set:
+#     LAS_ALLOW_MAIN_COMMIT=1 git commit -m "..."
+BRANCH=$(git branch --show-current)
+if [[ "$BRANCH" == "main" ]] && [[ "${LAS_ALLOW_MAIN_COMMIT:-0}" != "1" ]]; then
+    echo "❌ pre-commit: on branch 'main'. Commits to main are release-only."
+    echo "   For feature work:  git checkout -b <branch-name>"
+    echo "   For release:       LAS_ALLOW_MAIN_COMMIT=1 git commit -m \"...\""
+    exit 1
+fi
+
 # Skip on docs-only commits? No — docs claims numbers, those claims drift.
 # Run everything.
 
