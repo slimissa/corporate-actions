@@ -57,6 +57,15 @@
       "file": "neg_10_fisv_notes_8k.html",
       "reason": "note issuance; 'Trading Symbol(s)' on cover",
       "sha256": "492628fb54aede9baa41f1794e68f02b890e7bf03e6a303bce36f9a0bc4a4b5e"
+    },
+    {
+      "file": "neg_11_pfe_debt_delisting_8k.html",
+      "cik": "0000078003",
+      "accession": "0001193125-20-212094",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/78003/000119312520212094/d202107d8k.htm",
+      "fetched_at": "2026-10-24",
+      "reason": "<FILL IN>",
+      "sha256": "0732fb33d955b440a194a81a443cda68a576a05120ecaa3ac06bd9150165efb8"
     }
   ],
   "pending": [

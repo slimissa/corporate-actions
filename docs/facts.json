@@ -1,18 +1,38 @@
 {
-  "action_count": 240,
-  "instrument_count": 6,
+  "action_count": 2058,
+  "instrument_count": 26,
   "instruments": [
     "US02079K1079",
+    "US02079K3059",
     "US0231351067",
     "US0378331005",
+    "US0605051046",
+    "US0970231058",
+    "US1491231015",
+    "US1912161007",
+    "US22160K1051",
     "US30303M1027",
+    "US38141G1040",
+    "US46090E1038",
+    "US4642878049",
+    "US46625H1005",
+    "US4781601046",
+    "US57636Q1040",
     "US5949181045",
-    "US67066G1040"
+    "US64110L1061",
+    "US67066G1040",
+    "US7134481081",
+    "US7170811035",
+    "US7427181091",
+    "US78462F1030",
+    "US91324P1021",
+    "US92826C8394",
+    "US9311421039"
   ],
   "action_type_counts": {
-    "SPLIT": 14,
+    "SPLIT": 35,
     "SYMBOL_CHANGE": 1,
-    "DIVIDEND": 224,
+    "DIVIDEND": 2021,
     "SPECIAL_DIVIDEND": 1
   },
   "populated_types": [
