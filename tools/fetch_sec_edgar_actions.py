@@ -65,6 +65,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parents[1]
+import sys as _sys
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+
+from tools.rate_limit import TokenBucket
+
 
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 SEC_FILING_INDEX_URL = (
@@ -631,11 +639,20 @@ def main() -> int:
     parser.add_argument("--min-date", default=DEFAULT_MIN_DATE)
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument(
+        "--rate-limit", type=float, default=6.0,
+        help="Max requests/sec (default: 6.0; SEC allows 10/sec).",
+    )
+    parser.add_argument(
+        "--rate-burst", type=float, default=10.0,
+        help="Token bucket capacity (default: 10.0).",
+    )
+    parser.add_argument(
         "--refresh",
         action="store_true",
         help="Delete the on-disk HTTP cache before fetching.",
     )
     args = parser.parse_args()
+    bucket = TokenBucket(rate=args.rate_limit, capacity=args.rate_burst)
 
     instruments = load_instruments(args.identifiers)
     if args.cik_limit:
@@ -670,6 +687,7 @@ def main() -> int:
     processed = 0
 
     for idx, (isin, ticker, cik) in enumerate(instruments, start=1):
+        bucket.acquire()
         if args.verbose:
             print(f"[{idx}/{len(instruments)}] {ticker} (CIK {cik})")
 
