@@ -126,6 +126,22 @@ MUTABLE_URL_PREFIXES = (
 # here is trusted without consulting the blocklist. Patterns 1 and 2 in
 # the original review correspond to these.
 STRONG_SYMBOL_TRIGGERS = [
+    # Added Week 2 Day 2 for pos_14, pos_05, pos_06, pos_11, pos_12
+    re.compile(
+        r"(?i:ticker\s+symbol\s+change\s+from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:ticker\s+symbol\s+will\s+also\s+change\s+from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:intends\s+to\s+change\s+its\s+ticker\s+symbol.*?from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:begin\s+trading.*?under\s+the\s+ticker\s+symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:under\s+a\s+new\s+symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
     re.compile(
         r"(?i:will\s+(?:begin\s+trading|trade)\s+[^.]{0,80}?"
         r"\bunder\s+(?:the\s+)?(?:new\s+)?(?:ticker\s+)?symbol\s*['\"]?)"

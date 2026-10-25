@@ -55,6 +55,24 @@
       "fetched_at": "2026-10-25",
       "symbol": "BALL",
       "sha256": "deaa44cfa2f4627e930e7f08beb51c4a7e35d9218dbe4ca61b06549b8b8d88b0"
+    },
+    {
+      "file": "pos_08_twmc_change_8k.html",
+      "cik": "0000795212",
+      "accession": "0001140361-20-019762",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/795212/000114036120019762/brhc10014895_8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "KSPN",
+      "sha256": "015736b4191d593455529f7b4528e16b05658f0cc1524676dbf96fb4710cd673"
+    },
+    {
+      "file": "pos_14_to_avrw_8k.html",
+      "cik": "0001643301",
+      "accession": "0001477932-23-005913",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1643301/000147793223005913/curr_8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "AVRW",
+      "sha256": "302ce0c0efac0884c5714cc800f82f821948c52d7a399e640703f1e901457b82"
     }
   ],
   "negative": [
