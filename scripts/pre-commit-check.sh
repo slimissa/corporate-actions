@@ -29,7 +29,11 @@ fi
 # Skip on docs-only commits? No — docs claims numbers, those claims drift.
 # Run everything.
 
-echo "=== pre-commit: update_facts --check ==="
+echo "# If this fails with "docs/facts.json is stale" or "doc says X, fact says Y":
+#     bash scripts/sync_counts.sh
+# then git add docs/ README.md CONTRIBUTING.md and retry.
+
+=== pre-commit: update_facts --check ==="
 python3 tools/update_facts.py --check || {
     echo "❌ facts.json is stale. Run: python3 tools/update_facts.py"
     exit 1

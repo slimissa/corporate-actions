@@ -10,6 +10,51 @@
       "file": "pos_04_fisv_to_fi_8k.html",
       "symbol": "FI",
       "sha256": "ca0eb46a2ca0fd087bbf940dafcabf93e8a03126c100a1eb35f02f5aaa90d4cd"
+    },
+    {
+      "file": "pos_05_azrx_to_ento_8k.html",
+      "cik": "0001604191",
+      "accession": "0001654954-21-010268",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1604191/000165495421010268/azrx_8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "FWBI",
+      "sha256": "386cc0088581cb456c77725d2ce90ba7555c8e1aab7d872288101f52871b786b"
+    },
+    {
+      "file": "pos_06_to_mics_8k.html",
+      "cik": "0000923601",
+      "accession": "0001493152-24-035205",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/923601/000149315224035205/form8-k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "RIME",
+      "sha256": "0540eee811ab9b8dd769989b408c667b98757e1d4baf971fe0f8884ee20b0416"
+    },
+    {
+      "file": "pos_09_ncr_to_vyx_8k.html",
+      "cik": "0000070866",
+      "accession": "0001193125-23-240858",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/70866/000119312523240858/d533909d8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "VYX",
+      "sha256": "ac328c6daf8f1ef8398271c6aa194240e20c082594240c88c67cc8bfabb29ef9"
+    },
+    {
+      "file": "pos_11_cry_to_aort_8k.html",
+      "cik": "0000784199",
+      "accession": "0000784199-22-000014",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/784199/000078419922000014/cry-20220118x8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "AORT",
+      "sha256": "78de291b2e88f7289ecdb36a82212f789fd4b3411d2801407dae0460536b996e"
+    },
+    {
+      "file": "pos_12_to_ball_8k.html",
+      "cik": "0000009389",
+      "accession": "0000009389-21-000078",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/9389/000000938921000078/bll-20210401x8k.htm",
+      "fetched_at": "2026-10-25",
+      "symbol": "BALL",
+      "sha256": "deaa44cfa2f4627e930e7f08beb51c4a7e35d9218dbe4ca61b06549b8b8d88b0"
     }
   ],
   "negative": [
@@ -64,8 +109,35 @@
       "accession": "0001193125-20-212094",
       "source_url": "https://www.sec.gov/Archives/edgar/data/78003/000119312520212094/d202107d8k.htm",
       "fetched_at": "2026-10-24",
-      "reason": "<FILL IN>",
+      "reason": "Pfizer 8-K announcing delisting of debt securities. False positive for DELISTING extraction on common stock: PFE common stock was not delisted; only a debt series was redeemed.",
       "sha256": "0732fb33d955b440a194a81a443cda68a576a05120ecaa3ac06bd9150165efb8"
+    },
+    {
+      "file": "neg_12_block_exec_8k.html",
+      "cik": "0001512673",
+      "accession": "0001193125-23-007182",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1512673/000119312523007182/d449462d8k.htm",
+      "fetched_at": "2026-10-25",
+      "reason": "executive departure, mentions common stock but no ticker change",
+      "sha256": "49f197bdc9e93438293fe558a81b8f734182ad5200d77d44aab71fd23c4e9170"
+    },
+    {
+      "file": "neg_13_healthpeak_earnings_8k.html",
+      "cik": "0000765880",
+      "accession": "0001104659-21-008438",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/765880/000110465921008438/R1.htm",
+      "fetched_at": "2026-10-25",
+      "reason": "quarterly earnings release, mentions ticker but no change",
+      "sha256": "f7913015531478b22b048b3be3d7e2b568f9c4e19497aa1817ce16d849a24c53"
+    },
+    {
+      "file": "neg_15_pfe_earnings_8k.html",
+      "cik": "0000078003",
+      "accession": "0000078003-23-000042",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/78003/000007800323000042/pficenotice2023.htm",
+      "fetched_at": "2026-10-25",
+      "reason": "quarterly earnings release, mentions common stock but no ticker change",
+      "sha256": "9e3dab75f0b7ac5878f25da60ea8f78a88b300dc7a9828cea8568642e4fd5fae"
     }
   ],
   "pending": [
