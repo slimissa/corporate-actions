@@ -152,6 +152,10 @@ This table is its documentation.
 | `Yahoo Finance (yfinance)` | `secondary-source` | Facts extracted; compilation not copied |
 | `* press release` *(case-insensitive)* | `facts-only` | Feist: facts not copyrightable |
 | `* exchange announcement` *(case-insensitive)* | `facts-only` | Same |
+| `General Electric Company 8-K ...` | `public-domain` | SEC filing, 17 U.S.C. § 105 |
+| `Monsanto Company 8-K ...` | `public-domain` | SEC filing, 17 U.S.C. § 105 |
+| `Twitter, Inc. Form 25-NSE ...` | `public-domain` | SEC filing, 17 U.S.C. § 105 |
+| `* 8-K / 10-K / 10-Q / S-4 / Form 25-NSE ...` *(case-insensitive)* | `public-domain` | 17 U.S.C. § 105 |
 | *(anything else)* | `restricted` | Fail-safe; must be added to the mapping |
 
 To add a source:

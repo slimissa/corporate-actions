@@ -148,7 +148,7 @@ pytest tests/ -v
 
 Expected:
 
-- Validator: `OK: 2058 actions validated successfully.`
+- Validator: `OK: 2062 actions validated successfully.`
 - Tests: `1152 passed, 1 skipped, 5 deselected`
 
 The validator prints `Loaded N ISINs`. What N is depends on which
@@ -239,7 +239,7 @@ Configure your editor to match. A future `.editorconfig` may be added.
 
 ```
 corporate-actions/
-├── actions.json                 # The registry (2058 actions)
+├── actions.json                 # The registry (2062 actions)
 ├── schema.json                  # JSON Schema for actions.json
 ├── README.md                    # Overview
 ├── CONTRIBUTING.md              # This file

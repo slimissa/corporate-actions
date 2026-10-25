@@ -4,7 +4,7 @@
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Registry](https://img.shields.io/badge/registry-v1.2.3-orange.svg)](./CHANGELOG.md)
-[![Actions](https://img.shields.io/badge/actions-2058-green.svg)](./actions.json)
+[![Actions](https://img.shields.io/badge/actions-2062-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
 [![Tests](https://img.shields.io/badge/tests-1152-success.svg)](./tests/)
 
@@ -80,8 +80,8 @@ tool can depend on. It is language-agnostic by design.
 ## Current status
 
 **Version**: v1.1.0
-**Actions**: 2058
-**Instruments**: 26 instruments
+**Actions**: 2062
+**Instruments**: 29 instruments
 **Action types populated**: 4 of 8
 **Wrappers**: Python, JavaScript, Go, Rust
 **Total tests**:
@@ -91,7 +91,7 @@ tool can depend on. It is language-agnostic by design.
 
 | Category | Count | Notes |
 |----------|-------|-------|
-| Actions | 2058 | Splits and dividends dominate |
+| Actions | 2062 | Splits and dividends dominate |
 | Instruments | 6 | AAPL, MSFT, GOOGL, AMZN, META, NVDA |
 | Action types populated | 4 of 8 | `SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE` |
 | Action types reserved | 4 of 8 | `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER` |
@@ -374,9 +374,9 @@ Loading ISO 4217 registry...
 Loading Exchange Calendar registry...
   Loaded 74 exchange MICs
 
-Validating 2058 actions...
+Validating 2062 actions...
 
-OK: 2058 actions validated successfully.
+OK: 2062 actions validated successfully.
 Cross-reference: 2058 actions checked, 0 with unknown ISIN
 All layers passed: schema, temporal, arithmetic, cross-reference, uniqueness, provenance, coverage
 ```

@@ -34,8 +34,8 @@ As of v1.2.3 (2026-10-24) pre-v1.3.0 expansion:
 
 | Metric | Value |
 |--------|-------|
-| Actions | 2058 |
-| Instruments covered | 26 US large caps |
+| Actions | 2062 |
+| Instruments covered | 29 US large caps |
 | Action types populated | 4 of 8 (`SPLIT`, `DIVIDEND`, `SPECIAL_DIVIDEND`, `SYMBOL_CHANGE`) |
 | Action types accepted but unpopulated | 3 of 8 (`REVERSE_SPLIT`, `SPINOFF`, `DELISTING`) |
 | Action types rejected by validator | 1 of 8 (`MERGER`) |

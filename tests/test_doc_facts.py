@@ -92,6 +92,10 @@ IGNORABLE_KEYS = {
     "action_type_counts.DIVIDEND":   "self_check",
     "action_type_counts.SPECIAL_DIVIDEND": "self_check",
     "action_type_counts.SYMBOL_CHANGE":    "self_check",
+    "action_type_counts.REVERSE_SPLIT":    "self_check",
+    "action_type_counts.SPINOFF":          "self_check",
+    "action_type_counts.DELISTING":        "self_check",
+    "action_type_counts.MERGER":           "self_check",
     # Structural / non-numeric metadata.
     "historical_depth_start":        "date, not a count",
     "root_test_skipped":             "test-run metadata",
