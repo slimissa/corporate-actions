@@ -149,7 +149,7 @@ pytest tests/ -v
 Expected:
 
 - Validator: `OK: 2058 actions validated successfully.`
-- Tests: `1151 passed, 1 skipped, 5 deselected`
+- Tests: `1152 passed, 1 skipped, 5 deselected`
 
 The validator prints `Loaded N ISINs`. What N is depends on which
 identifiers file it read:

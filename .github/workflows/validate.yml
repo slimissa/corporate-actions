@@ -176,3 +176,24 @@ jobs:
       - name: Run tests
         working-directory: wrappers/rust
         run: cargo test --verbose
+
+  validate-actions:
+    name: Validate actions.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt jsonschema rfc3339-validator
+      - name: Validate actions.json (fixture waiver)
+        run: |
+          python3 tools/validate.py \
+            --actions actions.json \
+            --schema schema.json \
+            --identifiers tests/fixtures/identifiers.json \
+            --iso4217 tests/fixtures/iso4217.json \
+            --exchange-calendar tests/fixtures/exchange_calendar.json \
+            --min-actions 100 \
+            --no-strict-isin

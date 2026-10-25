@@ -378,3 +378,12 @@ class TestRuffGate:
         assert r.returncode == 0, (
             f"ruff check failed on the real tree:\n{r.stdout}\n{r.stderr}"
         )
+
+
+def test_ci_runs_validate_py():
+    """CI must invoke validate.py on push."""
+    from pathlib import Path as _P
+    wf = _P(".github/workflows/validate.yml").read_text()
+    assert "tools/validate.py" in wf, "CI does not run validate.py."
+    if "tests/fixtures/identifiers.json" in wf:
+        assert "--no-strict-isin" in wf, "Fixture-based CI needs the waiver."
