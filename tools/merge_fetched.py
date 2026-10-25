@@ -103,7 +103,7 @@ def fuzzy_key(action: dict) -> tuple:
     return (
         action.get("isin", ""),
         action.get("action_type", ""),
-        dates.get("ex_date", ""),
+        dates.get("ex_date") or dates.get("effective_date") or "",
         action.get("ratio") or "",
         _amount(action),
     )
@@ -117,7 +117,7 @@ def reject_key(action: dict) -> tuple:
     return (
         action.get("isin", ""),
         family(action.get("action_type")),
-        dates.get("ex_date", ""),
+        dates.get("ex_date") or dates.get("effective_date") or "",
         _amount(action),
     )
 
@@ -127,7 +127,7 @@ def reject_key_from_entry(entry: dict) -> tuple:
     return (
         entry.get("isin", ""),
         family(entry.get("action_type")),
-        entry.get("ex_date", ""),
+        entry.get("ex_date") or entry.get("effective_date") or "",
         round(float(entry.get("amount") or 0.0), 4),
     )
 

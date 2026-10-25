@@ -733,7 +733,10 @@ def main():
     parser.add_argument("--iso4217", help="Path to iso4217.json", default=None)
     parser.add_argument("--exchange-calendar", help="Path to calendar.json", default=None)
     parser.add_argument("--min-actions", type=int, help="Minimum number of actions required", default=None)
-    parser.add_argument("--strict-isin", action="store_true", help="Treat missing ISINs as errors instead of warnings",)
+    parser.add_argument(
+        "--strict-isin", action=argparse.BooleanOptionalAction, default=True,
+        help="Error on unknown ISINs (default: on). Use --no-strict-isin to warn instead.",
+    )
     args = parser.parse_args()
 
     # Resolve paths: CLI args > env vars > defaults
