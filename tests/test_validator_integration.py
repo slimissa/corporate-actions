@@ -127,6 +127,8 @@ def run_validator(
     ]
     if strict_isin:
         cmd.append("--strict-isin")
+    else:
+        cmd.append("--no-strict-isin")
     return subprocess.run(
         cmd,
         capture_output=True,
@@ -210,6 +212,7 @@ class TestRealRegistry:
                 "--exchange-calendar",
                 str(REPO_ROOT / "tests/fixtures/exchange_calendar.json"),
                 "--min-actions", "100",
+                "--no-strict-isin",
             ],
             capture_output=True,
             text=True,
@@ -400,7 +403,7 @@ class TestArithmeticViolations:
 
 class TestCrossReference:
 
-    def test_missing_isin_is_warning_by_default(self, project):
+    def test_missing_isin_is_warning_with_no_strict_flag(self, project):
         """Non-strict mode: unknown ISIN is a warning, not a failure."""
         action = valid_split_action()
         action["isin"] = "US9999999999"
@@ -411,15 +414,30 @@ class TestCrossReference:
         assert "Warnings" in result.stdout
         assert "US9999999999" in result.stdout
 
-    def test_missing_isin_is_error_with_strict(self, project):
+
+    def test_missing_isin_is_error_by_default(self, project):
+        """ADR 0002: strict-isin is the default. No flag → error, not warning."""
         action = valid_split_action()
         action["isin"] = "US9999999999"
         action["action_id"] = "US9999999999-SPLIT-2024-06-10-10-1"
         write_actions(project, [action])
-        result = run_validator(
-            project / "actions.json", project, strict_isin=True,
+        # Note: no strict_isin kwarg passed → run_validator passes --no-strict-isin
+        # by default. But this test uses the raw CLI to prove the actual default.
+        import subprocess as _sp
+        import sys as _sys
+        result = _sp.run(
+            [_sys.executable, str(TOOLS / "validate.py"),
+             "--actions", str(project / "actions.json"),
+             "--schema", str(SCHEMA),
+             "--identifiers", str(project / "identifiers.json"),
+             "--iso4217", str(project / "iso4217.json"),
+             "--exchange-calendar", str(project / "exchange_calendar.json"),
+             "--min-actions", "1"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT),
         )
-        assert result.returncode == 1
+        assert result.returncode == 1, (
+            f"expected error exit with strict default, got {result.returncode}:\n{result.stdout}"
+        )
         assert "US9999999999" in result.stdout
 
     def test_unknown_currency_is_rejected(self, project):
@@ -603,7 +621,7 @@ class TestExitCodes:
             isin = f"US00000010{i:02d}"  # US0000001000 .. US0000001019
             a = valid_split_action()
             a["isin"] = isin
-            a["action_id"] = f"{isin}-SPLIT-2024-06-10-{i}-1"
+            a["action_id"] = f"{isin}-SPLIT-2024-06-10-10-1"
             actions.append(a)
         write_actions(project, actions)
 
