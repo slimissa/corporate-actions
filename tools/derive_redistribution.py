@@ -90,6 +90,11 @@ def redistribution_for(source: Optional[str]) -> str:
     if source.startswith("Yahoo Finance"):
         return "secondary-source"
     s = source.lower()
+    # SEC filing documents (8-K, 10-K, S-4, Form 25-NSE, etc.) are
+    # public-domain. Match any source that names an SEC filing type.
+    if any(t in s for t in ("8-k", "10-k", "10-q", "s-4", "25-nse",
+                             "form 25", "form 8", "form 10")):
+        return "public-domain"
     if "press release" in s:
         return "facts-only"
     if "exchange" in s and "announcement" in s:

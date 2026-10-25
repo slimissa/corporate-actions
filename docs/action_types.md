@@ -731,15 +731,15 @@ shares of the acquirer, or both, depending on the deal terms.
 
 ### Status in v1.0.0
 
-**Not populated.** The schema reserves `MERGER` as a valid action type so
-that future entries validate without a schema change, but no `MERGER` entries
-exist in the current `actions.json`.
+**Populated.** The schema reserves `MERGER` as a valid action type, and the
+current `actions.json` contains one real entry (Monsanto/Bayer, 2018-06-07).
 
-**The validator rejects `MERGER` actions in v1.0.0.** Any `MERGER` entry
-will fail with `"MERGER is not allowed in v1.0.0"` from `validate.py`. This
-is deliberate: the extraction pipeline does not yet handle acquisition
-filings (SEC S-4 and merger-related 8-K filings), so any entry would be
-hand-curated and unverifiable at scale.
+**Accepted in v1.3.0.** The validator accepts `MERGER` entries. The `impact`
+block is a placeholder (`price_multiplier: 1.0`, `share_multiplier: 1.0`,
+`cash_adjustment: 0.0`) because the conversion model (cash + stock deals,
+exchange ratios) is v1.4.0 scope. Consumers reading a `MERGER` entry see
+*when* the merger happened and *where the source is*, but should not use
+the `impact` block for adjustment; wait for v1.4.0's `adjustment_factor`.
 
 ### Planned schema
 
@@ -861,6 +861,12 @@ MERGER:             announcement ≤ effective_date (placeholder)
   `SYMBOL_CHANGE`.
 - Four reserved types: `REVERSE_SPLIT`, `SPINOFF`, `DELISTING`, `MERGER`.
   `MERGER` is rejected by the validator in v1.0.0.
+
+### v1.3.0
+
+- All 8 action types populated.
+- `MERGER` accepted by the validator with a placeholder `impact` block.
+- `REVERSE_SPLIT`, `SPINOFF`, `DELISTING` populated with real SEC-sourced entries.
 
 ### v1.1.0 (planned)
 
