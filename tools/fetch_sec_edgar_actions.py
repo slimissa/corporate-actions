@@ -127,19 +127,28 @@ MUTABLE_URL_PREFIXES = (
 # the original review correspond to these.
 STRONG_SYMBOL_TRIGGERS = [
     re.compile(
-    r"(?i:will\s+(?:begin\s+trading|trade)\s+[^.]{0,80}?"
-    r"\bunder\s+(?:the\s+)?(?:new\s+)?(?:ticker\s+)?symbol\s*['\"]?)"
-    r"([A-Z]{1,6})(?![A-Za-z0-9])"
+        r"(?i:will\s+(?:begin\s+trading|trade)\s+[^.]{0,80}?"
+        r"\bunder\s+(?:the\s+)?(?:new\s+)?(?:ticker\s+)?symbol\s*['\"]?)"
+        r"([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
     re.compile(
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
         r"(?:to|from\s+\S+\s+to)\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
+    # Added Week 2 Day 1 for pos_05, pos_06, pos_11, pos_12
+    re.compile(
+        r"(?i:begin\s+trading.*?under\s+the\s+ticker\s+symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:under\s+a\s+new\s+symbol\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:ticker\s+symbol\s+will\s+also\s+change\s+from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    re.compile(
+        r"(?i:intends\s+to\s+change\s+its\s+ticker\s+symbol.*?from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
 ]
-
-# Weak patterns: the prose is short enough that a common English word in
-# all-caps could be a false positive. Anything matched here is checked
-# against COMMON_ENGLISH_WORDS before being accepted.
 WEAK_SYMBOL_TRIGGERS = [
     re.compile(
         r"(?i:(?:new\s+)?(?:ticker\s+)?symbol\s+(?:will\s+be|is)\s+)"
