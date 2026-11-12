@@ -126,6 +126,31 @@ MUTABLE_URL_PREFIXES = (
 # here is trusted without consulting the blocklist. Patterns 1 and 2 in
 # the original review correspond to these.
 STRONG_SYMBOL_TRIGGERS = [
+    # Added Day 4 for pos_22 (Enviri) to override generic "ticker symbol X"
+    # Matches strictly "begin trading under the ticker symbol X"
+    re.compile(
+        r"(?i:begin\s+trading\s+under\s+(?:the\s+)?(?:new\s+)?(?:ticker\s+)?symbol\s*['\"]?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+
+    # Added Day 4 for pos_21, pos_22: "cease trading under X and ... begin trading under Y"
+    # [A-Z]+ stops at the quote, preventing "FLT"and from being consumed as one token.
+    re.compile(
+        r"(?i:cease\s+trading\s+under\s+(?:the\s+)?(?:ticker\s+)?symbol\s*['\"]?[A-Z]{1,6}['\"]?\s*and\s+(?:will\s+)?begin\s+trading\s+under\s+(?:its\s+)?(?:new\s+)?(?:ticker\s+)?symbol,?\s*)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added Day 4 for pos_24: "trading under the new ticker symbol X" (bare, handles entities)
+    re.compile(
+        r"(?i:trading\s+under\s+the\s+new\s+ticker\s+symbol\s+(?:&ldquo;|['\"])?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added Day 4 for pos_25: "The new ticker symbol for its common stock will be X"
+    re.compile(
+        r"(?i:new\s+ticker\s+symbol\s+for\s+its\s+common\s+stock\s+will\s+be\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added Day 4 for pos_26: "ticker symbol for the company's common stock will change to X"
+    re.compile(
+        r"(?i:ticker\s+symbol\s+for\s+the\s+company'?s?\s+common\s+stock\s+will\s+change\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+
+
     # pos_08 / pos_14: "change its ticker symbol from X to Y"
     re.compile(
         r"(?i:(?:change|changes|changing)\s+its\s+(?:ticker\s+)?symbol\s+"
