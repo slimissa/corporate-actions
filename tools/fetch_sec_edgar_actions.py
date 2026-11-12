@@ -161,6 +161,16 @@ STRONG_SYMBOL_TRIGGERS = [
     re.compile(
         r"(?i:(?:the\s+)?change\s+in\s+its\s+(?:ticker\s+)?symbol\s+from\s+['\"]?\S+['\"]?\s+to\s+)['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
     ),
+    # Added Day 4 for pos_16 (NTUS): "ticker symbol change to X from Y"
+    re.compile(
+        r"(?i:(?:ticker\s+symbol\s+change|change\s+its\s+(?:ticker\s+)?symbol)\s+to\s+)"
+        r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added Day 4 for pos_20 (VTAK): "changing its ticker symbol on the [exchange] to X"
+    re.compile(
+        r"(?i:chang(?:e|es|ing)\s+its\s+(?:ticker\s+)?symbol\s+on\s+the\s+[A-Za-z\s]+?\s+to\s+)"
+        r"['\"]?([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
 ]
 
 WEAK_SYMBOL_TRIGGERS = [

@@ -82,6 +82,51 @@
       "fetched_at": "2026-10-25",
       "symbol": "MLKN",
       "sha256": "60b6323248264fbce3a727d068c33c33a08a0e8f034c91df7f93d7b1b32930ac"
+    },
+    {
+      "file": "pos_16_natus_8k.html",
+      "cik": "0000878526",
+      "accession": "0000878526-19-000111",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/878526/000087852619000111/a2019-07x258xktickersymbol.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "NTUS",
+      "sha256": "a15f29adc7cf9118458a7233e67993ed802d4e7bdde0a51c45e6584c2d5c64e7"
+    },
+    {
+      "file": "pos_18_blucora_8k.html",
+      "cik": "0001068875",
+      "accession": "0001068875-23-000040",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1068875/000106887523000040/bcor-20230125.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "AVTA",
+      "sha256": "6845d9106f6fd35647e107581177a69bcd3c4f4b0ae444316c698e38521ffb48"
+    },
+    {
+      "file": "pos_19_catasys_8k.html",
+      "cik": "0001136174",
+      "accession": "0001628280-20-010214",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1136174/000162828020010214/cats-20200706.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "OTRK",
+      "sha256": "c84d5d6213706d44e515e7d189f4a3fe314ff950d5b631bf0c550728afd72282"
+    },
+    {
+      "file": "pos_20_ramed_8k.html",
+      "cik": "0001716621",
+      "accession": "0001654954-23-010169",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1716621/000165495423010169/R1.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "VTAK",
+      "sha256": "1934044d59039c1d5b3e78d39e186a0a8d8cef315d381ee6300b4efb63ac2e08"
+    },
+    {
+      "file": "pos_17_beachbody_8k.html",
+      "cik": "0001826889",
+      "accession": "0000950170-24-019377",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1826889/000095017024019377/body-20240223.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "BODI",
+      "sha256": "30ef2595cfc85280c0532b5b8cffeb433d06cdc8fa00d4c7b2810d6a2e1f624a"
     }
   ],
   "negative": [
@@ -165,6 +210,11 @@
       "fetched_at": "2026-10-25",
       "reason": "quarterly earnings release, mentions common stock but no ticker change",
       "sha256": "9e3dab75f0b7ac5878f25da60ea8f78a88b300dc7a9828cea8568642e4fd5fae"
+    },
+    {
+      "file": "pos_17_terrascend_8k.html",
+      "reason": "cross-listing ticker change (OTCQX TRSSF\u2192TSNDF, TSX TSND), not a primary-exchange common-stock ticker change",
+      "sha256": "beecd6a06b4573d0aa468af79e034fadca814b37dcb9d500c1df1848977a6112"
     }
   ],
   "pending": [
