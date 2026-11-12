@@ -59,13 +59,20 @@ def main() -> int:
         i["name"] for i in items
         if i["name"].lower().endswith((".htm", ".html"))
     ]
-    for name in candidates:
-        low = name.lower()
-        if "index" not in low and not low.startswith("ex"):
-            doc = name
-            break
+    # Prefer main 8-K documents (contain "8k" in the filename).
+    # XBRL inline viewers like R1.htm are auto-generated and lack prose.
+    main_docs = [c for c in candidates if "8k" in c.lower()]
+    if main_docs:
+        doc = main_docs[0]
     else:
-        doc = candidates[0] if candidates else None
+        # Fallback: first non-index, non-exhibit HTM
+        for name in candidates:
+            low = name.lower()
+            if "index" not in low and not low.startswith("ex") and not low.startswith("r1"):
+                doc = name
+                break
+        else:
+            doc = candidates[0] if candidates else None
 
     if not doc:
         print("no HTML document in index", file=sys.stderr)
