@@ -127,6 +127,51 @@
       "fetched_at": "2026-11-12",
       "symbol": "BODI",
       "sha256": "30ef2595cfc85280c0532b5b8cffeb433d06cdc8fa00d4c7b2810d6a2e1f624a"
+    },
+    {
+      "file": "pos_21_corpay_8k.html",
+      "cik": "0001175454",
+      "accession": "0001628280-24-010593",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1175454/000162828024010593/flt-20240307.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "CPAY",
+      "sha256": "9f4d00c6083091f7fe9193a13cb4c58efd1493dc5d1eac05fdae62b5353a3c38"
+    },
+    {
+      "file": "pos_22_enviri_8k.html",
+      "cik": "0000045876",
+      "accession": "0000045876-23-000029",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/45876/000004587623000029/hsc-20230605.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "NVRI",
+      "sha256": "dd8d125db8ed7d4df9a891ed7dd78ddd49f41630b2bc90303c4182699e21b6ff"
+    },
+    {
+      "file": "pos_24_palisade_8k.html",
+      "cik": "0001357459",
+      "accession": "0001171843-19-006925",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1357459/000117184319006925/f8k_102919.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "SNCA",
+      "sha256": "aee9427087e16719041ff43386a2ad7a356571fa75cd9c32a3eccc3f42a5c28f"
+    },
+    {
+      "file": "pos_25_essential_8k.html",
+      "cik": "0000078128",
+      "accession": "0001552781-20-000087",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/78128/000155278120000087/e20039_wtr-8k.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "WTRG",
+      "sha256": "c0fce2a6379ab6eec0ed656c61a6244c3e5afe8488e708ea758657cb83af83e7"
+    },
+    {
+      "file": "pos_26_mandiant_8k.html",
+      "cik": "0001370880",
+      "accession": "0001370880-21-000035",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1370880/000137088021000035/a8-kfor9x22x2021xex991.htm",
+      "fetched_at": "2026-11-12",
+      "symbol": "MNDT",
+      "sha256": "669aa32548e003ae32b5d7599c7137701665dd8425aaba3da592545f8ed7aa2a"
     }
   ],
   "negative": [
