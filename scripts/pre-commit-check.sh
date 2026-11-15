@@ -51,6 +51,15 @@ python3 tools/check_mojibake.py || exit 1
 echo "=== pre-commit: ruff ==="
 python3 -m ruff check tests/ tools/ examples/ scripts/ || exit 1
 
+echo "=== pre-commit: check_version_consistency ==="
+python3 tools/check_version_consistency.py || exit 1
+
+echo "=== pre-commit: check_snapshot_freshness ==="
+python3 tools/check_snapshot_freshness.py || exit 1
+
+echo "=== pre-commit: check_release_claims (current version) ==="
+python3 tools/check_release_claims.py "$(cat VERSION)" || exit 1
+
 echo "=== pre-commit: pytest (root suite, no network) ==="
 # pytest success summary is "N passed, M skipped, K deselected"
 # — it does NOT contain "0 failed". Detect failures by looking for

@@ -197,3 +197,46 @@ jobs:
             --exchange-calendar tests/fixtures/exchange_calendar.json \
             --min-actions 100 \
             --no-strict-isin
+  check-cross-registry:
+    name: Live cross-registry checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check ISO 4217
+        run: python3 tools/check_iso4217_current.py --strict
+      - name: Check Exchange Calendar
+        run: python3 tools/check_exchange_calendar_current.py --strict
+
+  check-release-claims:
+    name: Check release claims
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Check claims for current version
+        run: |
+          VERSION=$(cat VERSION)
+          python3 tools/check_release_claims.py "$VERSION"
+
+  check-version-consistency:
+    name: Check version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python3 tools/check_version_consistency.py
+
+  check-snapshot-freshness:
+    name: Check snapshot freshness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python3 tools/check_snapshot_freshness.py
