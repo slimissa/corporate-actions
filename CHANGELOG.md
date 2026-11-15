@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0] - 2026-11-15
+### Added
+- Populated all 8 action types (REVERSE_SPLIT, SPINOFF, DELISTING, MERGER).
+- 4 new SEC-sourced entries: GE (reverse split), GE (spinoff), Twitter (delisting), Monsanto (merger).
+- Live cross-registry checks (`check_iso4217_current.py`, `check_exchange_calendar_current.py`).
+- Release claims manifest and check (`release_claims.json`).
+- Snapshot freshness check (`check_snapshot_freshness.py`).
+- Corpus expanded to 20 positives (Natus, Beachbody, Blucora, Catasys, Ra Medical, Corpay, Enviri, Palisade, Essential, Mandiant).
+### Fixed
+- `fetch_by_accession.py` now correctly selects the main 8-K document instead of the XBRL `R1.htm` viewer.
+- `check_sibling_versions.py` now handles the nested `sibling_versions.json` format.
+
 All notable changes to the Corporate Actions Registry are documented in
 this file.
 
