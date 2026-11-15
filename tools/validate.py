@@ -79,8 +79,8 @@ DEFAULT_SCHEMA_PATH = "schema.json"
 # CWD (CI runners, pre-commit hooks, editor integrations).
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_IDENTIFIERS_PATH = str(_REPO_ROOT.parent / "asset-identifiers" / "identifiers.json")
-DEFAULT_ISO4217_PATH = str(_REPO_ROOT.parent / "iso4217" / "iso4217.json")
-DEFAULT_EXCHANGE_CALENDAR_PATH = str(_REPO_ROOT.parent / "exchange-calendar" / "calendar.json")
+DEFAULT_ISO4217_PATH = str(_REPO_ROOT / "tools" / "iso4217_snapshot.json")
+DEFAULT_EXCHANGE_CALENDAR_PATH = str(_REPO_ROOT / "tools" / "exchange_calendar_snapshot.json")
 
 # Environment variable overrides
 ENV_ACTIONS = "CORP_ACTIONS_ACTIONS_PATH"
