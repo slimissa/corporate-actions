@@ -75,12 +75,15 @@ def main() -> int:
             print(f"Warning: {key} not in {PIN.name}", file=sys.stderr)
             continue
         m = pattern.search(text)
+        pinned_val = pinned[key]
+        if isinstance(pinned_val, dict):
+            pinned_val = pinned_val.get("source_version", "unknown")
         if not m:
-            drift.append((key, pinned[key], "(not found in README)"))
+            drift.append((key, pinned_val, "(not found in README)"))
             continue
         readme_version = m.group(1)
-        if _normalize(readme_version) != _normalize(pinned[key]):
-            drift.append((key, pinned[key], readme_version))
+        if _normalize(readme_version) != _normalize(pinned_val):
+            drift.append((key, pinned_val, readme_version))
 
     if drift:
         print("Ecosystem version drift:", file=sys.stderr)
