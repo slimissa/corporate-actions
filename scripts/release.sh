@@ -74,7 +74,7 @@ p.write_text(re.sub(r'^version\s*=\s*"[^"]+"', f'version = "{v}"', p.read_text()
 
 # README.md badge
 p = Path("README.md")
-p.write_text(re.sub(r'badge/registry-[0-9]+\.[0-9]+\.[0-9]+-', f'badge/registry-{v}-', p.read_text()))
+p.write_text(re.sub(r'badge/registry-v?[0-9]+\.[0-9]+\.[0-9]+-', f'badge/registry-{v}-', p.read_text()))
 PY
 
 # CHANGELOG.md must already have the [1.3.0] section
