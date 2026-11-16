@@ -228,6 +228,6 @@ class TestJavaScript:
             "JS test output does not mention redistribution tests; "
             f"they may have been removed:\n{result.stdout}"
         )
-        assert "# fail 0" in result.stdout, (
+        assert ("# fail 0" in result.stdout) or ("ℹ fail 0" in result.stdout), (
             f"JS test output reports failures:\n{result.stdout}"
         )
