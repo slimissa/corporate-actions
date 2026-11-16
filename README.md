@@ -3,7 +3,7 @@
 [![Validate](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/validate.yml)
 [![Check Sources](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml/badge.svg)](https://github.com/slimissa/corporate-actions/actions/workflows/check-sources.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
-[![Registry](https://img.shields.io/badge/registry-1.3.0-orange.svg)](./CHANGELOG.md)
+[![Registry](https://img.shields.io/badge/registry-1.3.1-orange.svg)](./CHANGELOG.md)
 [![Actions](https://img.shields.io/badge/actions-2062-green.svg)](./actions.json)
 [![Languages](https://img.shields.io/badge/wrappers-4-purple.svg)](./wrappers/)
 [![Tests](https://img.shields.io/badge/tests-1152-success.svg)](./tests/)
