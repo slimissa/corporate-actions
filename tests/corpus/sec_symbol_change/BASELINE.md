@@ -1,12 +1,12 @@
 # Corpus Baseline
 
 Recorded: 2026-09-30
-Corpus: 20 positives, 14 negatives
+Corpus: 32 positives, 17 negatives
 
 ## Extractor result
 
-True positives:  20/20
-False positives: 0/14
+True positives:  32/32
+False positives: 0/17
 
 ## Positives
 

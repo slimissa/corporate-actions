@@ -126,6 +126,40 @@ MUTABLE_URL_PREFIXES = (
 # here is trusted without consulting the blocklist. Patterns 1 and 2 in
 # the original review correspond to these.
 STRONG_SYMBOL_TRIGGERS = [
+    # v1.3.1 for pos_26_corvus (KOR): "commenced trading ... under the ticker symbol KOR."
+    re.compile(
+        r"(?i:commenced\s+trading\s+.*?under\s+the\s+ticker\s+symbol\s+['\"]?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # v1.3.1 for pos_27_helios (HLIO): "ceased trading under the tickersymbol &ldquo;SNHY&rdquo; and began trading under its new ticker symbol, &ldquo;HLIO&rdquo;"
+    re.compile(
+        r"(?i:ceased\s+trading\s+under\s+the\s+ticker\s+symbol\s+(?:&ldquo;|&#8220;|['\"]).*?began\s+trading\s+under\s+its\s+new\s+ticker\s+symbol,\s*(?:&ldquo;|&#8220;|['\"]))([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # v1.3.1 for pos_29_vislink (VISL): "ticker symbol of the Company's common stock on The Nasdaq Capital Market will be &ldquo;VISL&rdquo;"
+    re.compile(
+        r"(?i:ticker\s+symbol\s+of\s+the\s+company(?:&rsquo;|')?s?\s+common\s+stock\s+on\s+.*?will\s+be\s+(?:&ldquo;|&#8220;|['\"]))([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # v1.3.1 for pos_31_mbg (MBGH): "ticker symbol from AMRR to MBGH"
+    re.compile(
+        r"(?i:ticker\s+symbol\s+from\s+['\"]?\S+['\"]?\s+to\s+['\"]?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+
+    # Added v1.3.1 for pos_24 (BANM): "transition to the permanent ticker symbol &ldquo;X"
+    re.compile(
+        r"(?i:transition\s+to\s+the\s+permanent\s+ticker\s+symbol\s+(?:&ldquo;|&#8220;|['\"])?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added v1.3.1 for pos_23_nextier (NEX): "began trading ... under the ticker symbol &#8220;X"
+    re.compile(
+        r"(?i:began\s+trading\s+.*?under\s+the\s+ticker\s+symbol\s+(?:&ldquo;|&#8220;|['\"])?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added v1.3.1 for pos_22 (NRDE): "ticker symbol has changed from X to Y"
+    re.compile(
+        r"(?i:ticker\s+symbol\s+has\s+changed\s+from\s+.*?to\s+(?:&ldquo;|&#8220;|['\"])?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+    # Added v1.3.1 for pos_23_ohr (NBSE): "commence trading ... under the ticker symbol &ldquo;X"
+    re.compile(
+        r"(?i:commence\s+trading\s+.*?under\s+the\s+ticker\s+symbol\s+(?:&ldquo;|&#8220;|['\"])?)([A-Z]{1,6})(?![A-Za-z0-9])"
+    ),
+
     # Added Day 4 for pos_22 (Enviri) to override generic "ticker symbol X"
     # Matches strictly "begin trading under the ticker symbol X"
     re.compile(
@@ -433,6 +467,11 @@ def extract_new_symbol(text: str) -> Optional[str]:
             if symbol in COMMON_ENGLISH_WORDS:
                 continue
             if not has_filing_context(text, m.start()):
+                continue
+            # Reject matches that appear in the cover page (e.g., "Common Stock ... SWAG")
+            context_start = max(0, m.start() - 100)
+            context_before = text[context_start:m.start()].lower()
+            if any(phrase in context_before for phrase in ["common stock", "exact name of registrant", "warrants", "units"]):
                 continue
             return symbol
 

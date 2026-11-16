@@ -172,6 +172,116 @@
       "fetched_at": "2026-11-12",
       "symbol": "MNDT",
       "sha256": "669aa32548e003ae32b5d7599c7137701665dd8425aaba3da592545f8ed7aa2a"
+    },
+    {
+      "file": "pos_24_whiteriver_8k.html",
+      "cik": "0001589361",
+      "accession": "0001493152-19-018048",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1589361/000149315219018048/form8-k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "BANM",
+      "sha256": "28fbb79e526c0490193ff2a7cbc504374f108f8ff4f1726dca21afe2e5e005c5"
+    },
+    {
+      "file": "pos_23_nextier_8k.html",
+      "cik": "0001688476",
+      "accession": "0001193125-19-280618",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1688476/000119312519280618/d819378d8k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "NEX",
+      "sha256": "b88551424fdcf263c4f42903a29bd898f37beefcf6fc9d757ba209768cfd2a39"
+    },
+    {
+      "file": "pos_21_vinco_8k.html",
+      "cik": "0001717556",
+      "accession": "0001493152-22-017920",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1717556/000149315222017920/form8-k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "TYDE",
+      "sha256": "86eae1801640e9bfc96e9e774be9ee622c55e30763c039e819532c195b92946f"
+    },
+    {
+      "file": "pos_22_nuride_8k.html",
+      "cik": "0001759546",
+      "accession": "0001104659-24-034627",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1759546/000110465924034627/tm248893d1_8k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "NRDE",
+      "sha256": "590aaab4c2ad335068fd90d5140ea8c03bc09f61acb52d3c40be3cb8641dd5ec"
+    },
+    {
+      "file": "pos_23_ohr_8k.html",
+      "cik": "0001173281",
+      "accession": "0001387131-19-005021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1173281/000138713119005021/ohrp-8k_071219.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "NBSE",
+      "sha256": "7e92c9bcab67927a7e444c6ee27e52d6a20458ee523ac7bbebf6a015c1136dc6"
+    },
+    {
+      "file": "pos_26_corvus_8k.html",
+      "cik": "0001507964",
+      "accession": "0001171843-20-005851",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1507964/000117184320005851/f8k_081220.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "KOR",
+      "sha256": "587644767f58a85972f4d4414f1f338cb32b51a7ccf0dc181378a13091a32ae6"
+    },
+    {
+      "file": "pos_27_helios_8k.html",
+      "cik": "0001024795",
+      "accession": "0001564590-19-022721",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1024795/000156459019022721/hlio-8k_20190613.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "HLIO",
+      "sha256": "588f21b7f7c1f6dcdeea8d84166b963378b8df7a9679879f933cc0c3e6481fb1"
+    },
+    {
+      "file": "pos_29_vislink_8k.html",
+      "cik": "0001565228",
+      "accession": "0001493152-19-002857",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1565228/000149315219002857/form8-k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "VISL",
+      "sha256": "b5d1b0524dd749e7422ab9fd9f1f054d73c5c14e396660af9fbb4706eab2a8cd"
+    },
+    {
+      "file": "pos_31_mbg_8k.html",
+      "cik": "0001488638",
+      "accession": "0001214659-23-002873",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1488638/000121465923002873/g2212308k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "MBGH",
+      "sha256": "2aee723828b9f1c2bd8b34d74c037b9b8c5ef98e9dc75e0b3c3f48eddee70da3"
+    },
+    {
+      "file": "pos_32_ball_8k.html",
+      "cik": "0000009389",
+      "accession": "0000009389-21-000078",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/9389/000000938921000078/bll-20210401x8k.htm",
+      "fetched_at": "2026-11-16",
+      "symbol": "BALL",
+      "sha256": "fdbf6e5de0806eba599a023d3eb35bf8e7dee0b80207266e0ec13dde5ac8b1b1"
+    },
+    {
+      "file": "neg_36_stran_8k.html",
+      "cik": "0001872525",
+      "accession": "0001213900-22-080573",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1872525/000121390022080573/ea170258-8k_stran.htm",
+      "fetched_at": "2026-11-16",
+      "reason": "warrant ticker symbol change, not common stock",
+      "symbol": "SWAG",
+      "sha256": "790ee529847d2ce541dd090c94831d4a72540532b884bbc53d66cf40d40d5217"
+    },
+    {
+      "file": "neg_37_elutia_8k.html",
+      "cik": "0001708527",
+      "accession": "0001104659-23-098809",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1708527/000110465923098809/tm2325574d1_8k.htm",
+      "fetched_at": "2026-11-16",
+      "reason": "name change with no ticker change",
+      "symbol": "ELUT",
+      "sha256": "acb585c99fbb0ff421137e81696ad8f71b4c8eb457d58ad4e246c3f33c388f21"
     }
   ],
   "negative": [
@@ -258,8 +368,35 @@
     },
     {
       "file": "pos_17_terrascend_8k.html",
-      "reason": "cross-listing ticker change (OTCQX TRSSF\u2192TSNDF, TSX TSND), not a primary-exchange common-stock ticker change",
+      "reason": "cross-listing OTC ticker change, not primary-exchange",
       "sha256": "beecd6a06b4573d0aa468af79e034fadca814b37dcb9d500c1df1848977a6112"
+    },
+    {
+      "file": "neg_32_healthpeak_8k.html",
+      "cik": "0000765880",
+      "accession": "0001628280-19-012829",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/765880/000162828019012829/a8ker9302019.htm",
+      "fetched_at": "2026-11-16",
+      "reason": "<FILL IN>",
+      "sha256": "079221e5931950ea4106a87c884d381003113ef6418a18390fa4bf097fca3bfd"
+    },
+    {
+      "file": "neg_33_braemar_8k.html",
+      "cik": "0001574085",
+      "accession": "0001574085-24-000006",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408524000006/bhr-20240125.htm",
+      "fetched_at": "2026-11-16",
+      "reason": "<FILL IN>",
+      "sha256": "4ae30934fe13bda9d645f5b5f7969ff720c573bd91e8f3dedd5734f468108233"
+    },
+    {
+      "file": "neg_38_biomx_8k.html",
+      "cik": "0001739174",
+      "accession": "0001213900-23-047490",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1739174/000121390023047490/ea180001-8k_biomxinc.htm",
+      "fetched_at": "2026-11-16",
+      "reason": "cover page mentions ticker symbol of units, no change",
+      "sha256": "6ba2397ddea813a74015da2f9ee4e43ccd59888de3802ef1408f95d15a8845c4"
     }
   ],
   "pending": [
