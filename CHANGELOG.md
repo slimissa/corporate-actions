@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1] - 2026-11-16
+### Added
+- Corpus expanded to 32 positives (from 20) and 17 negatives.
+- 8 new extractor patterns for edge cases: HTML entities (`&ldquo;`, `&#8220;`), missing spaces, and specific phrasing like "commenced trading under the ticker symbol" and "ticker symbol has changed from X to Y".
+- Added trap negatives to ensure the extractor ignores warrant changes, cross-listings, and cover-page mentions.
+### Fixed
+- `extract_new_symbol` now rejects matches that appear in the cover page context (e.g., near "Common Stock" or "Warrants").
+- `_strip_html` logic in tests now correctly preserves space between HTML tags.
+
 ## [1.3.0] - 2026-11-15
 ### Added
 - Populated all 8 action types (REVERSE_SPLIT, SPINOFF, DELISTING, MERGER).
